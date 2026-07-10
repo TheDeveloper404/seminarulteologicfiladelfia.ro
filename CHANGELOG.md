@@ -4,6 +4,235 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-10 (27)
+
+- Investigat efectul de tranziție de pe filadelfia-petrosani.ro (bundle-ul JS analizat):
+  site-ul lor NU are nicio animație între pagini — e un SPA (Vite + React Router) cu swap
+  instant de conținut și `scrollTo instant`; senzația de „lin” vine doar din lipsa
+  reload-ului complet. Verificat că site-ul nostru folosește peste tot `next/link` (niciun
+  `<a>` intern cu reload). Reintrodus apoi `<ViewTransition>` (crossfade nativ) la cererea
+  userului și eliminat din nou definitiv la respingerea lui — starea finală: FĂRĂ efect de
+  tranziție (`next.config.ts` și `layout.tsx` curate). NU reîncerca acest subiect fără
+  exemplu concret de la user.
+
+## 2026-07-10 (26)
+
+- Eliminat complet efectul de tranziție la navigare — userul nu l-a vrut deloc, nu doar
+  ajustat. Scos `experimental.viewTransition` din `next.config.ts`, `<ViewTransition>` din
+  `layout.tsx`. Comportament revenit la navigare instant, fără animație.
+
+## 2026-07-10 (25)
+
+- Efect de tranziție simplificat la maximum, la cererea userului (site teologic → ton sobru,
+  fără animație elaborată; trebuie să meargă bine și pe mobil). Eliminat tot CSS-ul custom
+  (`.fade-page`, keyframes, `prefers-reduced-motion` override) — `<ViewTransition>` folosit
+  fără props, doar crossfade-ul implicit al browserului (View Transitions API nativ), zero
+  cod de animație de întreținut.
+
+## 2026-07-10 (24)
+
+- Efect de tranziție la navigare, ajustat din nou la cererea userului — vrea „un fade ușor,
+  aproape insesizabil”, nu un crossfade vizibil. Redus de la 220ms/opacity 0→1 la 120ms și
+  opacitate doar între 1 și 0.85 (nu ajunge la 0) — abia perceptibil, doar ca să înmoaie
+  tăietura bruscă dintre pagini.
+
+## 2026-07-10 (23)
+
+- Efect de tranziție la navigarea între pagini: activat `experimental.viewTransition: true`
+  în `next.config.ts` (Next.js 16 + React `<ViewTransition>` — vezi
+  `node_modules/next/dist/docs/01-app/02-guides/view-transitions.md`). `layout.tsx` încadrează
+  `{children}` în `<ViewTransition default="fade-page">`. CSS în `globals.css`
+  (`::view-transition-old/new(.fade-page)`) — crossfade simplu, doar opacitate, 220ms
+  simetric (prima variantă avea și un `translateY`, eliminat la cererea userului). Respectă
+  `prefers-reduced-motion`.
+
+## 2026-07-10 (22)
+
+- Redesign secțiunea de mijloc de pe Acasă (Cine Suntem/Misiune/Istoric) — era carduri plate,
+  fără context, plutind pe fundal alb. Acum: fundal `bg-muted/40` diferențiat de restul
+  paginii, titlu de secțiune deasupra cardurilor („Despre Seminar” + „Descoperă cine
+  suntem”), și câte o iconiță (`Users`/`Compass`/`History`, lucide-react) pe fiecare card —
+  cerc `bg-secondary/15`, consistent cu stilul deja folosit pe pagina Contact. `ContentSection`
+  primește acum prop opțional `icon?: LucideIcon`.
+
+## 2026-07-10 (21)
+
+- Revert tranzițiile fade Hero/Footer din (20) — nu arătau bine. Hero revenit fără stratul
+  suplimentar de fade la bază; Footer revenit la `border-t border-border` (linia dreaptă de
+  sus), fără gradientul de fade.
+
+## 2026-07-10 (20)
+
+- Tranziții line între Hero/Footer și secțiunea albă din mijloc, înlocuite cu fade. Hero:
+  strat suplimentar `bg-gradient-to-b from-transparent to-background` pe ultimii `h-24`/`h-32`
+  (marginea de jos se stinge spre culoarea paginii, nu se termină brusc în albastru solid).
+  Footer: eliminat `border-t border-border` (linia dură de sus), înlocuit cu
+  `bg-gradient-to-b from-background to-transparent` pe primii `h-24`/`h-32` — marginea de sus
+  pornește din culoarea paginii și se stinge spre `bg-primary`.
+
+## 2026-07-10 (19)
+
+- Hero: imaginea de fundal (`1.png`) mărită la `opacity-70` (de la `opacity-40`) și
+  gradienturile de fade slăbite (`from-primary/70` → `from-primary/40`, `to-primary/40` →
+  `to-primary/25`) — era prea ștearsă, acum poza e mai vizibilă.
+
+## 2026-07-10 (18)
+
+- Hero: `public/images/1.png` (poză mâini + Biblie deschisă, fundal blur albastru/teal —
+  paletă foarte apropiată de `bg-primary`) integrată ca fundal full-bleed în spatele
+  textului, cu `opacity-40` și două gradienturi de fade (`from-primary/70 via-primary/85
+  to-primary` pe verticală, plus un al doilea gradient pentru margini) ca poza să se topească
+  în `bg-primary` fără muchii vizibile și textul să rămână lizibil. Blob-urile animate rămân
+  deasupra, ca strat suplimentar de textură.
+
+## 2026-07-10 (17)
+
+- Eliminate paginile index `/studenti` și `/admitere` (fișiere `page.tsx` șterse,
+  `studentiIntro`/`admitereIntro` scoase din `lib/content/*.ts`), la fel ca la Absolvenți —
+  itemii din `site-config.ts` marcați `linkable: false`, dropdown-ul rămâne neschimbat spre
+  subpagini.
+- `main-nav.tsx` rescris de la zero pe componenta `NavigationMenu` (Base UI, deja instalată
+  în `ui/navigation-menu.tsx`) în loc de dropdown-uri CSS independente pe fiecare item
+  (`group-hover`). Rezolvă bug-ul raportat: mutarea mouse-ului de la un dropdown deschis spre
+  itemul vecin lăsa primul deschis și cele două panouri absolut poziționate se suprapuneau —
+  cauza era că fiecare dropdown avea propriul panou independent, suficient de lat încât să
+  acopere vizual triggerul vecin și să-i blocheze hover-ul. `NavigationMenu` folosește un
+  singur viewport/panou partajat la nivel de meniu (poziționat și animat de Base UI), deci nu
+  mai pot exista două panouri deschise simultan. Toate itemele cu copii (inclusiv Despre Noi)
+  sunt acum triggere pure (buton, fără navigare directă la click) — consistent cu
+  Studenți/Admitere/Absolvenți; paginile index ale grupurilor rămân accesibile prin primul
+  copil din dropdown (ex. „Cine Suntem” → `/despre-noi`).
+
+## 2026-07-10 (16)
+
+- Cardurile de pe Acasă (`content-section.tsx`, Cine Suntem/Misiune/Istoric): întregul card e
+  acum un `Link` clickabil (nu doar linkul „Citește mai mult” de jos), cu animație pe hover —
+  ridicare ușoară (`hover:-translate-y-1`), umbră mai pronunțată, contur `border-primary/30`,
+  și săgeata care alunecă spre dreapta (`group-hover:translate-x-1`).
+
+## 2026-07-10 (15)
+
+- Footer: forțat pe un singur rând la ≥lg (`flex-wrap` → `lg:flex-nowrap`, `whitespace-nowrap`
+  pe fiecare segment), container lărgit la `max-w-7xl`, text mărit (`text-sm` → `text-base`,
+  numele Seminarului `text-lg`), iconițele telefon/mail mărite (`size-9` → `size-10`).
+
+## 2026-07-10 (14)
+
+- Footer rescris complet conform layout-ului cerut: un singur rând (wrap pe mobil) —
+  „Seminarul Teologic Filadelfia | Școală teologică evanghelică protestantă conservatoare
+  | Parte din Biserica Filadelfia Petroșani | Contact” urmat de două iconițe (telefon, mail).
+  Descrierea nu mai repetă „Petroșani” (apare deja în „Parte din...”). Iconițele au tooltip
+  retractabil pe hover (`group`/`group-hover:opacity-100`) — telefon arată ambele numere,
+  mail arată adresa; fără click, doar hover (`pointer-events-none` până la hover). Logo scos
+  din footer (nu era în specificația nouă). Container `max-w-5xl`.
+
+## 2026-07-10 (13)
+
+- Revert footer la varianta anterioară „rândului unic” (blocuri stivuite, spread stânga/dreapta,
+  `max-w-4xl`, texte `text-sm`) — versiunea cu tot pe un singur rând nu a fost pe plac.
+- Hero: titlul revenit la culoarea implicită (`text-primary-foreground`), fără `text-secondary`
+  (auriu).
+
+## 2026-07-10 (12)
+
+- Footer: logo+nume, descriere și „Parte din...” puse pe un singur rând (separator „|”) la
+  ≥lg, în loc de bloc vertical stivuit; Contact rămâne pe partea opusă, aliniat dreapta la
+  ≥lg. Container lărgit la `max-w-6xl` (de la `max-w-4xl`) ca să încapă rândul unic. Texte
+  mărite (`text-sm` → `text-base`, numele Seminarului `text-lg`, logo `h-9` → `h-10`).
+
+## 2026-07-10 (11)
+
+- Footer: eliminată coloana „Navigare rapidă”. Text descriptiv de sub numele Seminarului
+  rescris, mai scurt („Școală teologică evanghelică protestantă conservatoare din Petroșani.”).
+  Container îngustat (`max-w-[90rem]` → `max-w-4xl`), layout schimbat din `grid-cols-3`
+  centrat în `flex justify-between` — cele două blocuri (identitate / Contact) se întind spre
+  marginile footer-ului în loc să fie grupate central, coloana Contact aliniată la dreapta pe
+  ecrane ≥sm. `siteConfig.description` și `shortName` eliminate din `site-config.ts`
+  (rămăseseră neutilizate).
+
+## 2026-07-10 (10)
+
+- Hero: inspirat (nu identic) din layout-ul de pe filadelfia-petrosani.ro (verificat cu
+  Playwright) — text centrat (`max-w-3xl mx-auto text-center`), titlu în `text-secondary`
+  (auriu) în loc de `primary-foreground`, al doilea buton CTA (`variant="outline"`, prop nou
+  `secondaryCtaLabel`/`secondaryCtaHref` pe `Hero`). Homepage: CTA secundar „Contact” adăugat
+  lângă „Admitere”. Fundalul rămâne gradientul animat CSS (fără poză) — decizie explicită a
+  userului, nu s-a preluat fundalul foto (cer/siluetă cruce) de pe site-ul bisericii.
+
+## 2026-07-10 (9)
+
+- Hero: revenit la layout single-column (fără `hero.png`, șters din `public/`). Adăugat fundal
+  animat CSS — 3 „blob"-uri de gradient (`bg-secondary`/`bg-primary-foreground`, `blur-3xl`)
+  care plutesc lent (`@keyframes hero-drift-a/b/c`, 18-26s, `ease-in-out infinite`) peste
+  `bg-primary`, definite în `globals.css`; respectă `prefers-reduced-motion: reduce`
+  (animația se dezactivează).
+
+## 2026-07-10 (8)
+
+- Hero: eliminat ring-ul/conturul din jurul imaginii (`hero.tsx`) — frame rămâne doar
+  `rounded-3xl overflow-hidden`, fără `ring-1`.
+- Eliminată pagina index `/absolventi` (`src/app/absolventi/page.tsx` șters, `absolventiIntro`
+  scos din `lib/content/absolventi.ts`). `NavItem` are acum `linkable?: boolean`
+  (`lib/content/types.ts`); itemul „Absolvenți” din `site-config.ts` e `linkable: false` —
+  eticheta din meniu (desktop și mobil) deschide doar dropdown-ul spre Promovabilitate și
+  Încheiere pregătire, fără să navigheze ea însăși. Footer-ul (link „Navigare rapidă”)
+  actualizat să trimită la primul copil pentru itemii `linkable: false`.
+
+## 2026-07-10 (7)
+
+- Hero: layout rescris pe 2 coloane (`lg:grid-cols-[minmax(0,22rem)_1fr]`) — `public/hero.png`
+  integrat în coloana stângă, încadrat într-un frame `rounded-3xl` cu ring subtil; pe mobil
+  imaginea se afișează mai mică, deasupra textului (stivuit).
+
+## 2026-07-10 (6)
+
+- Contact: pagina și formularul rescrise vizual — cele două blocuri (date de contact, formular)
+  în carduri `rounded-2xl border` cu iconițe (`Phone`/`Mail`) lângă telefon/email, layout
+  `lg:grid-cols-5` (2/3) în loc de 2 coloane egale.
+- Header: `siteConfig.shortName` ("Seminarul Filadelfia") înlocuit cu `siteConfig.name`
+  ("Seminarul Teologic Filadelfia") în `header.tsx` și `mobile-nav.tsx` — lipsea „Teologic”.
+- `main-nav.tsx`: indicator vizual de pagină activă în meniul principal (nu doar culoarea
+  textului) — underline (`after:`) sub itemul de nivel 1 activ, plus fundal + bold pe
+  sub-itemul activ din dropdown; `aria-current="page"` adăugat pe ambele.
+
+## 2026-07-10 (5)
+
+- Absolvenți → Încheiere pregătire: text real (nu mai e placeholder) — Certificatul de
+  absolvire acordat la finalul celor 2 ani de studiu.
+
+## 2026-07-10 (4)
+
+- Absolvenți → Promovabilitate: text real (nu mai e placeholder) — condițiile de promovare
+  pe 2 ani de studiu, restanțe, echivalare note, promovare din oficiu.
+
+## 2026-07-10 (3)
+
+- Programa educațională: text real (nu mai e placeholder) — planul de învățământ pe 2 ani
+  (29 discipline/an). Adăugat câmp nou `curriculum?: CurriculumRow[]` pe `ContentBlock`
+  (`lib/content/types.ts`) și randare de tabel responsive (`overflow-x-auto`) în
+  `content-page.tsx`, distinct de randarea pe paragrafe existentă.
+
+## 2026-07-10 (2)
+
+- Admitere → Documente: adăugat câmp `downloads?: DownloadableFile[]` pe `ContentBlock`
+  (`lib/content/types.ts`) și randare dedicată în `content-page.tsx` (etichetă + buton
+  „Descarcă fișier (.pdf)”, pattern `Button` + `render={<a href download />}` + `nativeButton={false}`).
+  PDF-urile reale (`fisa-studentului.pdf`, `recomandare-pastorala.pdf`) puse în
+  `public/documente/`, legate din `admitere.ts` (`documente`).
+
+## 2026-07-10
+
+- UI: lățime site mărită la `max-w-[90rem]` (header, hero, footer, sub-nav, page-header, paginile de
+  conținut). Logo aplicat în header/footer (`public/logoheader.png`, `public/logofooter.png`),
+  tunse cu `sharp` să elimine marginea transparentă din jurul iconiței.
+- Organigrama de pe `/despre-noi/organizarea` refăcută ca tree HTML/CSS nativ (`org-chart.tsx`),
+  înlocuind imaginea PNG veche.
+- `content-page.tsx`: layout comun pentru paginile de conținut, cu detectare automată a titlurilor
+  de secțiune scurte, a liniilor `Etichetă: text` și a intervalelor orare `HH:MM–HH:MM: text`
+  (fiecare bold parțial/integral); prop `compact` pentru liste dense (grid 2 coloane, folosit la Crez).
+- Text real (nu mai e placeholder) completat pentru toate cele 7 pagini din Despre Noi, toate cele 4
+  din Studenți, și 3 din 4 din Admitere (Condiții, Evaluare, Criterii selecție).
+
 ## 2026-07-08 (3)
 
 - Scris `.remember/remember.md` (handoff pentru sesiunea viitoare — state, next, context).

@@ -2,6 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 import { mainNav } from "@/lib/content/site-config";
 import { cn } from "@/lib/utils";
 
@@ -10,70 +18,66 @@ function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+const linkClassName =
+  "relative rounded-lg px-2.5 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground after:absolute after:inset-x-2.5 after:-bottom-[1px] after:h-0.5 after:rounded-full after:bg-primary after:transition-opacity";
+
 export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="Meniu principal" className="hidden lg:flex items-center gap-1">
-      {mainNav.map((item) => {
-        const active = isActive(pathname, item.href);
+    <NavigationMenu className="hidden max-w-none flex-none justify-start xl:flex">
+      <NavigationMenuList className="justify-start gap-0.5">
+        {mainNav.map((item) => {
+          const active = isActive(pathname, item.href);
 
-        if (!item.children) {
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                active ? "text-primary" : "text-foreground/80"
-              )}
-            >
-              {item.label}
-            </Link>
-          );
-        }
-
-        return (
-          <div key={item.href} className="group relative">
-            <Link
-              href={item.href}
-              className={cn(
-                "flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                active ? "text-primary" : "text-foreground/80"
-              )}
-            >
-              {item.label}
-              <svg
-                aria-hidden="true"
-                viewBox="0 0 20 20"
-                className="size-3.5 transition-transform group-hover:rotate-180 group-focus-within:rotate-180"
-              >
-                <path
-                  d="M5.5 7.5l4.5 4.5 4.5-4.5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  fill="none"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </Link>
-            <div
-              className="invisible absolute left-0 top-full z-50 min-w-56 -translate-y-1 rounded-lg border border-border bg-popover p-1.5 text-popover-foreground opacity-0 shadow-lg transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100 group-focus-within:visible group-focus-within:translate-y-0 group-focus-within:opacity-100"
-            >
-              {item.children.map((child) => (
-                <Link
-                  key={child.href}
-                  href={child.href}
-                  className="block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground"
+          if (!item.children) {
+            return (
+              <NavigationMenuItem key={item.href}>
+                <NavigationMenuLink
+                  render={<Link href={item.href} />}
+                  className={cn(
+                    linkClassName,
+                    active ? "text-primary after:opacity-100" : "text-foreground/80 after:opacity-0"
+                  )}
                 >
-                  {child.label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        );
-      })}
-    </nav>
+                  {item.label}
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            );
+          }
+
+          return (
+            <NavigationMenuItem key={item.href}>
+              <NavigationMenuTrigger
+                className={cn(
+                  linkClassName,
+                  "h-auto",
+                  active ? "text-primary after:opacity-100" : "text-foreground/80 after:opacity-0"
+                )}
+              >
+                {item.label}
+              </NavigationMenuTrigger>
+              <NavigationMenuContent className="min-w-56">
+                {item.children.map((child) => {
+                  const childActive = isActive(pathname, child.href);
+                  return (
+                    <NavigationMenuLink
+                      key={child.href}
+                      render={<Link href={child.href} />}
+                      className={cn(
+                        "block rounded-md px-3 py-2 text-sm hover:bg-accent hover:text-accent-foreground",
+                        childActive && "bg-accent font-medium text-primary"
+                      )}
+                    >
+                      {child.label}
+                    </NavigationMenuLink>
+                  );
+                })}
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+          );
+        })}
+      </NavigationMenuList>
+    </NavigationMenu>
   );
 }

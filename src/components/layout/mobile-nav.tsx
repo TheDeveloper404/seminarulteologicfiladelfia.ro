@@ -24,7 +24,7 @@ export function MobileNav() {
             variant="outline"
             size="icon"
             aria-label="Deschide meniul"
-            className="lg:hidden"
+            className="xl:hidden"
           />
         }
       >
@@ -32,7 +32,7 @@ export function MobileNav() {
       </SheetTrigger>
       <SheetContent side="right" className="w-full sm:max-w-sm">
         <SheetHeader>
-          <SheetTitle>{siteConfig.shortName}</SheetTitle>
+          <SheetTitle>{siteConfig.name}</SheetTitle>
         </SheetHeader>
         <nav
           aria-label="Meniu principal (mobil)"
@@ -42,9 +42,13 @@ export function MobileNav() {
             item.children ? (
               <details key={item.href} className="group">
                 <summary className="flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground">
-                  <Link href={item.href} onClick={() => setOpen(false)}>
-                    {item.label}
-                  </Link>
+                  {item.linkable === false ? (
+                    <span>{item.label}</span>
+                  ) : (
+                    <Link href={item.href} onClick={() => setOpen(false)}>
+                      {item.label}
+                    </Link>
+                  )}
                   <span aria-hidden="true" className="transition-transform group-open:rotate-180">
                     ▾
                   </span>

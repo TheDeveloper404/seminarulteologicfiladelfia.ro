@@ -2,9 +2,6 @@ import type { NavItem } from "./types";
 
 export const siteConfig = {
   name: "Seminarul Teologic Filadelfia",
-  shortName: "Seminarul Filadelfia",
-  description:
-    "Seminarul Teologic Filadelfia din Petroșani — școală teologică evanghelică protestantă conservatoare, o comunitate academică ce ființează în context eclesial.",
   contact: {
     phones: ["0721.255.379", "0737.420.002"],
     email: "seminar.filadelfia@gmail.com",
@@ -35,6 +32,7 @@ export const mainNav: NavItem[] = [
   {
     label: "Studenți",
     href: "/studenti",
+    linkable: false,
     children: [
       { label: "Formații de studiu", href: "/studenti/formatii-de-studiu" },
       { label: "Zile de curs", href: "/studenti/zile-de-curs" },
@@ -46,6 +44,7 @@ export const mainNav: NavItem[] = [
   {
     label: "Admitere",
     href: "/admitere",
+    linkable: false,
     children: [
       { label: "Condiții", href: "/admitere/conditii" },
       { label: "Evaluare", href: "/admitere/evaluare" },
@@ -57,6 +56,7 @@ export const mainNav: NavItem[] = [
   {
     label: "Absolvenți",
     href: "/absolventi",
+    linkable: false,
     children: [
       { label: "Promovabilitate", href: "/absolventi/promovabilitate" },
       { label: "Încheiere pregătire", href: "/absolventi/incheiere-pregatire" },
