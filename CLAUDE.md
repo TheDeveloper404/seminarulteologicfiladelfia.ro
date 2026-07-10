@@ -64,17 +64,20 @@ Faza 1 (schelet + design system) și Faza 2 (toate paginile statice, cu text pla
 **complete**. Structura pentru Faza 3 (Arhiva) și Faza 4 (Contact) e deja scrisă, dar depinde de
 resurse externe care lipsesc încă:
 
-1. **Faza 3 — Galerii**: lipsește sursa pozelor (export din WordPress-ul vechi) și store-ul
-   Vercel Blob nu e provizionat. Când sunt disponibile: `vercel:vercel-storage`/`vercel:marketplace`
-   pentru provisioning, scrie `scripts/upload-gallery.ts` (`@vercel/blob` `put()`), populează
-   `src/lib/content/galerii.ts`.
-2. **Faza 4 — Contact live**: formularul e scris și funcțional, dar lipsesc credențialele
-   EmailJS reale (service/template/public key) — de pus în `.env.local` (local) și Vercel
-   (producție) când există contul.
+1. **Faza 3 — Galerii (ON HOLD)**: lipsește sursa pozelor (export din WordPress-ul vechi) și
+   store-ul Vercel Blob nu e provizionat. Când sunt disponibile: `vercel:vercel-storage`/
+   `vercel:marketplace` pentru provisioning, scrie `scripts/upload-gallery.ts` (`@vercel/blob`
+   `put()`), populează `src/lib/content/galerii.ts`.
+2. **Faza 4 — Contact live (ON HOLD)**: formularul e scris și funcțional, dar userul nu are încă
+   acces pe `seminar.filadelfia@gmail.com`, deci contul EmailJS nu poate fi creat. Când are acces:
+   cont EmailJS (service Gmail + template cu `{{from_name}}`, `{{from_email}}`, `{{phone}}`,
+   `{{message}}`, Reply-To pe `{{from_email}}`, allowed domains setate) → cele 3 chei în
+   `.env.local` (local) și Vercel (producție).
 3. **Faza 5 — Deploy**: link proiect Vercel, env vars în dashboard, verificare rute, conectare
    domeniu `seminarulteologicfiladelfia.ro`.
-4. **Text real**: toate fișierele din `src/lib/content/*.ts` au paragrafe `"TODO: ..."` —
-   se înlocuiesc treptat cu textele furnizate de Seminar, fără a schimba structura tipurilor.
+4. **Text real**: Admitere (incl. Documente + PDF-uri în `public/documente/`), Programa și
+   Absolvenți au deja conținut real. Singurul TODO rămas: **Profesori**
+   (`src/lib/content/profesori.ts`) — blocat, așteaptă lista + pozele de la Seminar.
 
 ## Verificare
 

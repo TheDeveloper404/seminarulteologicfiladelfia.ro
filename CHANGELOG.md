@@ -4,6 +4,21 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-10 (28)
+
+- Favicon din logo-ul Seminarului (porumbelul din `public/logoheader.png`): generate
+  `src/app/icon.png` (512px), `src/app/apple-icon.png` (180px) și `src/app/favicon.ico`
+  (multi-size) — înlocuit favicon-ul default Next.js. Servite automat de App Router
+  (convenția de fișiere `icon.*`), fără cod suplimentar.
+- Handoff actualizat în `CLAUDE.md`: Faza 3 (Galerii) și Faza 4 (Contact/EmailJS) marcate
+  ON HOLD (userul nu are încă acces pe `seminar.filadelfia@gmail.com`); punctul „Text real"
+  actualizat — Admitere/Documente, Programa și Absolvenți au conținut real, singurul TODO
+  rămas e Profesori (așteaptă lista + pozele).
+- Verificare pre-deploy pentru Faza 5: `npm run build` curat (31 rute statice), `npm run lint`
+  curat, fără secrete hardcodate, `robots.ts`/`sitemap.ts` pe domeniul de producție,
+  `.gitignore` acoperă `.env*`. Optimizarea mobile responsive amânată la cererea userului
+  (se face după deploy).
+
 ## 2026-07-10 (27)
 
 - Investigat efectul de tranziție de pe filadelfia-petrosani.ro (bundle-ul JS analizat):
