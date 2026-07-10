@@ -57,12 +57,12 @@ export function ContentPage({ block, subNavItems, compact }: ContentPageProps) {
       <PageHeader title={block.heading} description={block.summary} />
       {subNavItems && <SubNav items={subNavItems} />}
       <div className="mx-auto max-w-[90rem] px-4 py-14 sm:px-6 lg:px-8">
-        <div className="max-w-4xl ml-10">
+        <div className="max-w-4xl mx-auto">
           {block.body.length > 0 &&
             (compact ? (
               <div className="grid gap-x-8 gap-y-3 border-l-4 border-secondary/60 pl-6 sm:grid-cols-2 sm:pl-8">
                 {block.body.map((paragraph, i) => (
-                  <p key={i} className="text-sm leading-snug text-muted-foreground">
+                  <p key={i} className="text-base leading-snug text-muted-foreground">
                     {renderParagraph(paragraph)}
                   </p>
                 ))}
@@ -72,7 +72,7 @@ export function ContentPage({ block, subNavItems, compact }: ContentPageProps) {
                 {block.body.map((paragraph, i) => (
                   <p
                     key={i}
-                    className="text-sm leading-relaxed text-muted-foreground sm:text-base"
+                    className="text-base leading-relaxed text-muted-foreground sm:text-lg"
                   >
                     {renderParagraph(paragraph)}
                   </p>

@@ -4,6 +4,20 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-10 (31)
+
+- Deploy pe Vercel promovat manual la Production de user (commit `46e30b9`, branch `main`) —
+  mesajul rezidual „push to the `master` branch" din UI e text cache-uit al Vercel, nu afectează
+  funcționarea; Production Branch trebuie verificat/actualizat pe `main` în Settings → Git al
+  proiectului pentru ca deploy-urile viitoare să meargă automat pe Production fără promovare
+  manuală.
+- Text din paginile de conținut (`content-page.tsx`, folosit de toate paginile Despre Noi,
+  Admitere, Studenți, Absolvenți etc.): blocul de body avea `ml-10` fix, care îl împingea spre
+  marginea stângă pe ecrane late în loc să fie centrat — schimbat în `mx-auto` (centrat corect
+  în container). Dimensiunea textului mărită cu un pas: `text-sm`→`text-base` (mobil),
+  `text-base`→`text-lg` (desktop), atât pe layout-ul normal cât și pe cel compact (grid 2
+  coloane). Verificat vizual pe `/admitere/evaluare`.
+
 ## 2026-07-10 (30)
 
 - Branch-ul repo-ului redenumit de user pe GitHub din `master` în `main`; clona locală

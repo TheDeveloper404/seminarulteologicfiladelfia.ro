@@ -61,23 +61,40 @@ tabs. Nu duplica acest pattern — adaugă blocuri noi în content, nu markup no
 ## Ce urmează (handoff pentru continuare)
 
 Faza 1 (schelet + design system) și Faza 2 (toate paginile statice, cu text placeholder) sunt
-**complete**. Structura pentru Faza 3 (Arhiva) și Faza 4 (Contact) e deja scrisă, dar depinde de
-resurse externe care lipsesc încă:
+**complete**. Faza 5 (deploy) e **parțial live**: site-ul rulează pe Vercel
+(`seminarulteologicfiladelfia-ro.vercel.app`, branch `main`, deploy `46e30b9` promovat manual la
+Production de user). Rămân doar 4 lucruri, toate blocate pe resurse externe pe care userul le
+aduce între sesiuni:
 
-1. **Faza 3 — Galerii (ON HOLD)**: lipsește sursa pozelor (export din WordPress-ul vechi) și
-   store-ul Vercel Blob nu e provizionat. Când sunt disponibile: `vercel:vercel-storage`/
-   `vercel:marketplace` pentru provisioning, scrie `scripts/upload-gallery.ts` (`@vercel/blob`
-   `put()`), populează `src/lib/content/galerii.ts`.
-2. **Faza 4 — Contact live (ON HOLD)**: formularul e scris și funcțional, dar userul nu are încă
+1. **Profesori — poze + listă** (`src/lib/content/profesori.ts`, singurul TODO de conținut
+   rămas): așteaptă lista de profesori + fotografiile de la Seminar.
+2. **Faza 3 — Galerii (ON HOLD, opțional)**: userul decide dacă mai vrea galeria foto/video.
+   Dacă da: lipsește sursa pozelor (export din WordPress-ul vechi) și store-ul Vercel Blob nu e
+   provizionat. Când sunt disponibile: `vercel:vercel-storage`/`vercel:marketplace` pentru
+   provisioning, scrie `scripts/upload-gallery.ts` (`@vercel/blob` `put()`), populează
+   `src/lib/content/galerii.ts`.
+3. **Faza 4 — Contact live (ON HOLD)**: formularul e scris și funcțional, dar userul nu are încă
    acces pe `seminar.filadelfia@gmail.com`, deci contul EmailJS nu poate fi creat. Când are acces:
    cont EmailJS (service Gmail + template cu `{{from_name}}`, `{{from_email}}`, `{{phone}}`,
    `{{message}}`, Reply-To pe `{{from_email}}`, allowed domains setate) → cele 3 chei în
    `.env.local` (local) și Vercel (producție).
-3. **Faza 5 — Deploy**: link proiect Vercel, env vars în dashboard, verificare rute, conectare
-   domeniu `seminarulteologicfiladelfia.ro`.
-4. **Text real**: Admitere (incl. Documente + PDF-uri în `public/documente/`), Programa și
-   Absolvenți au deja conținut real. Singurul TODO rămas: **Profesori**
-   (`src/lib/content/profesori.ts`) — blocat, așteaptă lista + pozele de la Seminar.
+4. **Domeniu propriu — DNS**: `seminarulteologicfiladelfia.ro` e cumpărat pe Hosterion, nu pe
+   Cloudflare. Pași, în ordine:
+   a. În Cloudflare: adaugă site-ul → Cloudflare scanează și propune înregistrările DNS
+      existente (verifică-le manual, un scan poate rata înregistrări, mai ales MX pentru email).
+   b. La Hosterion: schimbă nameserver-ii domeniului cu cei 2 alocați de Cloudflare (propagare
+      DNS poate dura până la 24-48h, de obicei mult mai rapid).
+   c. În Vercel: Project Settings → Domains → adaugă `seminarulteologicfiladelfia.ro` (+ `www`) →
+      Vercel dă înregistrările A/CNAME țintă → adaugă-le în Cloudflare DNS.
+   d. Cloudflare: proxy (norișorul portocaliu) poate rămâne activ pentru domeniul apex — Vercel
+      funcționează prin Cloudflare proxied, dar dacă apar erori de SSL/redirect, treci temporar
+      pe „DNS only" (gri) până se stabilește certificatul, apoi reactivează proxy dacă vrei WAF/CDN
+      Cloudflare peste Vercel.
+   e. Verifică și email-ul (`seminar.filadelfia@gmail.com` sau alt MX legat de domeniu, dacă
+      există) — nu-l pierde la schimbarea nameserver-ilor; migrează și înregistrările MX/TXT
+      (SPF/DKIM) găsite la pasul (a).
+
+După aceste 4, proiectul e considerat livrat.
 
 ## Verificare
 
