@@ -4,6 +4,37 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-10 (30)
+
+- Branch-ul repo-ului redenumit de user pe GitHub din `master` în `main`; clona locală
+  aliniată (`git branch -m`, tracking pe `origin/main`, ref-ul vechi curățat). Decizie de
+  proces asumată de user: site static, se lucrează direct pe `main`, fără ceremonia
+  `dev` → PR (regula globală dev/PR nu se aplică aici).
+- Header-e de securitate în `next.config.ts` pe toate rutele: Content-Security-Policy
+  (calibrat: `connect-src` doar EmailJS, `img/media-src` + Vercel Blob, `frame-ancestors
+  'none'`, `'unsafe-eval'` doar în dev pentru Fast Refresh), X-Content-Type-Options,
+  X-Frame-Options, Referrer-Policy, Permissions-Policy, HSTS.
+- `npm audit`: 2 vulnerabilități moderate (postcss@8.4.31 vechi, intern în next@16.2.10)
+  rezolvate cu `overrides: { postcss: "^8.5.16" }` în package.json → 0 vulnerabilități.
+- Fix 404 la prefetch: butonul „Admitere" din hero trimitea la `/admitere` (rută inexistentă,
+  există doar subpaginile) — acum trimite la `/admitere/conditii`.
+- Efect ușor de intrare la navigarea între pagini (cerut explicit de user, alt mecanism decât
+  crossfade-ul ViewTransition respins anterior): `src/app/template.tsx` (se re-montează la
+  fiecare navigare) + animația `page-enter` în `globals.css` (fade + translateY 0.5rem, 300ms,
+  doar conținutul paginii — nu header/footer; dezactivat la `prefers-reduced-motion`).
+- Verificat pe build de producție local (Playwright): homepage + /admitere/conditii fără
+  erori de consolă, CSP-ul nu blochează nimic, 404-ul dispărut.
+
+## 2026-07-10 (29)
+
+- Fix încărcare lentă a imaginii hero la refresh (raportat de user pe deploy-ul Vercel):
+  `public/images/1.png` (PNG foto, 1,5 MB) convertit în `public/images/hero.jpg`
+  (JPEG mozjpeg q80, 106 KB, −93%); în `hero.tsx` trecut pe import static cu
+  `placeholder="blur"` (placeholder blurat instant la load) și `sizes="100vw"`
+  (variante responsive corecte). PNG-ul vechi șters. Build verificat curat.
+- Site-ul publicat pe Vercel de user: `seminarulteologicfiladelfia-ro.vercel.app`
+  (Faza 5 parțial — domeniul propriu încă neconectat).
+
 ## 2026-07-10 (28)
 
 - Favicon din logo-ul Seminarului (porumbelul din `public/logoheader.png`): generate

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import heroImage from "../../../public/images/hero.jpg";
 
 interface HeroProps {
   title: string;
@@ -23,10 +24,12 @@ export function Hero({
     <section className="relative overflow-hidden bg-primary text-primary-foreground">
       <div aria-hidden="true" className="absolute inset-0">
         <Image
-          src="/images/1.png"
+          src={heroImage}
           alt=""
           fill
           priority
+          sizes="100vw"
+          placeholder="blur"
           className="object-cover opacity-70"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/60 to-primary" />

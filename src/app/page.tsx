@@ -16,7 +16,7 @@ export default function HomePage() {
         title="Seminarul Teologic Filadelfia"
         subtitle="O școală teologică evanghelică protestantă conservatoare, o comunitate academică ce ființează în context eclesial."
         ctaLabel="Admitere"
-        ctaHref="/admitere"
+        ctaHref="/admitere/conditii"
         secondaryCtaLabel="Contact"
         secondaryCtaHref="/contact"
       />
