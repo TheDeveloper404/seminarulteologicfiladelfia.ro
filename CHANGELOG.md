@@ -4,6 +4,18 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-18 (32)
+
+- Adăugat `docs/decizie-infrastructura-si-functionalitati-noi.md`: document de decizie pentru
+  client, pentru trei cereri noi (galerie foto pe ani de absolvire, catalog digital de prezență,
+  distribuție materiale de curs fără conturi de studenți) și infrastructura care le susține.
+  Comparație Vercel-native vs. VPS gol vs. VPS+Coolify (recomandat: VPS+Coolify pe Hostinger
+  KVM1, facturare anuală, un singur dashboard). Pentru materiale de curs, trei variante rămase
+  deschise pentru discuție cu clientul (Drive/MEGA manual, Drive/MEGA + evidență în admin,
+  sistem custom cu token și expirare automată la 3 zile) — recomandare împotriva variantei
+  custom din motive de risc de securitate vs. beneficiu marginal. Nu s-a scris cod încă; e
+  materialul de decizie dinaintea planului de implementare.
+
 ## 2026-07-10 (31)
 
 - Deploy pe Vercel promovat manual la Production de user (commit `46e30b9`, branch `main`) —
