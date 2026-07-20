@@ -27,7 +27,7 @@ export default async function Page({ params }: Props) {
   return (
     <>
       <PageHeader title={album.title} description={album.date} />
-      <div className="mx-auto max-w-[90rem] px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[100rem] px-4 py-12 sm:px-6 lg:px-8">
         <Lightbox items={album.items} albumTitle={album.title} />
       </div>
     </>

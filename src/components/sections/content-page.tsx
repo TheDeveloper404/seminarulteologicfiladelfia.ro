@@ -56,7 +56,7 @@ export function ContentPage({ block, subNavItems, compact }: ContentPageProps) {
     <>
       <PageHeader title={block.heading} description={block.summary} />
       {subNavItems && <SubNav items={subNavItems} />}
-      <div className="mx-auto max-w-[90rem] px-4 py-14 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[100rem] px-4 py-14 sm:px-6 lg:px-8">
         <div className="max-w-4xl mx-auto">
           {block.body.length > 0 &&
             (compact ? (

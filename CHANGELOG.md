@@ -30,6 +30,25 @@ proiectului, actualizat după fiecare set de modificări.
   - **Nu e livrat/deploy-uit** — codul rulează doar local, așteaptă VPS-ul (Hostinger, fără
     Coolify, gestionat de user) + `DATABASE_URL` real pentru a fi funcțional.
 
+## 2026-07-20 (36)
+
+- Header prea înghesuit cu 9 pagini principale + butonul nou de Portal: mărit containerul
+  paginilor de la `max-w-[90rem]` la `max-w-[100rem]` (header, footer al conținutului,
+  content-page, sub-nav, page-header, homepage, arhivă, profesori), mărit spațiul dintre linkurile
+  din nav (`main-nav.tsx`: `gap-0.5`→`gap-1.5`, padding linkuri `px-2.5`→`px-3.5`), mutat pragul de
+  comutare la meniul mobil de la `xl` (1280px) la `2xl` (1536px) — sub acel prag intră meniul
+  hamburger în loc să înghesuie 9 linkuri + logo + buton pe o singură linie. Butonul „Portal
+  studenți” din header schimbat din `outline` în stilul plin (`default`, bg-primary) ca să iasă
+  vizual în evidență față de restul linkurilor. Verificat vizual în browser la 1440px și 1920px.
+
+## 2026-07-20 (35)
+
+- Adăugat acces vizibil către portalul de studenți pe site-ul public: buton „Portal studenți” în
+  `Header` (vizibil pe toate paginile, desktop + meniul mobil), spre `/portal/login`. În hero-ul
+  homepage-ului (`src/app/page.tsx`), CTA-ul principal „Admitere” a fost înlocuit cu „Portal
+  studenți” (decizie user) — „Admitere” rămâne accesibil din meniul principal (dropdown), doar nu
+  mai e CTA-ul principal din hero.
+
 ## 2026-07-20 (34)
 
 - Eliminată complet funcționalitatea de plăți din portalul admin+student (tabela `payments`,

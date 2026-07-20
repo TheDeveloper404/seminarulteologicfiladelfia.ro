@@ -15,13 +15,13 @@ export default function HomePage() {
       <Hero
         title="Seminarul Teologic Filadelfia"
         subtitle="O școală teologică evanghelică protestantă conservatoare, o comunitate academică ce ființează în context eclesial."
-        ctaLabel="Admitere"
-        ctaHref="/admitere/conditii"
+        ctaLabel="Portal studenți"
+        ctaHref="/portal/login"
         secondaryCtaLabel="Contact"
         secondaryCtaHref="/contact"
       />
       <section className="bg-muted/40 py-20">
-        <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[100rem] px-4 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-semibold uppercase tracking-wide text-primary">
               Despre Seminar

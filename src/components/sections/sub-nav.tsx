@@ -17,7 +17,7 @@ export function SubNav({ items }: SubNavProps) {
       aria-label="Navigare secundară"
       className="border-b border-border bg-background"
     >
-      <div className="mx-auto flex max-w-[90rem] gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex max-w-[100rem] gap-1 overflow-x-auto px-4 sm:px-6 lg:px-8">
         {items.map((item) => {
           const active = pathname === item.href;
           return (

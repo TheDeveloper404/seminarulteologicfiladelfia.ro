@@ -19,14 +19,14 @@ function isActive(pathname: string, href: string) {
 }
 
 const linkClassName =
-  "relative rounded-lg px-2.5 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground after:absolute after:inset-x-2.5 after:-bottom-[1px] after:h-0.5 after:rounded-full after:bg-primary after:transition-opacity";
+  "relative rounded-lg px-3.5 py-2 text-sm font-medium whitespace-nowrap transition-colors hover:bg-accent hover:text-accent-foreground after:absolute after:inset-x-3.5 after:-bottom-[1px] after:h-0.5 after:rounded-full after:bg-primary after:transition-opacity";
 
 export function MainNav() {
   const pathname = usePathname();
 
   return (
-    <NavigationMenu className="hidden max-w-none flex-none justify-start xl:flex">
-      <NavigationMenuList className="justify-start gap-0.5">
+    <NavigationMenu className="hidden max-w-none flex-none justify-start 2xl:flex">
+      <NavigationMenuList className="justify-start gap-1.5">
         {mainNav.map((item) => {
           const active = isActive(pathname, item.href);
 

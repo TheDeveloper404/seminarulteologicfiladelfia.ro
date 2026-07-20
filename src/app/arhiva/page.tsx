@@ -12,7 +12,7 @@ export default function Page() {
         title="Arhiva foto/video"
         description="Galerii foto și video din viața Seminarului."
       />
-      <div className="mx-auto max-w-[90rem] px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[100rem] px-4 py-12 sm:px-6 lg:px-8">
         <GalleryGrid albums={galerii} />
       </div>
     </>

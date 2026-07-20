@@ -24,7 +24,7 @@ export function MobileNav() {
             variant="outline"
             size="icon"
             aria-label="Deschide meniul"
-            className="xl:hidden"
+            className="2xl:hidden"
           />
         }
       >

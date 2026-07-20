@@ -11,7 +11,7 @@ export default function Page() {
         title="Profesori"
         description="Corpul profesoral al Seminarului Teologic Filadelfia."
       />
-      <div className="mx-auto max-w-[90rem] px-4 py-12 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[100rem] px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {profesori.map((prof) => (
             <div
