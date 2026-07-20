@@ -48,7 +48,15 @@ trei funcționalități deodată.
 | **Cost estimat** | Variabil — poate depăși $102/an dacă traficul/spațiul cresc peste tier-ul gratuit (de verificat prețuri curente Vercel Pro/Neon/Blob). | ~$102/an (Hostinger KVM1) + timpul de administrare (cost ascuns, nu monetar dar real). | ~$102/an (Hostinger KVM1), Coolify gratuit. |
 | **Risc principal** | Nu satisface cerința de facturare anuală. | Risc de securitate pe termen lung dacă nimeni nu patch-uiește serverul; overhead de timp subestimat frecvent. | Server-ul tot trebuie monitorizat minim (uptime, spațiu disc, update-uri Coolify) — responsabilitate reală, dar redusă. |
 
-### Recomandare: **Varianta C (VPS + Coolify)**
+### Actualizare (2026-07-20): fără Coolify
+
+Userul a decis să se ocupe singur de VPS-ul Hostinger, **fără Coolify** — administrare directă
+(Postgres + proces Node), nu prin platforma self-hosted PaaS descrisă mai jos. Analiza
+Vercel-native vs. VPS gol vs. VPS+Coolify rămâne validă ca istoric al deciziei (de ce VPS și nu
+Vercel), dar coloana "C. VPS + Coolify" nu se mai aplică — mentenanța, deploy-ul și SSL-ul cad în
+sarcina userului, fără automatizările pe care le-ar fi oferit Coolify.
+
+### Recomandare inițială: **Varianta C (VPS + Coolify)** — depășită de actualizarea de mai sus
 
 Satisface toate cele trei cerințe reale (un dashboard, facturare anuală, control pe date) și
 evită cea mai mare parte din durerea operațională a unui VPS administrat manual. Riscul rămas
@@ -154,7 +162,54 @@ operativă imediată la următoarea sesiune lunară.
 
 ---
 
-## 7. Riscuri generale și puncte de clarificat cu clientul
+## 7. Portal student — decizie extinsă (2026-07-20)
+
+**Scop extins față de secțiunea 5.** Discuția cu clientul a mers dincolo de simpla distribuire de
+materiale: site-ul rămâne static pentru vizitatori, dar pentru studenți se adaugă un **portal cu
+autentificare**, nu doar link-uri temporare fără cont. Secțiunea 5 (variantele A/B/C fără conturi)
+e **înlocuită** de acest portal — decizia clientului a fost explicit "vrem conturi", nu link-uri
+trimise manual.
+
+### Ce trebuie să facă fiecare rol
+
+- **Admin** (panel separat): încarcă cursurile/materialele, ține catalogul online de prezență
+  (marchează cine a participat la sesiunea lunară), gestionează arhiva studenților care au
+  absolvit.
+- **Student** (autentificat): vede notele, vede prezența proprie, descarcă materialele de curs.
+
+**Actualizare (2026-07-20): scoasă situația de plată** (atât din admin, cât și din portalul
+student) — decizie user, fără justificare de a afișa "cât a plătit" în lipsa unei integrări reale
+de plată. Vezi CHANGELOG (34).
+
+### Autentificare student: ID unic (generat aleator) + parolă comună
+
+Decizie discutată și confirmată cu clientul: **nu** magic link (prea complicat pentru studenți mai
+puțin confortabili cu calculatorul), **nu** user+parolă individuală (aceeași problemă de suport —
+uită credențialele), **nu** ultimele 6 cifre din CNP ca ID.
+
+- **ID unic per student**: generat aleator de admin la înscriere (cod alfanumeric, ex. 6
+  caractere), **nu secvențial și nu derivat din CNP**.
+  - Motiv respingere CNP: ultimele 6 cifre din CNP conțin codul de județ (constant pentru
+    majoritatea studenților din aceeași zonă) + doar 3 cifre secvențiale reale — spațiu de căutare
+    mic, ghicibil în combinație cu o parolă comună cunoscută. În plus, folosirea CNP ca
+    identificator de login nu are justificare legală sub GDPR/ANSPDCP când există o alternativă la
+    fel de simplă (cod generat) — risc de conformitate, nu doar de securitate.
+- **Parolă comună**, aceeași pentru toți studenții, setată/resetată din panelul admin.
+- **Risc acceptat conștient**: parola fiind comună, orice utilizator care o cunoaște + ghicește un
+  ID valid ar putea vedea date ale altui student (note, prezență, situație plată — fără date de
+  plată procesate real, nu e integrare cu un sistem de plăți). Clientul a acceptat acest risc
+  explicit, motivat de faptul că nu există stimulent real pentru un student să acceseze contul
+  altcuiva (nimic monetar în joc, doar informații administrative). Condiția tehnică pusă drept
+  contrapondere minimă: ID-urile trebuie să fie negribile/aleatorii, nu secvențiale — altfel riscul
+  ar deveni trivial de exploatat.
+
+**Clasificare la implementare:** CRITICAL (auth + date personale + date financiare afișate), chiar
+dacă mecanismul de autentificare în sine e simplu — la fel ca la catalogul de prezență (secțiunea
+4), motivul clasificării e combinația auth+date sensibile, nu complexitatea tehnică.
+
+---
+
+## 8. Riscuri generale și puncte de clarificat cu clientul
 
 - **Cine face mentenanța VPS pe termen lung?** Chiar și cu Coolify, cineva trebuie să verifice
   ocazional update-uri și spațiu pe disc. Dacă nu există cineva dedicat, riscul crește în timp.

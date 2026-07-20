@@ -63,23 +63,49 @@ tabs. Nu duplica acest pattern — adaugă blocuri noi în content, nu markup no
 Faza 1 (schelet + design system) și Faza 2 (toate paginile statice, cu text placeholder) sunt
 **complete**. Faza 5 (deploy) e **parțial live**: site-ul rulează pe Vercel
 (`seminarulteologicfiladelfia-ro.vercel.app`, branch `main`, deploy `46e30b9` promovat manual la
-Production de user). Rămân doar 4 lucruri, toate blocate pe resurse externe pe care userul le
-aduce între sesiuni:
+Production de user).
+
+**Extindere majoră decisă cu clientul (2026-07-20), documentată complet în
+`docs/decizie-infrastructura-si-functionalitati-noi.md`:** site-ul rămâne static pentru vizitatori,
+dar se adaugă infrastructură (VPS Hostinger KVM1, migrare de pe Vercel — **fără Coolify**, userul
+gestionează VPS-ul direct, decizie ulterioară documentului inițial care recomanda Coolify) + un
+**portal student cu autentificare** (nu doar link-uri fără cont, cum era planul inițial pentru
+materiale): admin încarcă cursuri, ține catalog online de prezență și evidența plăților,
+gestionează arhiva absolvenților; studentul autentificat vede notele, prezența, situația de plată
+și descarcă materialele. Auth student: **ID unic generat aleator (nu secvențial, nu CNP) + parolă
+comună** — risc acceptat explicit de client (fără date de plată procesate real, doar afișare), cu
+condiția tehnică ID-uri negribile. Detalii complete (variante evaluate, motive de respingere
+CNP/magic link/user-parolă individuală) în documentul de decizie, secțiunea 7.
+
+**Cod implementat (2026-07-20, vezi CHANGELOG (33)):** tot portalul admin+student e scris și
+funcțional local — schema DB (Drizzle, `src/db/schema.ts`), auth admin+student pe sesiuni cookie,
+CRUD studenți cu ID generat, prezență, plăți, note, materiale de curs (upload/download protejat),
+arhivă absolvenți. Build+lint verificate curat. **Rulează doar local** — nu e deploy-uit, așteaptă
+VPS-ul + `DATABASE_URL` real (vezi punctul 5 mai jos).
+
+Rămân 5 lucruri, blocate pe resurse externe pe care userul le aduce între sesiuni:
 
 1. **Profesori — poze + listă** (`src/lib/content/profesori.ts`, singurul TODO de conținut
    rămas): așteaptă lista de profesori + fotografiile de la Seminar.
 2. **Faza 3 — Galerii (ON HOLD, opțional)**: userul decide dacă mai vrea galeria foto/video.
-   Dacă da: lipsește sursa pozelor (export din WordPress-ul vechi) și store-ul Vercel Blob nu e
+   **Planul Vercel Blob de mai jos e SUPERSEDAT** de extinderea din 2026-07-20 — dacă galeria se
+   face, merge pe DB+storage de pe VPS (organizată pe ani de absolvire, upload din panelul admin),
+   nu pe `scripts/upload-gallery.ts`+Vercel Blob. Vezi
+   `docs/decizie-infrastructura-si-functionalitati-noi.md` secțiunea 3.
+   ~~Dacă da: lipsește sursa pozelor (export din WordPress-ul vechi) și store-ul Vercel Blob nu e
    provizionat. Când sunt disponibile: `vercel:vercel-storage`/`vercel:marketplace` pentru
    provisioning, scrie `scripts/upload-gallery.ts` (`@vercel/blob` `put()`), populează
-   `src/lib/content/galerii.ts`.
+   `src/lib/content/galerii.ts`.~~
 3. **Faza 4 — Contact live (ON HOLD)**: formularul e scris și funcțional, dar userul nu are încă
    acces pe `seminar.filadelfia@gmail.com`, deci contul EmailJS nu poate fi creat. Când are acces:
    cont EmailJS (service Gmail + template cu `{{from_name}}`, `{{from_email}}`, `{{phone}}`,
    `{{message}}`, Reply-To pe `{{from_email}}`, allowed domains setate) → cele 3 chei în
    `.env.local` (local) și Vercel (producție).
 4. **Domeniu propriu — DNS**: `seminarulteologicfiladelfia.ro` e cumpărat pe Hosterion, nu pe
-   Cloudflare. Pași, în ordine:
+   Cloudflare. **Pașii c/d de mai jos (Vercel Domains) sunt SUPERSEDAȚI** de decizia VPS —
+   țintele A/CNAME merg spre IP-ul VPS-ului, nu spre Vercel. De refăcut la momentul migrării, vezi
+   `docs/decizie-infrastructura-si-functionalitati-noi.md` secțiunea 8. Pașii a/b (Cloudflare +
+   nameserver la Hosterion) rămân valabili neschimbați:
    a. În Cloudflare: adaugă site-ul → Cloudflare scanează și propune înregistrările DNS
       existente (verifică-le manual, un scan poate rata înregistrări, mai ales MX pentru email).
    b. La Hosterion: schimbă nameserver-ii domeniului cu cei 2 alocați de Cloudflare (propagare
@@ -93,8 +119,15 @@ aduce între sesiuni:
    e. Verifică și email-ul (`seminar.filadelfia@gmail.com` sau alt MX legat de domeniu, dacă
       există) — nu-l pierde la schimbarea nameserver-ilor; migrează și înregistrările MX/TXT
       (SPF/DKIM) găsite la pasul (a).
+5. **Punerea în funcțiune a portalului admin+student pe VPS** (cod gata, vezi mai sus): userul
+   cumpără/configurează VPS-ul Hostinger KVM1 (fără Coolify) și instalează Postgres + procesul
+   Node. Apoi, în ordine: rulează manual fișierele din `drizzle/*.sql` pe Postgres-ul de pe VPS →
+   setează `DATABASE_URL` real (`.env.local`/mediu de producție, vezi `.env.local.example`) →
+   `npx tsx scripts/create-admin.ts <email> <parolă>` și `npx tsx scripts/set-shared-password.ts
+   <parolă>` generează SQL de INSERT, rulat manual pe DB, pentru primul cont admin și parola
+   comună de student. După asta `/admin/login` și `/portal/login` sunt funcționale.
 
-După aceste 4, proiectul e considerat livrat.
+După aceste 5, proiectul e considerat livrat.
 
 ## Verificare
 

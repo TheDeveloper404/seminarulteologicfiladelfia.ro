@@ -32,6 +32,12 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  experimental: {
+    serverActions: {
+      // Implicit 1MB — prea mic pentru materiale de curs (PDF/documente).
+      bodySizeLimit: "50mb",
+    },
+  },
   images: {
     remotePatterns: [
       {

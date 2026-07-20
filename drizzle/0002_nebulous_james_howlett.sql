@@ -1,0 +1,1 @@
+ALTER TABLE "course_materials" ADD COLUMN "original_file_name" varchar(255) NOT NULL;

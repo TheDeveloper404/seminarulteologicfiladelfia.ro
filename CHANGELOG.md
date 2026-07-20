@@ -4,6 +4,41 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-20 (33)
+
+- Implementat portalul admin + student descris în
+  `docs/decizie-infrastructura-si-functionalitati-noi.md` secțiunea 7 (auth ID unic + parolă
+  comună, respinsă varianta CNP din motive de securitate/GDPR — vezi document). Stack nou:
+  Drizzle ORM + Postgres (`src/db/schema.ts`: `admins`, `students`, `sessions`, `attendance`,
+  `payments`, `grades`, `course_materials`, `app_settings`), migrări SQL generate în `drizzle/`
+  (rulate manual pe server, nicio migrare automată din terminal).
+  - **Auth**: sesiuni server-side pe cookie httpOnly (fără JWT), hash sha256 al token-ului stocat
+    în DB, parole cu bcrypt. Rute separate `/admin/login` și `/portal/login`, protejate prin route
+    groups `(protected)`. Rate limiting in-memory (10 încercări/15 min per IP) pe ambele
+    formulare de login — atenuare directă a riscului acceptat la parola comună de student.
+  - **Admin** (`/admin`): CRUD studenți cu generare automată de ID unic aleator (non-secvențial,
+    `src/lib/students/generate-public-id.ts`), catalog de prezență pe sesiune lunară, plăți per
+    student, note per student, upload materiale de curs (fișiere pe disc VPS, tipuri de fișier
+    restricționate, în afara `public/`), arhivă absolvenți (flag `graduated` pe student).
+  - **Student** (`/portal`): vede prezența proprie, situația de plată, notele, descarcă
+    materialele de curs — descărcarea trece printr-o rută API protejată de sesiune
+    (`/api/materiale/[id]`), nu prin fișiere publice.
+  - Scripturi CLI `scripts/create-admin.ts` și `scripts/set-shared-password.ts` — generează SQL
+    de INSERT/UPSERT (hash bcrypt), rulat manual pe DB, consecvent cu restul proiectului.
+  - `next.config.ts`: `bodySizeLimit` Server Actions crescut la 50MB pentru upload materiale.
+  - Build + lint verificate curat (`npm run build`, `npm run lint`). Nu sunt încă teste automate.
+  - **Nu e livrat/deploy-uit** — codul rulează doar local, așteaptă VPS-ul (Hostinger, fără
+    Coolify, gestionat de user) + `DATABASE_URL` real pentru a fi funcțional.
+
+## 2026-07-20 (34)
+
+- Eliminată complet funcționalitatea de plăți din portalul admin+student (tabela `payments`,
+  `src/lib/payments/`, paginile `/admin/studenti/[id]/plati` și `/portal/plati`, link-urile de
+  nav). Decizie user: nu are sens de afișat "cât a plătit" fără integrare reală de plată —
+  informația fără procesare din spate nu aduce valoare. Migrare SQL nouă
+  (`drizzle/0003_sharp_paibok.sql`, `DROP TABLE payments`) de rulat manual pe DB, alături de
+  celelalte din CHANGELOG (33). Build+lint verificate curat.
+
 ## 2026-07-18 (32)
 
 - Adăugat `docs/decizie-infrastructura-si-functionalitati-noi.md`: document de decizie pentru
