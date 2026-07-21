@@ -4,6 +4,29 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (56)
+
+- **Suită e2e Playwright** (`e2e/`) — nu exista niciun test end-to-end, doar 27 unit vitest.
+  Acoperă flow-urile critice de autentificare: `admin-auth.spec.ts` (login admin succes/eșec,
+  guard pe `/admin` fără sesiune, logout), `student-auth.spec.ts` (login student succes/eșec, ID
+  greșit, student absolvent respins, guard pe `/portal`, logout), și `admin-student-flow.spec.ts`
+  (flow complet: admin creează student → adaugă notă → studentul nou creat se autentifică și își
+  vede nota + empty state pe prezență). Rulează pe build de producție (`npm run build && npm run
+  start`), pornit automat de Playwright (`webServer` în `playwright.config.ts`).
+  Turnstile e no-op automat în acest context (necompletat `TURNSTILE_SECRET_KEY`/
+  `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — vezi `src/lib/turnstile.ts`), fără nicio configurare
+  specială necesară. Adăugat `scripts/seed-e2e.ts` — spre deosebire de `create-admin.ts`/
+  `set-shared-password.ts` (care doar printează SQL), acesta scrie efectiv în DB, dar refuză să
+  ruleze dacă `DATABASE_URL` nu conține "test" în numele bazei (protecție împotriva rulării din
+  greșeală pe producție). Config nou: `.env.e2e.example` (bază Postgres dedicată, separată de
+  dev/producție). `package.json`: scripturi noi `e2e` și `e2e:seed`, devDependencies
+  `@playwright/test`, `dotenv`, `tsx`. Nu e integrat încă în CI (`ci.yml`) — necesită Postgres
+  service + secrete de test în GitHub Actions, decizie separată, mai mare, lăsată pentru mai
+  târziu. `tsc --noEmit`, `lint`, `test` (vitest) și `build` verificate curat local — rularea
+  efectivă a suitei (`npm run e2e`, inclusiv `npx playwright install chromium`) e blocată de
+  `HUMAN_RUNS_TESTS`, rămâne de rulat de user după ce pregătește baza de test (`.env.e2e` +
+  `drizzle-kit push` + `npm run e2e:seed`).
+
 ## 2026-07-21 (55)
 
 - **Fix CI, care pica pe GitHub** (`npm ci` → `npm install` în `.github/workflows/ci.yml`) —
