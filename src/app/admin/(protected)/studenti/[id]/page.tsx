@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { students } from "@/db/schema";
 import { StudentForm } from "../student-form";
+import { DeleteStudentButton } from "../delete-student-button";
 
 export default async function EditStudentPage({
   params,
@@ -28,7 +29,10 @@ export default async function EditStudentPage({
 
   return (
     <div className="max-w-lg">
-      <h1 className="font-heading text-xl font-semibold">Editează student</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="font-heading text-xl font-semibold">Editează student</h1>
+        <DeleteStudentButton studentId={student.id} studentName={student.fullName} />
+      </div>
       <div className="mt-6">
         <StudentForm mode="edit" student={student} />
       </div>

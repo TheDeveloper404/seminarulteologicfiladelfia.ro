@@ -1,5 +1,5 @@
 import { randomUUID } from "crypto";
-import { mkdir, readFile, writeFile } from "fs/promises";
+import { mkdir, readFile, writeFile, unlink } from "fs/promises";
 import path from "path";
 
 // Fișierele stau în afara `public/`, ca să nu fie servite direct fără verificarea sesiunii —
@@ -39,4 +39,8 @@ export async function saveCourseMaterialFile(file: File): Promise<string> {
 
 export async function readCourseMaterialFile(diskFileName: string): Promise<Buffer> {
   return readFile(path.join(UPLOADS_DIR, diskFileName));
+}
+
+export async function deleteCourseMaterialFile(diskFileName: string): Promise<void> {
+  await unlink(path.join(UPLOADS_DIR, diskFileName)).catch(() => {});
 }

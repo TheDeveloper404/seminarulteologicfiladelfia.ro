@@ -27,21 +27,21 @@ export default async function StudentGradesPage() {
           description="Notele acordate de admin vor apărea aici."
         />
       ) : (
-        <div className="mt-6 overflow-x-auto rounded-lg border">
+        <div className="mt-6 max-w-2xl overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3 font-medium">Disciplină</th>
-                <th className="p-3 font-medium">Notă</th>
-                <th className="p-3 font-medium">Data</th>
+                <th className="w-full p-3 font-medium">Disciplină</th>
+                <th className="p-3 font-medium whitespace-nowrap">Notă</th>
+                <th className="p-3 font-medium whitespace-nowrap">Data</th>
               </tr>
             </thead>
             <tbody>
               {records.map((g) => (
                 <tr key={g.id} className="border-t">
                   <td className="p-3">{g.subject}</td>
-                  <td className="p-3">{g.grade}</td>
-                  <td className="p-3">{g.gradedAt}</td>
+                  <td className="p-3 whitespace-nowrap">{g.grade}</td>
+                  <td className="p-3 whitespace-nowrap">{g.gradedAt}</td>
                 </tr>
               ))}
             </tbody>

@@ -41,63 +41,66 @@ export default async function AttendancePage({
         description="Marchează prezența studenților activi pentru sesiunea selectată."
       />
 
-      <Card className="mt-6" size="sm">
-        <form className="flex flex-wrap items-end gap-3 px-1" method="get">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="data" className="text-sm font-medium">
-              Data sesiunii
-            </label>
-            <input
-              id="data"
-              name="data"
-              type="date"
-              defaultValue={sessionDate}
-              className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm"
-            />
-          </div>
-          <button
-            type="submit"
-            className="h-9 rounded-lg border border-input bg-background px-3 text-sm font-medium hover:bg-muted"
-          >
-            Schimbă data
-          </button>
-        </form>
-      </Card>
+      <div className="max-w-2xl">
+        <Card className="mt-6" size="sm">
+          <form className="flex flex-wrap items-end gap-3 px-1" method="get">
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="data" className="text-sm font-medium">
+                Data sesiunii
+              </label>
+              <input
+                id="data"
+                name="data"
+                type="date"
+                defaultValue={sessionDate}
+                className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm"
+              />
+            </div>
+            <button
+              type="submit"
+              className="h-9 rounded-lg border border-input bg-background px-3 text-sm font-medium hover:bg-muted"
+            >
+              Schimbă data
+            </button>
+          </form>
+        </Card>
 
-      {activeStudents.length === 0 ? (
-        <EmptyState
-          icon={CalendarCheck}
-          title="Niciun student activ"
-          description="Adaugă studenți din secțiunea Studenți pentru a putea marca prezența."
-        />
-      ) : (
-        <div className="mt-6 overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-left">
-              <tr>
-                <th className="p-3 font-medium">ID</th>
-                <th className="p-3 font-medium">Nume</th>
-                <th className="p-3 font-medium">Prezent</th>
-              </tr>
-            </thead>
-            <tbody>
-              {activeStudents.map((student) => (
-                <tr key={student.id} className="border-t">
-                  <td className="p-3 font-mono">{student.publicId}</td>
-                  <td className="p-3">{student.fullName}</td>
-                  <td className="p-3">
-                    <AttendanceCheckbox
-                      studentId={student.id}
-                      sessionDate={sessionDate}
-                      initialPresent={presentByStudentId.get(student.id) ?? false}
-                    />
-                  </td>
+        {activeStudents.length === 0 ? (
+          <EmptyState
+            icon={CalendarCheck}
+            title="Niciun student activ"
+            description="Adaugă studenți din secțiunea Studenți pentru a putea marca prezența."
+          />
+        ) : (
+          <div className="mt-6 overflow-x-auto rounded-lg border">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/50 text-left">
+                <tr>
+                  <th className="p-3 font-medium whitespace-nowrap">ID</th>
+                  <th className="w-full p-3 font-medium">Nume</th>
+                  <th className="p-3 font-medium whitespace-nowrap">Prezent</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+              </thead>
+              <tbody>
+                {activeStudents.map((student) => (
+                  <tr key={student.id} className="border-t">
+                    <td className="p-3 font-mono whitespace-nowrap">{student.publicId}</td>
+                    <td className="p-3">{student.fullName}</td>
+                    <td className="p-3 whitespace-nowrap">
+                      <AttendanceCheckbox
+                        key={sessionDate}
+                        studentId={student.id}
+                        sessionDate={sessionDate}
+                        initialPresent={presentByStudentId.get(student.id) ?? false}
+                      />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

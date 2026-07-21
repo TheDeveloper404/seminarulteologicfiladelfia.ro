@@ -47,7 +47,7 @@ export function StudentForm({
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="phone">Telefon</Label>
+        <Label htmlFor="phone">Telefon (opțional)</Label>
         <Input
           id="phone"
           name="phone"
@@ -56,7 +56,7 @@ export function StudentForm({
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email">Email (opțional)</Label>
         <Input
           id="email"
           name="email"
@@ -64,9 +64,6 @@ export function StudentForm({
           defaultValue={mode === "edit" ? (student.email ?? "") : undefined}
         />
       </div>
-      <p className="-mt-2 text-xs text-muted-foreground">
-        Completează cel puțin un contact (telefon sau email).
-      </p>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="enrollmentYear">An înscriere</Label>
         <Input

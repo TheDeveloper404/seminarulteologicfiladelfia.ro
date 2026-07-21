@@ -45,7 +45,7 @@ export default async function AdminDashboardPage() {
         description="Prezența, materialele de curs și notele studenților, dintr-un singur loc."
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
         {stats.map((stat) => (
           <Link key={stat.label} href={stat.href}>
             <Card className="transition-shadow hover:shadow-md">

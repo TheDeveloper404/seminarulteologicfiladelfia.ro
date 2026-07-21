@@ -1,10 +1,11 @@
 "use server";
 
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { db } from "@/db";
 import { courseMaterials } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/require-admin";
-import { isAllowedExtension, saveCourseMaterialFile } from "./storage";
+import { deleteCourseMaterialFile, isAllowedExtension, saveCourseMaterialFile } from "./storage";
 
 export type MaterialFormState = { error: string } | null;
 
@@ -44,4 +45,22 @@ export async function uploadCourseMaterial(
 
   revalidatePath("/admin/materiale");
   return null;
+}
+
+export async function deleteCourseMaterial(materialId: number): Promise<void> {
+  await requireAdmin();
+
+  const [material] = await db
+    .select({ filePath: courseMaterials.filePath })
+    .from(courseMaterials)
+    .where(eq(courseMaterials.id, materialId))
+    .limit(1);
+
+  if (!material) return;
+
+  await db.delete(courseMaterials).where(eq(courseMaterials.id, materialId));
+  await deleteCourseMaterialFile(material.filePath);
+
+  revalidatePath("/admin/materiale");
+  revalidatePath("/portal/materiale");
 }

@@ -35,7 +35,7 @@ export function UploadForm() {
   }
 
   return (
-    <form ref={formRef} action={formAction} className="flex flex-col gap-4 rounded-lg border p-4">
+    <form ref={formRef} action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="title">Titlu</Label>
         <Input

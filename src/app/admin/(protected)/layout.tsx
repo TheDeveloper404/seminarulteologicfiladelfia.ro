@@ -1,13 +1,14 @@
+import { LayoutDashboard, Users, CalendarCheck, FileText, GraduationCap } from "lucide-react";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { logoutAdmin } from "@/lib/auth/admin-actions";
 import { AppShell } from "@/components/app-shell/app-shell";
 
 const NAV_ITEMS = [
-  { href: "/admin", label: "Panou" },
-  { href: "/admin/studenti", label: "Studenți" },
-  { href: "/admin/prezenta", label: "Prezență" },
-  { href: "/admin/materiale", label: "Materiale" },
-  { href: "/admin/absolventi", label: "Absolvenți" },
+  { href: "/admin", label: "Panou", icon: <LayoutDashboard aria-hidden="true" /> },
+  { href: "/admin/studenti", label: "Studenți", icon: <Users aria-hidden="true" /> },
+  { href: "/admin/prezenta", label: "Prezență", icon: <CalendarCheck aria-hidden="true" /> },
+  { href: "/admin/materiale", label: "Materiale", icon: <FileText aria-hidden="true" /> },
+  { href: "/admin/absolventi", label: "Absolvenți", icon: <GraduationCap aria-hidden="true" /> },
 ];
 
 export default async function AdminLayout({

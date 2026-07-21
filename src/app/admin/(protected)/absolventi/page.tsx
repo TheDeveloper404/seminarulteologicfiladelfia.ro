@@ -32,25 +32,25 @@ export default async function GraduatesPage() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3 font-medium">ID</th>
-                <th className="p-3 font-medium">Nume</th>
-                <th className="p-3 font-medium">An înscriere</th>
-                <th className="p-3 font-medium">Absolvit la</th>
+                <th className="p-3 font-medium whitespace-nowrap">ID</th>
+                <th className="w-full p-3 font-medium">Nume</th>
+                <th className="p-3 font-medium whitespace-nowrap">An înscriere</th>
+                <th className="p-3 font-medium whitespace-nowrap">Absolvit la</th>
                 <th className="p-3" />
               </tr>
             </thead>
             <tbody>
               {graduates.map((student) => (
                 <tr key={student.id} className="border-t">
-                  <td className="p-3 font-mono">{student.publicId}</td>
+                  <td className="p-3 font-mono whitespace-nowrap">{student.publicId}</td>
                   <td className="p-3">{student.fullName}</td>
-                  <td className="p-3">{student.enrollmentYear}</td>
-                  <td className="p-3">
+                  <td className="p-3 whitespace-nowrap">{student.enrollmentYear}</td>
+                  <td className="p-3 whitespace-nowrap">
                     {student.graduatedAt
                       ? new Date(student.graduatedAt).toLocaleDateString("ro-RO")
                       : "—"}
                   </td>
-                  <td className="p-3 text-right">
+                  <td className="p-3 text-right whitespace-nowrap">
                     <Button
                       variant="outline"
                       size="sm"

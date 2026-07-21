@@ -24,9 +24,6 @@ export async function createStudent(
   if (!fullName) {
     return { error: "Numele complet este obligatoriu." };
   }
-  if (!phone && !email) {
-    return { error: "Completează cel puțin un contact (telefon sau email)." };
-  }
   if (!Number.isInteger(enrollmentYear) || enrollmentYear < 2000) {
     return { error: "Anul de înscriere nu este valid." };
   }
@@ -61,9 +58,6 @@ export async function updateStudent(
   if (!fullName) {
     return { error: "Numele complet este obligatoriu." };
   }
-  if (!phone && !email) {
-    return { error: "Completează cel puțin un contact (telefon sau email)." };
-  }
   if (!Number.isInteger(enrollmentYear) || enrollmentYear < 2000) {
     return { error: "Anul de înscriere nu este valid." };
   }
@@ -81,5 +75,15 @@ export async function updateStudent(
     .where(eq(students.id, studentId));
 
   revalidatePath("/admin/studenti");
+  redirect("/admin/studenti");
+}
+
+export async function deleteStudent(studentId: number): Promise<void> {
+  await requireAdmin();
+
+  await db.delete(students).where(eq(students.id, studentId));
+
+  revalidatePath("/admin/studenti");
+  revalidatePath("/admin/absolventi");
   redirect("/admin/studenti");
 }
