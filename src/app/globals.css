@@ -195,6 +195,11 @@
   }
   html {
     @apply font-sans;
+    /* Fără asta, orice dropdown/dialog care blochează scroll-ul paginii (Base UI, la deschidere)
+       face scrollbar-ul vertical să dispară temporar — lățimea disponibilă crește cu ~15px, iar
+       header-ul (centrat, `mx-auto`) se recalculează și logo-ul „sare" stânga/dreapta. Rezervă
+       spațiul scrollbar-ului mereu, indiferent dacă e nevoie de el în momentul respectiv. */
+    scrollbar-gutter: stable;
   }
   h1,
   h2,

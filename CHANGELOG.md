@@ -4,6 +4,40 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (60)
+
+- **Fix: logo din header "sărea" stânga/dreapta la anumite meniuri** — cauza: fără `scrollbar-
+  gutter: stable` pe `html`, orice overlay (dropdown Base UI, dialog) care blochează scroll-ul
+  paginii face scrollbar-ul vertical să dispară temporar; lățimea disponibilă crește cu ~15px,
+  iar header-ul centrat (`mx-auto`) se recalculează. Fix dintr-o linie în `globals.css`, rezolvă
+  toată clasa de bug, nu doar meniul raportat. Verificat live (`scrollbarGutter: stable`
+  confirmat pe `seminarulteologicfiladelfia.ro`).
+- **Fix: imaginea din hero se simțea "enervantă" la refresh** — încărcarea era rapidă (0-150ms,
+  din cache CDN, verificat cu `performance.getEntriesByType`), dar swap-ul blur→clar era instant,
+  suprapus cu animația de fade-in a paginii (`page-enter`) — senzație de "pop" vizual. Fix:
+  `hero.tsx` (acum client component) adaugă `onLoad` + fade CSS (`opacity-0` → `opacity-70` pe
+  700ms) la încărcarea imaginii, în loc de swap brusc.
+- **Verificat (fără fix necesar): rate limiting login student.** Confirmat în cod
+  (`src/lib/rate-limit.ts` + `student-actions.ts`): 5 încercări per IP la fiecare fereastră de
+  15 minute (nu o limită orară fixă — fereastra se resetează per IP de la prima încercare nouă
+  după expirare). Admin: 10/15min. Deja documentat/acceptat ca risc rezidual în auditul de
+  securitate anterior (ocolibil prin rotație de IP, barieră reală fiind parola comună de student).
+
+## 2026-07-21 (59)
+
+- **Fix: Turnstile eșua uneori la primul submit** (raportat de user: login admin cu date corecte
+  → „verificarea antibot nu a reușit", funcționa abia după refresh). Cauza: widget-ul se
+  randează asincron (`<Script async defer>` + challenge rulat de Cloudflare pe rețea), dar
+  butonul de submit nu aștepta token-ul — dacă userul completa formularul și dădea submit
+  înainte ca widget-ul să termine, `cf-turnstile-response` era gol, serverul respingea corect
+  (nu era o breșă), dar cu un mesaj confuz pentru un login altfel valid. Fix (verificat cu docs
+  oficiale Cloudflare, `client-side-rendering`): `TurnstileWidget` primește acum `onReadyChange`,
+  înregistrat prin `data-callback`/`data-expired-callback`/`data-error-callback` (nume globale
+  unice per instanță, via `useId()`); ambele formulare de login (`admin/login/login-form.tsx`,
+  `portal/login/login-form.tsx`) dezactivează submit-ul („Se verifică...") până la primul token
+  valid. Verificat: `tsc`/`lint`/`test`/`build` curate local, deploy live, buton confirmat
+  funcțional pe `seminarulteologicfiladelfia.ro/admin/login`.
+
 ## 2026-07-21 (58)
 
 - **Documentat (nu configurat acum — deja activ, doar nescris până azi): backup VPS.** Userul

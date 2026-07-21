@@ -1,6 +1,10 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import heroImage from "../../../public/images/hero.jpg";
 
 interface HeroProps {
@@ -20,6 +24,11 @@ export function Hero({
   secondaryCtaLabel,
   secondaryCtaHref,
 }: HeroProps) {
+  // Tranziție lină blur→clar la încărcare — fără ea, swap-ul e instant și, suprapus cu
+  // animația de fade-in a paginii (`page-enter`), se simte ca un "pop" vizual deranjant
+  // (raportat de user, 2026-07-21).
+  const [loaded, setLoaded] = useState(false);
+
   return (
     <section className="relative overflow-hidden bg-primary text-primary-foreground">
       <div aria-hidden="true" className="absolute inset-0">
@@ -30,7 +39,11 @@ export function Hero({
           priority
           sizes="100vw"
           placeholder="blur"
-          className="object-cover opacity-70"
+          onLoad={() => setLoaded(true)}
+          className={cn(
+            "object-cover transition-opacity duration-700 ease-out",
+            loaded ? "opacity-70" : "opacity-0"
+          )}
         />
         <div className="absolute inset-0 bg-gradient-to-b from-primary/40 via-primary/60 to-primary" />
         <div className="absolute inset-0 bg-gradient-to-t from-primary via-transparent to-primary/25" />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -9,11 +9,16 @@ import { Label } from "@/components/ui/label";
 import { loginAdmin, type AdminLoginState } from "@/lib/auth/admin-actions";
 import { TurnstileWidget } from "@/components/turnstile-widget";
 
+// Dacă Turnstile e configurat, submit-ul așteaptă token-ul — altfel, la un submit rapid,
+// verificarea eșuează pe server chiar cu parolă corectă (widget-ul se randează async).
+const turnstileConfigured = !!process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState<AdminLoginState, FormData>(
     loginAdmin,
     null
   );
+  const [turnstileReady, setTurnstileReady] = useState(!turnstileConfigured);
 
   return (
     <Card className="w-full max-w-md">
@@ -47,14 +52,23 @@ export function LoginForm() {
               required
             />
           </div>
-          <TurnstileWidget />
+          <TurnstileWidget onReadyChange={setTurnstileReady} />
           {state?.error && (
             <p className="text-base text-destructive" role="alert">
               {state.error}
             </p>
           )}
-          <Button type="submit" size="lg" className="w-full text-base" disabled={isPending}>
-            {isPending ? "Se autentifică..." : "Autentificare"}
+          <Button
+            type="submit"
+            size="lg"
+            className="w-full text-base"
+            disabled={isPending || !turnstileReady}
+          >
+            {isPending
+              ? "Se autentifică..."
+              : !turnstileReady
+                ? "Se verifică..."
+                : "Autentificare"}
           </Button>
         </form>
       </CardContent>
