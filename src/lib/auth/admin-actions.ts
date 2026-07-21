@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { admins } from "@/db/schema";
 import { createSession, destroySession } from "./session";
 import { getClientIp, isRateLimited } from "@/lib/rate-limit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export type AdminLoginState = { error: string } | null;
 
@@ -26,6 +27,15 @@ export async function loginAdmin(
   const ip = await getClientIp();
   if (await isRateLimited(`admin-login:${ip}`)) {
     return { error: "Prea multe încercări. Încearcă din nou peste câteva minute." };
+  }
+
+  const turnstileToken = formData.get("cf-turnstile-response");
+  const turnstileOk = await verifyTurnstileToken(
+    typeof turnstileToken === "string" ? turnstileToken : null,
+    ip
+  );
+  if (!turnstileOk) {
+    return { error: "Verificarea anti-bot a eșuat. Reîncarcă pagina și încearcă din nou." };
   }
 
   const [admin] = await db

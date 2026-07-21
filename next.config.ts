@@ -5,13 +5,16 @@ const isDev = process.env.NODE_ENV === "development";
 // 'unsafe-inline' la script-src e cerut de runtime-ul Next.js (fără nonce-uri pe site static);
 // 'unsafe-eval' doar în dev (React Fast Refresh). Galeria foto e servită same-origin (nginx),
 // nu mai e nevoie de excepții externe la img-src/media-src (Vercel Blob abandonat).
+// challenges.cloudflare.com — widget-ul Turnstile (anti-bot pe login admin/student): script +
+// iframe (frame-src), fără el widget-ul nu se randează/verifică.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  "connect-src 'self' https://challenges.cloudflare.com",
+  "frame-src https://challenges.cloudflare.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

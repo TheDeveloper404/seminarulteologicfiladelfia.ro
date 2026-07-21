@@ -4,6 +4,37 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (53)
+
+- **CI** (`.github/workflows/ci.yml`) — lint + test + build pe fiecare push/PR către `main`.
+- **CodeQL** (`.github/workflows/codeql.yml`) — SAST gratuit (repo public), pe push/PR + lunea
+  03:00 UTC.
+- **Dependabot security alerts** activate pe repo (separat de update-urile lunare din
+  `dependabot.yml`) — anunță CVE-uri cunoscute imediat, nu așteaptă ciclul lunar. Ecosistemul
+  `github-actions` repus în `dependabot.yml` (acum există workflow-uri reale de verificat).
+- **`docs/audit-securitate.md`** — consolidare a tuturor rundelor de audit/hardening de până
+  acum (4 runde), plus riscul rezidual cunoscut și acceptat.
+- **VPS**: `server_tokens off` în nginx (versiunea nu mai e expusă la request-uri directe pe IP,
+  bypass Cloudflare) · kernel actualizat + reboot aplicat (patch de securitate care era în
+  așteptare de la instalarea inițială) · confirmat `unattended-upgrades` deja activ implicit.
+- **Cloudflare Turnstile pe login admin + student** (`src/lib/turnstile.ts`,
+  `src/components/turnstile-widget.tsx`) — verificare anti-bot server-side în
+  `admin-actions.ts`/`student-actions.ts`, motivată de scanări automate deja observate în
+  log-uri. CSP extins (`script-src`/`connect-src`/`frame-src` → `challenges.cloudflare.com`).
+  Cod gated pe env vars — **inactiv până cheile sunt configurate pe VPS** (fără ele, login
+  funcționează normal, doar fără protecția anti-bot). 4 teste noi (`turnstile.test.ts`).
+
+## 2026-07-21 (52)
+
+- **`README.md` rescris ca fișier de prezentare** (era încă boilerplate-ul default de
+  `create-next-app` — Vercel, Geist font, nimic real din proiect) — acum: descriere scurtă,
+  stack, pornire locală, index de link-uri către documentația detaliată.
+- **Documentație detaliată separată în `docs/`** (prima încercare o îngrămădise greșit în
+  README, corectat imediat): `arhitectura.md` (structură foldere, model de date, auth, galerie
+  foto, infrastructură VPS), `rute.md` (toate rutele — public/admin/portal/API), `teste.md` (ce
+  acoperă suita vitest + split unit/e2e), `deploy.md` (proces manual pas cu pas), `workflow.md`
+  (ciclul unei modificări, Dependabot, merge după PR-uri de Dependabot).
+
 ## 2026-07-21 (51)
 
 - **Suită de teste automate (vitest, prima din proiect)** — 23 teste unitare pe logica critică:

@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { appSettings, students } from "@/db/schema";
 import { createSession, destroySession } from "./session";
 import { getClientIp, isRateLimited } from "@/lib/rate-limit";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export type StudentLoginState = { error: string } | null;
 
@@ -30,6 +31,15 @@ export async function loginStudent(
   const ip = await getClientIp();
   if (await isRateLimited(`student-login:${ip}`, 5)) {
     return { error: "Prea multe încercări. Încearcă din nou peste câteva minute." };
+  }
+
+  const turnstileToken = formData.get("cf-turnstile-response");
+  const turnstileOk = await verifyTurnstileToken(
+    typeof turnstileToken === "string" ? turnstileToken : null,
+    ip
+  );
+  if (!turnstileOk) {
+    return { error: "Verificarea anti-bot a eșuat. Reîncarcă pagina și încearcă din nou." };
   }
 
   const [settings] = await db.select().from(appSettings).limit(1);

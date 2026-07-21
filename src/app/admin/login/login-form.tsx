@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { loginAdmin, type AdminLoginState } from "@/lib/auth/admin-actions";
+import { TurnstileWidget } from "@/components/turnstile-widget";
 
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState<AdminLoginState, FormData>(
@@ -46,6 +47,7 @@ export function LoginForm() {
               required
             />
           </div>
+          <TurnstileWidget />
           {state?.error && (
             <p className="text-base text-destructive" role="alert">
               {state.error}
