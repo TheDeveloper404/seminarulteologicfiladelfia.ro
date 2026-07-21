@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Users, GraduationCap, FileText, CalendarCheck } from "lucide-react";
+import { Users, GraduationCap, FileText } from "lucide-react";
 import { db } from "@/db";
 import { students, courseMaterials } from "@/db/schema";
 import { PageHeader } from "@/components/app-shell/page-header";
@@ -29,12 +29,6 @@ export default async function AdminDashboardPage() {
       value: materials.length,
       icon: FileText,
       href: "/admin/materiale",
-    },
-    {
-      label: "Prezență",
-      value: "Catalog",
-      icon: CalendarCheck,
-      href: "/admin/prezenta",
     },
   ];
 

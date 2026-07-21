@@ -4,6 +4,83 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (62)
+
+**Code review + audit de securitate de închidere de sesiune** (agenți `security-engineer` +
+`code-reviewer`, pe diff-ul necomis al zilei — vezi intrarea (61)).
+
+- **Security: APPROVED**, 0 findings critice/înalte/medii. 2 findings LOW (defense-in-depth),
+  ambele reparate: `updateGrade`/`deleteGrade` filtrau doar pe `gradeId`, nu verificau că nota
+  aparține de fapt lui `studentId` (IDOR intra-rol — fără impact practic cu un singur cont admin,
+  dar reparat oricum, `and(eq(grades.id, gradeId), eq(grades.studentId, studentId))`);
+  `setAttendance` nu valida formatul `sessionDate` server-side — adăugat regex `YYYY-MM-DD`.
+- **Code review: CHANGES REQUESTED → reparat.** Un bug real găsit (CR-001): cleanup-ul din
+  `attendance-checkbox.tsx` (unmount cu scriere în zbor) decrementa contorul de pending al
+  părintelui, dar blocul `finally` din `onChange` decrementa din nou necondiționat la rezolvarea
+  promisiunii (neanulată de unmount) — contorul ajungea pe negativ, iar la următoarea scriere
+  reală `hasPendingWrites` rămânea `false` din start, dezactivând silențios exact fix-ul de race
+  condition din intrarea (61). Reparat: `finally` decrementează doar dacă `pendingRef.current`
+  e încă `true` (nu a fost deja decrementat de cleanup). Plus 2 sugestii non-blocante aplicate:
+  formularul de editare notă nu se închidea automat după salvare reușită (acum se închide via
+  tranziția pending→not-pending fără eroare); ghilimele inconsistente (Unicode + entitate HTML
+  amestecate) în mesajul de căutare fără rezultate.
+- Verificat: `tsc --noEmit` + `npm run lint` curate, deploy + verificare live (curl 200).
+
+## 2026-07-21 (61)
+
+**Note/prezență admin (CRUD + fix bug real) + integrare prezență în pagina Studenți + profesori
+reali + fix-uri vizuale mobil. Testat manual de user — platformă declarată production-ready.**
+
+- **Note: editare + ștergere** — lipsea complet (doar adăugare exista). `updateGrade`/`deleteGrade`
+  în `src/lib/grades/actions.ts`, UI inline (`grade-row.tsx`) cu editare pe loc + ștergere cu
+  confirmare (`ConfirmDeleteDialog`), în `/admin/studenti/[id]/note`.
+- **Fix bug real: bifa de prezență dispărea la schimbarea rapidă a datei.** Cauza (găsită prin
+  citirea codului, nu ghicită): checkbox-ul trimitea scrierea în DB printr-un `fetch`
+  neblocant (`startTransition` fără `await`); dacă adminul apăsa "Schimbă data" înainte să se
+  termine scrierea, navigarea (full page load pe `<form method="get">`) anula request-ul în
+  zbor — scrierea se pierdea silențios. Fix: `attendance-checkbox.tsx` face `await` pe scriere
+  și anunță părintele printr-un contor de "pending"; cât timp există o scriere în curs, butonul
+  de schimbare a datei e dezactivat.
+- **Eliminată pagina separată `/admin/prezenta`, integrată complet în `/admin/studenti`** (decizie
+  user: "pe pagina de prezență oricum faci doar prezența" + "aș vrea să fac prezența direct din
+  pagina de studenți"). `/admin/studenti` are acum: selector "Data sesiunii de prezență" +
+  checkbox "Prezent azi" per student + strip de istoric (ultimele 10 sesiuni, pătrățele stil
+  "formă" de fotbal, verde/roșu, tooltip cu data) — toate la capătul din dreapta al tabelului.
+  Data sesiunii se calculează automat ca prima zi a lunii curente dacă nu există `?data=` în URL
+  — **nu trebuie schimbată manual în fiecare lună**, doar dacă adminul ține un link vechi cu
+  `?data=` din altă lună. Dashboard admin + navigație actualizate (link "Prezență" eliminat).
+- Container admin (`app-shell.tsx`, comun cu portalul studenților) lărgit `max-w-6xl` →
+  `max-w-7xl` pentru coloanele noi din tabelul de studenți.
+- Fix vizual: căutare + selector de dată pe `/admin/studenti` erau inconsistente (search cu
+  `flex-1` se întindea pe containerul lărgit, selectorul de dată era într-un `Card` cu padding
+  diferit) — uniformizate, fără `Card`, aliniate curat.
+- **Curățare date de test**: șterse 3 rânduri din `attendance` create în timpul testării de azi
+  (Miriam Băncilă, Belega Alexandra) — nu era bug de cod, doar date reziduale de test; istoricul
+  pornește gol pentru toți studenții până marchează adminul prezența reală.
+- **Fix mobil header**: numele complet "Seminarul Teologic Filadelfia" era vizibil pe mobil lângă
+  siglă, împingând butonul Portal + hamburgerul aproape în afara ecranului. Ascuns sub `sm:`;
+  butonul "Portal studenți" ascuns complet pe mobil (accesibil deja din hero) — rămân doar sigla
+  + meniul hamburger.
+- **Fix mobil footer**: textul "Școală teologică evanghelică protestantă conservatoare" avea
+  `whitespace-nowrap`, mai lat decât viewport-ul mobil → tăiat/scroll orizontal. Eliminat
+  `nowrap`-ul (poate face wrap), separatorii "|" ascunși pe mobil, text centrat.
+- **Profesori reali**: adăugați Prof. Daniel Nemeș (Directorul Seminarului), Prof. Ionel Grecu
+  (Pastor Biserica Filadelfia Horezu), Prof. Claudiu Valer Todeciu — poze în
+  `public/images/profesori/` (înlocuite ulterior cu variante de rezoluție mai mare, 800×534,
+  primite de la user — cele inițiale erau doar 337×225, sursa blurului semnalat). Adăugați și
+  Dani Bulancea (Secretarul Seminarului, fără prefix "Prof."), Prof. Larisa Bulancea, Prof. Florin
+  Dontu — fără poză/rol încă (`bio`/`role` opționale acum în `StaffMember`, `types.ts`).
+- **Layout organigramă pe `/profesori`**: câmp nou `tier?: 1 | 2 | 3` pe `StaffMember` — nivel 1
+  (Daniel Nemeș) sus, izolat; nivel 2 (Dani Bulancea, Larisa Bulancea, Claudiu Todeciu) sub el;
+  nivel 3 (Ionel Grecu, Florin Dontu) mai jos, centrat ca grup de 2 (nu într-o grilă de 3 coloane
+  cu gol).
+- Verificare: `tsc --noEmit` + `npm run lint` curate după fiecare pas; deploy manual (tar+scp,
+  `docs/deploy.md`) pe VPS după fiecare set de modificări, verificat live (curl 200) de fiecare
+  dată. **Testat manual complet de user** — confirmă că totul funcționează.
+- **Status: platformă considerată 100% production-ready** — singurul item rămas neschimbat e
+  informativ (fără poză/disciplină pentru 3 profesori, în așteptarea materialului de la Seminar),
+  nu blochează livrarea.
+
 ## 2026-07-21 (60)
 
 - **Fix: logo din header "sărea" stânga/dreapta la anumite meniuri** — cauza: fără `scrollbar-

@@ -3,6 +3,7 @@ import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { grades, students } from "@/db/schema";
 import { GradeForm } from "./grade-form";
+import { GradeRow } from "./grade-row";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
@@ -51,15 +52,12 @@ export default async function StudentGradesPage({
                 <th className="w-full p-4 font-medium">Disciplină</th>
                 <th className="p-4 font-medium whitespace-nowrap">Notă</th>
                 <th className="p-4 font-medium whitespace-nowrap">Data</th>
+                <th className="p-4 font-medium whitespace-nowrap">Acțiuni</th>
               </tr>
             </thead>
             <tbody>
               {studentGrades.map((g) => (
-                <tr key={g.id} className="border-t">
-                  <td className="p-4">{g.subject}</td>
-                  <td className="p-4 whitespace-nowrap">{g.grade}</td>
-                  <td className="p-4 whitespace-nowrap">{g.gradedAt}</td>
-                </tr>
+                <GradeRow key={g.id} studentId={studentId} grade={g} />
               ))}
             </tbody>
           </table>

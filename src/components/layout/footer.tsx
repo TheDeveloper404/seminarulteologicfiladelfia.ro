@@ -6,17 +6,15 @@ export function Footer() {
 
   return (
     <footer className="border-t border-border bg-primary text-primary-foreground">
-      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-3 px-4 py-8 text-base text-primary-foreground/80 sm:px-6 lg:flex-nowrap lg:justify-start lg:px-8">
+      <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-3 gap-y-3 px-4 py-8 text-center text-base text-primary-foreground/80 sm:px-6 lg:flex-nowrap lg:justify-start lg:px-8 lg:text-left">
         <span className="font-heading text-lg font-semibold whitespace-nowrap text-primary-foreground">
           {siteConfig.name}
         </span>
-        <span aria-hidden="true" className="text-primary-foreground/30">
+        <span aria-hidden="true" className="hidden text-primary-foreground/30 sm:inline">
           |
         </span>
-        <span className="whitespace-nowrap">
-          Școală teologică evanghelică protestantă conservatoare
-        </span>
-        <span aria-hidden="true" className="text-primary-foreground/30">
+        <span>Școală teologică evanghelică protestantă conservatoare</span>
+        <span aria-hidden="true" className="hidden text-primary-foreground/30 sm:inline">
           |
         </span>
         <span className="whitespace-nowrap">
@@ -30,7 +28,7 @@ export function Footer() {
             {siteConfig.parentChurch.name}
           </a>
         </span>
-        <span aria-hidden="true" className="text-primary-foreground/30">
+        <span aria-hidden="true" className="hidden text-primary-foreground/30 sm:inline">
           |
         </span>
         <span className="whitespace-nowrap">Contact</span>

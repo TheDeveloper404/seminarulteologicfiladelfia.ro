@@ -36,7 +36,10 @@ export interface ContentBlock {
 
 export interface StaffMember {
   name: string;
-  role: string;
+  role?: string;
   photoUrl?: string;
   bio?: string;
+  // Nivel ierarhic pentru afișarea în stil organigramă (1 = sus, 2 = mijloc, 3 = jos) —
+  // vezi pagina Profesori. Implicit 2 dacă lipsește.
+  tier?: 1 | 2 | 3;
 }

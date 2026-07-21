@@ -18,7 +18,7 @@ export function Header() {
             priority
             className="h-9 w-auto"
           />
-          <span className="font-heading text-lg font-semibold whitespace-nowrap text-primary">
+          <span className="hidden font-heading text-lg font-semibold whitespace-nowrap text-primary sm:inline">
             {siteConfig.name}
           </span>
         </Link>
@@ -26,11 +26,11 @@ export function Header() {
         <div className="flex shrink-0 items-center gap-2">
           <Button
             size="sm"
+            className="hidden sm:inline-flex"
             render={<Link href="/portal/login" />}
             nativeButton={false}
           >
-            <span className="hidden sm:inline">Portal studenți</span>
-            <span className="sm:hidden">Portal</span>
+            Portal studenți
           </Button>
           <MobileNav />
         </div>

@@ -22,7 +22,7 @@ export const conducerea: ContentBlock = {
     "Activitatea Catedrelor și a Compartimentului Administrativ este subordonată Bordului Director.",
     "În prezent componența Bordului Director al Seminarului Teologic Penticostal Filadelfia din Petroșani este următoarea:",
     "Director: pastor Daniel Nemeș – profesor",
-    "Secretar: Tiberiu Emeric Pop – profesor",
+    "Secretar: Daniel Bulancea",
     "Consilier în educația creștină: prezbiter Claudiu Valer Todeciu – profesor",
     "Pastorul comunității școlare: pastor Daniel Nemeș – profesor",
     "Membrii Bordului Director sunt numiți pentru mandate de 4 ani, la sfârșitul acestora fiind organizate întruniri cu caracter electiv.",

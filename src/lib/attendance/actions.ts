@@ -6,12 +6,18 @@ import { db } from "@/db";
 import { attendance } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/require-admin";
 
+const SESSION_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
 export async function setAttendance(
   studentId: number,
   sessionDate: string,
   present: boolean
 ): Promise<void> {
   await requireAdmin();
+
+  if (!SESSION_DATE_RE.test(sessionDate)) {
+    throw new Error("Format de dată invalid.");
+  }
 
   const [existing] = await db
     .select({ id: attendance.id })
@@ -27,5 +33,5 @@ export async function setAttendance(
     await db.insert(attendance).values({ studentId, sessionDate, present });
   }
 
-  revalidatePath("/admin/prezenta");
+  revalidatePath("/admin/studenti");
 }
