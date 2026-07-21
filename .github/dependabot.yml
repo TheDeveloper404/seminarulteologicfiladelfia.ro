@@ -17,7 +17,6 @@ updates:
     commit-message:
       prefix: "chore(deps)"
 
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "monthly"
+# Ecosistemul "github-actions" a fost eliminat: repo-ul nu are workflow-uri sub
+# .github/workflows/ (deploy-ul e manual pe VPS, nu prin CI) — Dependabot eșua sigur, negăsind
+# nimic de verificat. Se readaugă dacă vreodată apare un workflow real.
