@@ -96,7 +96,7 @@ CRUD studenți cu ID generat, prezență, plăți, note, materiale de curs (uplo
 arhivă absolvenți. Build+lint verificate curat. **Live pe VPS din 2026-07-21** (vezi secțiunea de
 deploy de mai sus) — punctele 4 și 5 de mai jos (DNS + VPS) sunt acum COMPLETE.
 
-Rămân 3 lucruri, toate blocate pe resurse externe pe care userul le aduce între sesiuni:
+Rămân 2 lucruri, blocate pe resurse externe pe care userul le aduce între sesiuni:
 
 1. **Profesori — poze + listă** (`src/lib/content/profesori.ts`, singurul TODO de conținut
    rămas): așteaptă lista de profesori + fotografiile de la Seminar.
@@ -104,12 +104,11 @@ Rămân 3 lucruri, toate blocate pe resurse externe pe care userul le aduce înt
    Dacă da, merge pe DB+storage de pe VPS (organizată pe ani de absolvire, upload din panelul
    admin), NU pe Vercel Blob (planul vechi e definitiv abandonat — proiectul nu mai e pe Vercel).
    Vezi `docs/decizie-infrastructura-si-functionalitati-noi.md` secțiunea 3.
-3. **Faza 4 — Contact live (ON HOLD)**: formularul e scris și funcțional, dar userul nu are încă
-   acces pe `seminar.filadelfia@gmail.com`, deci contul EmailJS nu poate fi creat. Când are acces:
-   cont EmailJS (service Gmail + template cu `{{from_name}}`, `{{from_email}}`, `{{phone}}`,
-   `{{message}}`, Reply-To pe `{{from_email}}`, allowed domains setate) → cele 3 chei în
-   `.env.local` (local) și pe VPS (`/var/www/app/.env.local`, apoi `npm run build` + `pm2 restart
-   seminar-app`).
+
+**Faza 4 — Contact live (COMPLET, 2026-07-21):** cont EmailJS (partajat cu filadelfia-petrosani.ro,
+același Public Key — normal, e legat de cont), serviciu Gmail pe `seminar.filadelfia@gmail.com`,
+template HTML propriu. Cele 3 chei setate în `.env.local` pe VPS, rebuild făcut (obligatoriu pentru
+`NEXT_PUBLIC_*`). Testat live cu trimitere reală, confirmată.
 
 **DNS + HTTPS (COMPLET, 2026-07-21):** domeniul e pe Cloudflare (nameserver mutați de la
 Hosterion), A records `@` și `www` → IP-ul VPS-ului, proxy Cloudflare activ (portocaliu).

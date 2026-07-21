@@ -2,7 +2,9 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
 
-// CSP calibrat pe ce folosește site-ul: EmailJS (connect-src) și Vercel Blob (img/media).
+// CSP calibrat pe ce folosește site-ul: Vercel Blob (img/media, moștenit — de revizuit dacă
+// galeria nu se mai face pe Blob). Formularul de contact trimite server-side (Maileroo), nu mai
+// are nevoie de excepție connect-src.
 // 'unsafe-inline' la script-src e cerut de runtime-ul Next.js (fără nonce-uri pe site static);
 // 'unsafe-eval' doar în dev (React Fast Refresh).
 const csp = [
@@ -12,7 +14,7 @@ const csp = [
   "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
   "media-src 'self' https://*.public.blob.vercel-storage.com",
   "font-src 'self'",
-  "connect-src 'self' https://api.emailjs.com",
+  "connect-src 'self'",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",

@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { db } from "@/db";
 import { admins } from "@/db/schema";
 import { createSession, destroySession } from "./session";
-import { getClientIp, isRateLimited } from "./rate-limit";
+import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 
 export type AdminLoginState = { error: string } | null;
 

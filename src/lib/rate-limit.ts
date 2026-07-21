@@ -1,7 +1,8 @@
 import { headers } from "next/headers";
 
 // Rate limit in-memory, suficient pentru un singur proces Node pe VPS (nu multi-instanță).
-// Scop: încetinește încercarea automată a mai multor ID-uri contra parolei comune de student.
+// Folosit pe login (admin/student) și pe formularul de contact — namespace cheile per caz
+// de utilizare (ex. `contact:${ip}`) ca să nu se amestece contoarele.
 const attempts = new Map<string, { count: number; resetAt: number }>();
 
 const WINDOW_MS = 15 * 60 * 1000;

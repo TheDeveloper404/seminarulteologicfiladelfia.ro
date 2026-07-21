@@ -4,6 +4,18 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (39)
+
+- **Contact live (EmailJS) — COMPLET**: cont EmailJS (folosit de user și pentru
+  filadelfia-petrosani.ro, același Public Key — corect, e legat de cont nu de site), serviciu
+  Gmail conectat pe `seminar.filadelfia@gmail.com` (`service_swpmc7h`), template HTML propriu
+  (`template_57mdpkq`, cod scris de la zero — design editor-ul EmailJS are compatibilitate slabă
+  cross-client). Cele 3 chei setate în `.env.local` pe VPS, rebuild (obligatoriu — `NEXT_PUBLIC_*`
+  se inlinează la build time, nu e suficient un restart pm2). Testat live: trimitere reală prin
+  formularul de pe `/contact`, confirmată. Restricția de domenii EmailJS nu e disponibilă pe plan
+  free — rămâne nerestricționată, risc deja acceptat explicit de user (vezi
+  [[feedback_emailjs_decision]] și nota din CLAUDE.md).
+
 ## 2026-07-21 (38)
 
 - **Iterație UI/UX admin + portal, pe feedback direct al userului, pe live**: sidebar de
