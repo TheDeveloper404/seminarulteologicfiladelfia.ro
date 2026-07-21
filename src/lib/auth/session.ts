@@ -1,6 +1,6 @@
 import { randomBytes, createHash } from "crypto";
 import { cookies } from "next/headers";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { sessions } from "@/db/schema";
 
@@ -50,7 +50,7 @@ export async function getSession(role: SessionRole) {
   const [session] = await db
     .select()
     .from(sessions)
-    .where(eq(sessions.id, hashToken(token)))
+    .where(and(eq(sessions.id, hashToken(token)), eq(sessions.role, role)))
     .limit(1);
 
   if (!session || session.expiresAt < new Date()) return null;

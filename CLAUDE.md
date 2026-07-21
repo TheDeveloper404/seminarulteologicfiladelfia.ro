@@ -32,11 +32,15 @@ un proiect "soră" egal. Footer-ul reflectă asta ("Parte din Biserica Filadelfi
 - **Vercel Blob** pentru galerii foto/video (`src/lib/content/galerii.ts`, azi gol — array
   `GalleryAlbum[]`). Populare manuală, fără admin UI runtime, printr-un script CLI (de scris în
   Faza 3, `scripts/upload-gallery.ts`).
-- **Formular de contact prin EmailJS** (client-side, `@emailjs/browser`), NU prin API route +
-  Resend. Decizie asumată explicit de user (risc acceptat: public key expus în bundle, fără
-  rate-limiting server) — nu re-propune Resend fără un motiv nou concret. Trimite la
-  `seminar.filadelfia@gmail.com`. Variabile: `NEXT_PUBLIC_EMAILJS_SERVICE_ID`,
-  `NEXT_PUBLIC_EMAILJS_TEMPLATE_ID`, `NEXT_PUBLIC_EMAILJS_PUBLIC_KEY` (vezi `.env.local.example`).
+- **Formular de contact prin Maileroo** (server-side, Server Action în
+  `src/lib/contact/actions.ts`), NU EmailJS (abandonat 2026-07-21 — public key expus fără
+  restricție de domeniu pe plan gratuit) și NU Resend (planul free al userului limitat la 1
+  domeniu, deja ocupat pe alt proiect). Domeniu `seminarulteologicfiladelfia.ro` verificat în
+  Maileroo (SPF/DKIM/DMARC prin Cloudflare DNS), trimite de la
+  `contact@seminarulteologicfiladelfia.ro` (Reply-To pe emailul vizitatorului) către
+  `seminar.filadelfia@gmail.com`. Validare Zod server-side + rate limiting pe IP
+  (`src/lib/rate-limit.ts`, comun cu login-ul). Variabilă: `MAILEROO_API_KEY` (server-only, fără
+  `NEXT_PUBLIC_`, vezi `.env.local.example`).
 - Fonturi: `Lora` (titluri, `--font-heading`) + `Inter` (corp, `--font-sans`) via `next/font/google`.
 - Next.js 16: `params`/`searchParams` sunt `Promise` (await obligatoriu) — vezi
   `src/app/arhiva/[slug]/page.tsx` pentru pattern.
@@ -48,7 +52,7 @@ src/lib/content/        conținut static tipizat (types.ts, site-config.ts, desp
 src/components/layout/   Header, Footer, MainNav (dropdown pe hover/focus), MobileNav (Sheet)
 src/components/sections/ Hero, ContentSection, PageHeader, SubNav, ContentPage (wrapper reutilizat)
 src/components/gallery/  GalleryGrid, GalleryCard, Lightbox (Dialog cu prev/next)
-src/components/contact/  ContactForm (react-hook-form + zod + EmailJS)
+src/components/contact/  ContactForm (Server Action, Zod server-side, Maileroo)
 src/components/ui/       primitive shadcn (button, card, input, sheet, dialog, navigation-menu...)
 scripts/                 (de creat în Faza 3) upload-gallery.ts — upload local → Vercel Blob
 ```
@@ -105,10 +109,10 @@ Rămân 2 lucruri, blocate pe resurse externe pe care userul le aduce între ses
    admin), NU pe Vercel Blob (planul vechi e definitiv abandonat — proiectul nu mai e pe Vercel).
    Vezi `docs/decizie-infrastructura-si-functionalitati-noi.md` secțiunea 3.
 
-**Faza 4 — Contact live (COMPLET, 2026-07-21):** cont EmailJS (partajat cu filadelfia-petrosani.ro,
-același Public Key — normal, e legat de cont), serviciu Gmail pe `seminar.filadelfia@gmail.com`,
-template HTML propriu. Cele 3 chei setate în `.env.local` pe VPS, rebuild făcut (obligatoriu pentru
-`NEXT_PUBLIC_*`). Testat live cu trimitere reală, confirmată.
+**Faza 4 — Contact live (COMPLET, 2026-07-21):** trece prin Maileroo (nu EmailJS, migrat în
+aceeași zi — vezi CHANGELOG (40) pentru motiv). Domeniu verificat, `MAILEROO_API_KEY` pe VPS,
+testat live cu trimitere reală confirmată (primul email a intrat în Spam — normal, domeniu nou;
+rezolvat cu „Not spam" în Gmail, al doilea test a intrat direct în Inbox).
 
 **DNS + HTTPS (COMPLET, 2026-07-21):** domeniul e pe Cloudflare (nameserver mutați de la
 Hosterion), A records `@` și `www` → IP-ul VPS-ului, proxy Cloudflare activ (portocaliu).

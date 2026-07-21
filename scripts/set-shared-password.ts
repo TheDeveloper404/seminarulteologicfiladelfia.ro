@@ -15,5 +15,7 @@ const hash = bcrypt.hashSync(password, 12);
 
 console.log(
   `INSERT INTO app_settings (id, shared_password_hash) VALUES (1, '${hash}')\n` +
-    `ON CONFLICT (id) DO UPDATE SET shared_password_hash = EXCLUDED.shared_password_hash, updated_at = now();`
+    `ON CONFLICT (id) DO UPDATE SET shared_password_hash = EXCLUDED.shared_password_hash, updated_at = now();\n` +
+    `-- Invalidează sesiunile de student deja emise cu parola veche (rămâneau valabile până la 7 zile altfel):\n` +
+    `DELETE FROM sessions WHERE role = 'student';`
 );

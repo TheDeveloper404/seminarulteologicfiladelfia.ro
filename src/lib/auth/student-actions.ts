@@ -23,8 +23,12 @@ export async function loginStudent(
     return { error: "Completează ID-ul și parola." };
   }
 
+  // Limită mai strictă decât default-ul (10/15min): studenții se autentifică toți cu aceeași
+  // parolă comună, deci un atacator care ghicește parola nu mai are nevoie decât de ID-uri
+  // valide — 5 încercări/15min per IP reduce fereastra de brute-force fără să deranjeze
+  // utilizarea normală (o greșeală de tastare, nu 6).
   const ip = await getClientIp();
-  if (isRateLimited(`student-login:${ip}`)) {
+  if (isRateLimited(`student-login:${ip}`, 5)) {
     return { error: "Prea multe încercări. Încearcă din nou peste câteva minute." };
   }
 

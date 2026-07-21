@@ -4,6 +4,56 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (42)
+
+- **Reparate cele 2 findings MEDIUM/LOW rămase din auditul de securitate (41)**:
+  - Rate limiting pe login studenți întărit de la 10/15min (default) la 5/15min per IP —
+    `isRateLimited()` din `src/lib/rate-limit.ts` acceptă acum `maxAttempts` opțional per apel,
+    nu doar o constantă globală.
+  - `scripts/set-shared-password.ts` include acum și `DELETE FROM sessions WHERE role =
+    'student';` în SQL-ul generat — schimbarea parolei comune invalidează automat toate sesiunile
+    de student deja emise (înainte rămâneau valabile până la 7 zile, indiferent de schimbare).
+
+## 2026-07-21 (41)
+
+- **Audit de securitate complet (13 categorii)** pe autentificare, server actions, rută API,
+  upload fișiere, config. Un finding CRITICAL, reparat imediat și redeploy-uit (era live):
+  `getSession(role)` din `src/lib/auth/session.ts` nu verifica dacă rolul stocat în DB pentru
+  sesiune (`sessions.role`) se potrivea cu rolul cerut ("admin" vs "student") — doar validitatea
+  tokenului. Un student autentificat (posibil doar cu parola comună) putea copia manual valoarea
+  cookie-ului `student_session` în slotul `admin_session` din DevTools și obținea acces complet la
+  panoul de admin (bypass total de autorizare). Fix: filtru `eq(sessions.role, role)` adăugat în
+  query. Verificat pe live prin simulare directă a atacului (Playwright, cookie swap) — confirmat
+  blocat după fix.
+  - Alte 2 findings, neblocante: rate limiting per-IP pe login student e ocolibil prin rotație de
+    IP (singura barieră reală fiind parola comună) — MEDIUM, recomandare de strictețe mai mare,
+    nu implementat încă; schimbarea parolei comune nu invalidează sesiunile deja emise (rămân
+    valabile până la 7 zile) — LOW, necesită pas manual (`DELETE FROM sessions WHERE
+    role='student'`) dacă se dorește tăiere imediată a accesului.
+
+## 2026-07-21 (40)
+
+- **Contact: migrat de la EmailJS la Maileroo (server-side)** — decizie luată în aceeași sesiune,
+  după ce EmailJS s-a dovedit nesatisfăcător pe plan gratuit (fără restricție de domeniu pe cheia
+  publică, expusă complet în browser). Resend a fost respins la rândul lui (plan free al userului
+  deja ocupat cu 1 domeniu, pe alt proiect). Ales Maileroo: 3 domenii + 3000 emailuri/lună gratuit.
+  - Trimiterea mutată complet server-side: Server Action (`src/lib/contact/actions.ts`), nu mai
+    există niciun apel client-side către un API extern — `connect-src` din CSP restrâns înapoi la
+    `'self'` (`next.config.ts`).
+  - Validare Zod server-side (dublează validarea nativă HTML5 din formular — client-side nu mai e
+    de încredere, cum era cazul cu EmailJS unde tot trimiterea era client-side).
+  - Rate limiting pe IP reutilizat de la login (`src/lib/rate-limit.ts`, mutat din
+    `src/lib/auth/` — nu mai e specific auth, folosit acum și de formularul de contact).
+  - Domeniu `seminarulteologicfiladelfia.ro` verificat în Maileroo (SPF/DKIM/DMARC prin Cloudflare
+    DNS) — emailurile pleacă de la `contact@seminarulteologicfiladelfia.ro`, cu Reply-To pe
+    emailul vizitatorului, către `seminar.filadelfia@gmail.com`. Template HTML propriu (inline
+    styles, cross-client).
+  - `react-hook-form` + `@hookform/resolvers` + `@emailjs/browser` dezinstalate (nemaifolosite).
+  - Testat live: trimitere reală confirmată; primul email a intrat în Spam (normal — domeniu nou,
+    fără istoric de trimitere), rezolvat de user cu „Not spam" în Gmail, al doilea test a intrat
+    direct în Inbox.
+  - `MAILEROO_API_KEY` (server-only, fără `NEXT_PUBLIC_`) în `.env.local` pe VPS.
+
 ## 2026-07-21 (39)
 
 - **Contact live (EmailJS) — COMPLET**: cont EmailJS (folosit de user și pentru
