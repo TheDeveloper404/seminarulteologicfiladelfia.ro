@@ -53,8 +53,3 @@ uploads/
 
 # poze de galerie (încărcate de admin la runtime, trăiesc doar pe VPS — nu în git)
 public/gallery/
-
-# Playwright (e2e/) — rapoarte locale, nu artefacte de commit
-/test-results/
-/playwright-report/
-/playwright/.cache/

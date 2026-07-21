@@ -4,28 +4,41 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (57)
+
+- **Verificare targetată de securitate** pe rutele care servesc fișiere (materiale de curs,
+  galerie foto) + toate Server Actions din portal — la cererea userului, alternativă mai ieftină
+  la un audit complet de 13 categorii (majoritatea deja acoperite de runda de hardening din
+  aceeași zi, vezi (53)-(55)). Verificat: `/api/materiale/[id]` (auth check înainte de orice,
+  numele fișierului de pe disc vine mereu din DB — UUID generat, niciodată din inputul
+  utilizatorului, deci fără path traversal; `Content-Disposition` cu `encodeURIComponent`
+  previne header injection), storage-ul de galerie (extensii permise, nume de fișier
+  UUID-generate), și fiecare fișier `actions.ts` din `src/lib/*` — toate Server Actions
+  sensibile apelează `requireAdmin()`/`requireStudent()` explicit în interior (necesar, pentru
+  că un Server Action e apelabil direct prin POST, independent de layout-ul care protejează
+  pagina). Sesiuni (`src/lib/auth/session.ts`): token random 32 bytes, stocat hash-uit (SHA256,
+  niciodată în clar), expirare verificată server-side. Niciun risc găsit pe zonele astea.
+  **Un singur finding real, minor:** `robots.txt` (`src/app/robots.ts`) permitea indexarea
+  `/admin` și `/portal` — paginile redirectează spre login fără date scurse, dar structura
+  internă (`/admin/studenti`, `/portal/note` etc.) putea apărea în rezultate Google. Fix:
+  `disallow: ["/admin", "/portal"]` în `robots.ts`, un singur loc, acoperă tot arborele
+  (prezent + viitor), mai curat decât `noindex` per-pagină pe cele ~13 pagini care nu-l aveau.
+
 ## 2026-07-21 (56)
 
-- **Suită e2e Playwright** (`e2e/`) — nu exista niciun test end-to-end, doar 27 unit vitest.
-  Acoperă flow-urile critice de autentificare: `admin-auth.spec.ts` (login admin succes/eșec,
-  guard pe `/admin` fără sesiune, logout), `student-auth.spec.ts` (login student succes/eșec, ID
-  greșit, student absolvent respins, guard pe `/portal`, logout), și `admin-student-flow.spec.ts`
-  (flow complet: admin creează student → adaugă notă → studentul nou creat se autentifică și își
-  vede nota + empty state pe prezență). Rulează pe build de producție (`npm run build && npm run
-  start`), pornit automat de Playwright (`webServer` în `playwright.config.ts`).
-  Turnstile e no-op automat în acest context (necompletat `TURNSTILE_SECRET_KEY`/
-  `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — vezi `src/lib/turnstile.ts`), fără nicio configurare
-  specială necesară. Adăugat `scripts/seed-e2e.ts` — spre deosebire de `create-admin.ts`/
-  `set-shared-password.ts` (care doar printează SQL), acesta scrie efectiv în DB, dar refuză să
-  ruleze dacă `DATABASE_URL` nu conține "test" în numele bazei (protecție împotriva rulării din
-  greșeală pe producție). Config nou: `.env.e2e.example` (bază Postgres dedicată, separată de
-  dev/producție). `package.json`: scripturi noi `e2e` și `e2e:seed`, devDependencies
-  `@playwright/test`, `dotenv`, `tsx`. Nu e integrat încă în CI (`ci.yml`) — necesită Postgres
-  service + secrete de test în GitHub Actions, decizie separată, mai mare, lăsată pentru mai
-  târziu. `tsc --noEmit`, `lint`, `test` (vitest) și `build` verificate curat local — rularea
-  efectivă a suitei (`npm run e2e`, inclusiv `npx playwright install chromium`) e blocată de
-  `HUMAN_RUNS_TESTS`, rămâne de rulat de user după ce pregătește baza de test (`.env.e2e` +
-  `drizzle-kit push` + `npm run e2e:seed`).
+- **Fix: footer "ridicat", spațiu alb sub el pe paginile cu conținut puțin** (ex.
+  `/studenti/vizitatori`) — cauza era `src/app/template.tsx` (rulează la fiecare navigare,
+  animația de fade-in a paginii), care înfășoară conținutul într-un `<div class="page-enter">`
+  chiar sub `<body>`. `body` e `flex flex-col`, dar acel div era `display:block` fără
+  `flex-1` — nu se mai întindea să umple restul înălțimii disponibile, deci footer-ul (care
+  altfel e împins corect la capăt via `min-h-full`/`flex-1` în `(site)/layout.tsx`) rămânea
+  "suspendat" mai sus decât capătul real al paginii. Bonus: comentariul din `template.tsx`
+  spunea explicit "Header/Footer nu sunt afectate [de animație]" — fals, fiindcă fișierul stă
+  la `src/app/` (deasupra lui `(site)/layout.tsx`), deci Header+Footer erau de fapt înfășurate
+  și ele, nu doar conținutul paginii. Fix minim, în `src/app/globals.css`: clasa `.page-enter`
+  primește `display:flex; flex-direction:column; flex:1 1 auto` — participă corect în lanțul
+  flex al lui `body`, indiferent de pagină. Verificat vizual (Playwright, computed styles +
+  screenshot) pe o pagină scurtă și pe homepage (mult conținut) — niciun regres.
 
 ## 2026-07-21 (55)
 

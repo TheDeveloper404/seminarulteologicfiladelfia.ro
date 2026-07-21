@@ -249,6 +249,13 @@
 }
 
 .page-enter {
+  /* display:flex + flex:1 — altfel acest div (copil direct al lui <body>, care e
+     flex-column) nu se întinde pe verticală, iar footer-ul "plutește" deasupra spațiului
+     rămas liber pe paginile cu conținut puțin. */
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
   animation: page-enter 0.3s ease-out;
 }
 
