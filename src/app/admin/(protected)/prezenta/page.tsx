@@ -1,7 +1,11 @@
 import { eq } from "drizzle-orm";
+import { CalendarCheck } from "lucide-react";
 import { db } from "@/db";
 import { attendance, students } from "@/db/schema";
 import { AttendanceCheckbox } from "./attendance-checkbox";
+import { PageHeader } from "@/components/app-shell/page-header";
+import { EmptyState } from "@/components/app-shell/empty-state";
+import { Card } from "@/components/ui/card";
 
 function firstDayOfCurrentMonth(): string {
   const now = new Date();
@@ -32,31 +36,40 @@ export default async function AttendancePage({
 
   return (
     <div>
-      <h1 className="font-heading text-xl font-semibold">Catalog prezență</h1>
+      <PageHeader
+        title="Catalog prezență"
+        description="Marchează prezența studenților activi pentru sesiunea selectată."
+      />
 
-      <form className="mt-4 flex items-end gap-2" method="get">
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="data" className="text-sm font-medium">
-            Data sesiunii
-          </label>
-          <input
-            id="data"
-            name="data"
-            type="date"
-            defaultValue={sessionDate}
-            className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm"
-          />
-        </div>
-        <button
-          type="submit"
-          className="h-8 rounded-lg border border-input bg-background px-2.5 text-sm hover:bg-muted"
-        >
-          Schimbă data
-        </button>
-      </form>
+      <Card className="mt-6" size="sm">
+        <form className="flex flex-wrap items-end gap-3 px-1" method="get">
+          <div className="flex flex-col gap-1.5">
+            <label htmlFor="data" className="text-sm font-medium">
+              Data sesiunii
+            </label>
+            <input
+              id="data"
+              name="data"
+              type="date"
+              defaultValue={sessionDate}
+              className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            className="h-9 rounded-lg border border-input bg-background px-3 text-sm font-medium hover:bg-muted"
+          >
+            Schimbă data
+          </button>
+        </form>
+      </Card>
 
       {activeStudents.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">Niciun student activ.</p>
+        <EmptyState
+          icon={CalendarCheck}
+          title="Niciun student activ"
+          description="Adaugă studenți din secțiunea Studenți pentru a putea marca prezența."
+        />
       ) : (
         <div className="mt-6 overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">

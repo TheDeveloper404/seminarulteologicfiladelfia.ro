@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { desc } from "drizzle-orm";
+import { Users } from "lucide-react";
 import { db } from "@/db";
 import { students } from "@/db/schema";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/app-shell/page-header";
+import { EmptyState } from "@/components/app-shell/empty-state";
 
 export default async function StudentsPage() {
   const allStudents = await db
@@ -10,17 +13,23 @@ export default async function StudentsPage() {
     .from(students)
     .orderBy(desc(students.createdAt));
 
+  const addStudentButton = (
+    <Button render={<Link href="/admin/studenti/nou" />} nativeButton={false}>
+      Adaugă student
+    </Button>
+  );
+
   return (
     <div>
-      <div className="flex items-center justify-between">
-        <h1 className="font-heading text-xl font-semibold">Studenți</h1>
-        <Button render={<Link href="/admin/studenti/nou" />} nativeButton={false}>
-          Adaugă student
-        </Button>
-      </div>
+      <PageHeader title="Studenți" action={addStudentButton} />
 
       {allStudents.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">Niciun student înregistrat încă.</p>
+        <EmptyState
+          icon={Users}
+          title="Niciun student înregistrat încă"
+          description="Adaugă primul student pentru a-i genera ID-ul unic de autentificare în portal."
+          action={addStudentButton}
+        />
       ) : (
         <div className="mt-6 overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">

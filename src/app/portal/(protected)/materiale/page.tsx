@@ -1,6 +1,9 @@
 import { desc } from "drizzle-orm";
+import { FileText } from "lucide-react";
 import { db } from "@/db";
 import { courseMaterials } from "@/db/schema";
+import { PageHeader } from "@/components/app-shell/page-header";
+import { EmptyState } from "@/components/app-shell/empty-state";
 
 export default async function StudentMaterialsPage() {
   const materials = await db
@@ -10,12 +13,16 @@ export default async function StudentMaterialsPage() {
 
   return (
     <div>
-      <h1 className="font-heading text-xl font-semibold">Materiale de curs</h1>
+      <PageHeader title="Materiale de curs" />
 
       {materials.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">Niciun material disponibil încă.</p>
+        <EmptyState
+          icon={FileText}
+          title="Niciun material disponibil încă"
+          description="Materialele încărcate de admin vor apărea aici, gata de descărcare."
+        />
       ) : (
-        <ul className="mt-6 flex flex-col gap-2">
+        <ul className="mt-6 flex max-w-lg flex-col gap-2">
           {materials.map((material) => (
             <li key={material.id} className="rounded-lg border p-3">
               <p className="font-medium">{material.title}</p>

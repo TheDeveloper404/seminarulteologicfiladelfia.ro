@@ -1,7 +1,10 @@
 import { desc, eq } from "drizzle-orm";
+import { NotebookText } from "lucide-react";
 import { db } from "@/db";
 import { grades } from "@/db/schema";
 import { getSession } from "@/lib/auth/session";
+import { PageHeader } from "@/components/app-shell/page-header";
+import { EmptyState } from "@/components/app-shell/empty-state";
 
 export default async function StudentGradesPage() {
   const session = await getSession("student");
@@ -15,10 +18,14 @@ export default async function StudentGradesPage() {
 
   return (
     <div>
-      <h1 className="font-heading text-xl font-semibold">Notele mele</h1>
+      <PageHeader title="Notele mele" />
 
       {records.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">Nicio notă înregistrată.</p>
+        <EmptyState
+          icon={NotebookText}
+          title="Nicio notă înregistrată"
+          description="Notele acordate de admin vor apărea aici."
+        />
       ) : (
         <div className="mt-6 overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">

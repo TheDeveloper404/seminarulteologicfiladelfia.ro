@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
+import { GraduationCap } from "lucide-react";
 import { db } from "@/db";
 import { students } from "@/db/schema";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/app-shell/page-header";
+import { EmptyState } from "@/components/app-shell/empty-state";
 
 export default async function GraduatesPage() {
   const graduates = await db
@@ -13,13 +16,17 @@ export default async function GraduatesPage() {
 
   return (
     <div>
-      <h1 className="font-heading text-xl font-semibold">Arhivă absolvenți</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Un student ajunge aici când e marcat „Absolvent&rdquo; din pagina lui de editare.
-      </p>
+      <PageHeader
+        title="Arhivă absolvenți"
+        description="Un student ajunge aici când e marcat „Absolvent” din pagina lui de editare."
+      />
 
       {graduates.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">Niciun absolvent încă.</p>
+        <EmptyState
+          icon={GraduationCap}
+          title="Niciun absolvent încă"
+          description="Studenții marcați „Absolvent” din pagina lor de editare apar aici."
+        />
       ) : (
         <div className="mt-6 overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">

@@ -1,7 +1,6 @@
-import Link from "next/link";
 import { requireStudent } from "@/lib/auth/require-student";
 import { logoutStudent } from "@/lib/auth/student-actions";
-import { Button } from "@/components/ui/button";
+import { AppShell } from "@/components/app-shell/app-shell";
 
 const NAV_ITEMS = [
   { href: "/portal", label: "Contul meu" },
@@ -18,27 +17,13 @@ export default async function PortalLayout({
   await requireStudent();
 
   return (
-    <div className="min-h-svh">
-      <header className="flex items-center justify-between border-b px-6 py-3">
-        <nav className="flex items-center gap-4">
-          <span className="font-heading text-sm font-medium">Portal studenți</span>
-          {NAV_ITEMS.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className="text-sm text-muted-foreground hover:text-foreground"
-            >
-              {item.label}
-            </Link>
-          ))}
-        </nav>
-        <form action={logoutStudent}>
-          <Button type="submit" variant="outline" size="sm">
-            Delogare
-          </Button>
-        </form>
-      </header>
-      <main className="p-6">{children}</main>
-    </div>
+    <AppShell
+      brand="Portal studenți"
+      brandHref="/portal"
+      navItems={NAV_ITEMS}
+      logoutAction={logoutStudent}
+    >
+      {children}
+    </AppShell>
   );
 }
