@@ -45,19 +45,19 @@ export default async function AdminDashboardPage() {
         description="Prezența, materialele de curs și notele studenților, dintr-un singur loc."
       />
 
-      <div className="grid max-w-3xl grid-cols-1 gap-4 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((stat) => (
           <Link key={stat.label} href={stat.href}>
             <Card className="transition-shadow hover:shadow-md">
-              <CardContent className="flex items-center gap-4">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <stat.icon className="size-5 text-primary" aria-hidden="true" />
+              <CardContent className="flex items-center gap-4 py-2">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <stat.icon className="size-6 text-primary" aria-hidden="true" />
                 </div>
                 <div>
-                  <p className="text-2xl font-semibold text-foreground">
+                  <p className="text-3xl font-semibold text-foreground">
                     {stat.value}
                   </p>
-                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                  <p className="text-base text-muted-foreground">{stat.label}</p>
                 </div>
               </CardContent>
             </Card>

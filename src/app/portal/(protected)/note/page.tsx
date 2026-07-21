@@ -28,20 +28,20 @@ export default async function StudentGradesPage() {
         />
       ) : (
         <div className="mt-6 max-w-2xl overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
+          <table className="w-full text-base">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="w-full p-3 font-medium">Disciplină</th>
-                <th className="p-3 font-medium whitespace-nowrap">Notă</th>
-                <th className="p-3 font-medium whitespace-nowrap">Data</th>
+                <th className="w-full p-4 font-medium">Disciplină</th>
+                <th className="p-4 font-medium whitespace-nowrap">Notă</th>
+                <th className="p-4 font-medium whitespace-nowrap">Data</th>
               </tr>
             </thead>
             <tbody>
               {records.map((g) => (
                 <tr key={g.id} className="border-t">
-                  <td className="p-3">{g.subject}</td>
-                  <td className="p-3 whitespace-nowrap">{g.grade}</td>
-                  <td className="p-3 whitespace-nowrap">{g.gradedAt}</td>
+                  <td className="p-4">{g.subject}</td>
+                  <td className="p-4 whitespace-nowrap">{g.grade}</td>
+                  <td className="p-4 whitespace-nowrap">{g.gradedAt}</td>
                 </tr>
               ))}
             </tbody>

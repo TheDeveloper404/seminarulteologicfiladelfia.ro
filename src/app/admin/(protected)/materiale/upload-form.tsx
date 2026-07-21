@@ -37,17 +37,22 @@ export function UploadForm() {
   return (
     <form ref={formRef} action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="title">Titlu</Label>
+        <Label htmlFor="title" className="text-base">
+          Titlu
+        </Label>
         <Input
           id="title"
           name="title"
           ref={titleInputRef}
           placeholder="Se completează automat din numele fișierului"
+          className="h-11 md:text-base"
         />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="description">Descriere (opțional)</Label>
-        <Input id="description" name="description" />
+        <Label htmlFor="description" className="text-base">
+          Descriere (opțional)
+        </Label>
+        <Input id="description" name="description" className="h-11 md:text-base" />
       </div>
       <input
         ref={fileInputRef}
@@ -60,12 +65,14 @@ export function UploadForm() {
         onChange={handleFileChange}
       />
       {state?.error && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-base text-destructive" role="alert">
           {state.error}
         </p>
       )}
       <Button
         type="button"
+        size="lg"
+        className="text-base"
         disabled={isPending}
         onClick={() => fileInputRef.current?.click()}
       >

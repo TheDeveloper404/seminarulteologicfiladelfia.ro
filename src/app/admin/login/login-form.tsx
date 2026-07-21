@@ -14,32 +14,44 @@ export function LoginForm() {
   );
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Autentificare admin</CardTitle>
+        <CardTitle className="text-xl">Autentificare admin</CardTitle>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="flex flex-col gap-4">
+        <form action={formAction} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" name="email" type="email" autoComplete="username" required />
+            <Label htmlFor="email" className="text-base">
+              Email
+            </Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="username"
+              className="h-11 md:text-base"
+              required
+            />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Parolă</Label>
+            <Label htmlFor="password" className="text-base">
+              Parolă
+            </Label>
             <Input
               id="password"
               name="password"
               type="password"
               autoComplete="current-password"
+              className="h-11 md:text-base"
               required
             />
           </div>
           {state?.error && (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="text-base text-destructive" role="alert">
               {state.error}
             </p>
           )}
-          <Button type="submit" disabled={isPending} className="w-full">
+          <Button type="submit" size="lg" className="w-full text-base" disabled={isPending}>
             {isPending ? "Se autentifică..." : "Autentificare"}
           </Button>
         </form>

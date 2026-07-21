@@ -18,20 +18,24 @@ export function AppShell({
 }) {
   return (
     <div className="flex min-h-svh bg-muted/30">
-      <aside className="sticky top-0 hidden h-svh w-64 shrink-0 flex-col border-r bg-card md:flex">
+      <aside className="sticky top-0 hidden h-svh w-72 shrink-0 flex-col border-r bg-card md:flex">
         <Link
           href={brandHref}
-          className="flex items-center gap-2 px-5 py-5 font-heading text-sm font-semibold"
+          className="flex items-center gap-2 px-5 py-6 font-heading text-base font-semibold"
         >
-          <GraduationCap className="size-5 text-primary" aria-hidden="true" />
+          <GraduationCap className="size-6 text-primary" aria-hidden="true" />
           {brand}
         </Link>
         <div className="flex-1 overflow-y-auto px-3">
           <AppShellSidebarNav items={navItems} rootHref={brandHref} />
         </div>
         <form action={logoutAction} className="border-t p-3">
-          <Button type="submit" variant="ghost" size="sm" className="w-full justify-start gap-2">
-            <LogOut className="size-4" aria-hidden="true" />
+          <Button
+            type="submit"
+            variant="ghost"
+            className="w-full justify-start gap-2 text-base"
+          >
+            <LogOut className="size-5" aria-hidden="true" />
             Delogare
           </Button>
         </form>
@@ -56,7 +60,9 @@ export function AppShell({
           <AppShellTopNav items={navItems} rootHref={brandHref} />
         </div>
 
-        <main className="mx-auto w-full max-w-5xl flex-1 px-4 py-8 sm:px-8">{children}</main>
+        <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-10 text-base sm:px-8">
+          {children}
+        </main>
       </div>
     </div>
   );

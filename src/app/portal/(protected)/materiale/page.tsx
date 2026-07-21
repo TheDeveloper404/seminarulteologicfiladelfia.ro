@@ -22,21 +22,21 @@ export default async function StudentMaterialsPage() {
           description="Materialele încărcate de admin vor apărea aici, gata de descărcare."
         />
       ) : (
-        <ul className="mt-6 flex max-w-lg flex-col gap-2">
+        <ul className="mt-6 flex max-w-2xl flex-col gap-3">
           {materials.map((material) => (
-            <li key={material.id} className="rounded-lg border p-3">
+            <li key={material.id} className="rounded-lg border p-4">
               <div className="flex items-start justify-between gap-2">
-                <p className="font-medium">{material.title}</p>
-                <p className="shrink-0 text-xs text-muted-foreground">
+                <p className="text-base font-medium">{material.title}</p>
+                <p className="shrink-0 text-sm text-muted-foreground">
                   {new Date(material.uploadedAt).toLocaleDateString("ro-RO")}
                 </p>
               </div>
               {material.description && (
-                <p className="text-sm text-muted-foreground">{material.description}</p>
+                <p className="text-base text-muted-foreground">{material.description}</p>
               )}
               <a
                 href={`/api/materiale/${material.id}`}
-                className="mt-1 inline-block text-sm text-primary underline"
+                className="mt-1 inline-block text-base text-primary underline"
               >
                 Descarcă — {material.originalFileName}
               </a>

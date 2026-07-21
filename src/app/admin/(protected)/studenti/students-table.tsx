@@ -30,46 +30,44 @@ export function StudentsTable({ students }: { students: StudentRow[] }) {
     <div>
       <div className="relative mt-6 max-w-sm">
         <Search
-          className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+          className="pointer-events-none absolute top-1/2 left-3 size-5 -translate-y-1/2 text-muted-foreground"
           aria-hidden="true"
         />
         <Input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Caută după nume..."
-          className="pl-9"
+          className="h-11 pl-10 text-base md:text-base"
           aria-label="Caută student după nume"
         />
       </div>
 
       {filtered.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">
+        <p className="mt-6 text-base text-muted-foreground">
           Niciun student nu corespunde căutării „{query}&rdquo;.
         </p>
       ) : (
         <div className="mt-4 overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
+          <table className="w-full text-base">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3 font-medium whitespace-nowrap">ID</th>
-                <th className="w-full p-3 font-medium">Nume</th>
-                <th className="p-3 font-medium whitespace-nowrap">Contact</th>
-                <th className="p-3 font-medium whitespace-nowrap">An înscriere</th>
-                <th className="p-3 font-medium whitespace-nowrap">Status</th>
-                <th className="p-3" />
+                <th className="p-4 font-medium whitespace-nowrap">ID</th>
+                <th className="w-full p-4 font-medium">Nume</th>
+                <th className="p-4 font-medium whitespace-nowrap">Contact</th>
+                <th className="p-4 font-medium whitespace-nowrap">An înscriere</th>
+                <th className="p-4" />
               </tr>
             </thead>
             <tbody>
               {filtered.map((student) => (
                 <tr key={student.id} className="border-t">
-                  <td className="p-3 font-mono whitespace-nowrap">{student.publicId}</td>
-                  <td className="p-3">{student.fullName}</td>
-                  <td className="p-3 whitespace-nowrap text-muted-foreground">
+                  <td className="p-4 font-mono whitespace-nowrap">{student.publicId}</td>
+                  <td className="p-4">{student.fullName}</td>
+                  <td className="p-4 whitespace-nowrap text-muted-foreground">
                     {student.phone || student.email || "—"}
                   </td>
-                  <td className="p-3 whitespace-nowrap">{student.enrollmentYear}</td>
-                  <td className="p-3 whitespace-nowrap">{student.graduated ? "Absolvent" : "Activ"}</td>
-                  <td className="p-3 text-right whitespace-nowrap">
+                  <td className="p-4 whitespace-nowrap">{student.enrollmentYear}</td>
+                  <td className="p-4 text-right whitespace-nowrap">
                     <div className="flex justify-end gap-2">
                       <Button
                         variant="outline"

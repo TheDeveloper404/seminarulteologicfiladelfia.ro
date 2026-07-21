@@ -28,30 +28,30 @@ export default async function StudentGradesPage({
 
   return (
     <div className="max-w-lg">
-      <h1 className="font-heading text-xl font-semibold">Note — {student.fullName}</h1>
+      <h1 className="font-heading text-2xl font-semibold">Note — {student.fullName}</h1>
 
       <div className="mt-6">
         <GradeForm studentId={studentId} />
       </div>
 
       {studentGrades.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">Nicio notă înregistrată.</p>
+        <p className="mt-6 text-base text-muted-foreground">Nicio notă înregistrată.</p>
       ) : (
         <div className="mt-6 overflow-x-auto rounded-lg border">
-          <table className="w-full text-sm">
+          <table className="w-full text-base">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3 font-medium">Disciplină</th>
-                <th className="p-3 font-medium">Notă</th>
-                <th className="p-3 font-medium">Data</th>
+                <th className="p-4 font-medium">Disciplină</th>
+                <th className="p-4 font-medium">Notă</th>
+                <th className="p-4 font-medium">Data</th>
               </tr>
             </thead>
             <tbody>
               {studentGrades.map((g) => (
                 <tr key={g.id} className="border-t">
-                  <td className="p-3">{g.subject}</td>
-                  <td className="p-3">{g.grade}</td>
-                  <td className="p-3">{g.gradedAt}</td>
+                  <td className="p-4">{g.subject}</td>
+                  <td className="p-4">{g.grade}</td>
+                  <td className="p-4">{g.gradedAt}</td>
                 </tr>
               ))}
             </tbody>

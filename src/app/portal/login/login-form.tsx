@@ -14,32 +14,44 @@ export function LoginForm() {
   );
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Portal studenți</CardTitle>
+        <CardTitle className="text-xl">Portal studenți</CardTitle>
       </CardHeader>
       <CardContent>
-        <form action={formAction} className="flex flex-col gap-4">
+        <form action={formAction} className="flex flex-col gap-5">
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="publicId">ID student</Label>
-            <Input id="publicId" name="publicId" type="text" autoComplete="username" required />
+            <Label htmlFor="publicId" className="text-base">
+              ID student
+            </Label>
+            <Input
+              id="publicId"
+              name="publicId"
+              type="text"
+              autoComplete="username"
+              className="h-11 md:text-base"
+              required
+            />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="password">Parolă</Label>
+            <Label htmlFor="password" className="text-base">
+              Parolă
+            </Label>
             <Input
               id="password"
               name="password"
               type="password"
               autoComplete="current-password"
+              className="h-11 md:text-base"
               required
             />
           </div>
           {state?.error && (
-            <p className="text-sm text-destructive" role="alert">
+            <p className="text-base text-destructive" role="alert">
               {state.error}
             </p>
           )}
-          <Button type="submit" disabled={isPending} className="w-full">
+          <Button type="submit" size="lg" className="w-full text-base" disabled={isPending}>
             {isPending ? "Se autentifică..." : "Autentificare"}
           </Button>
         </form>

@@ -34,13 +34,13 @@ export function AppShellSidebarNav({
             href={item.href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-base font-medium transition-colors",
               isActive
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             )}
           >
-            <span className="[&>svg]:size-4 [&>svg]:shrink-0">{item.icon}</span>
+            <span className="[&>svg]:size-5 [&>svg]:shrink-0">{item.icon}</span>
             {item.label}
           </Link>
         );
@@ -68,7 +68,7 @@ export function AppShellTopNav({
             href={item.href}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex items-center gap-1.5 rounded-full px-3 py-1.5 text-base font-medium transition-colors",
               isActive
                 ? "bg-primary text-primary-foreground"
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"

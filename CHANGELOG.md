@@ -4,6 +4,34 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (38)
+
+- **Iterație UI/UX admin + portal, pe feedback direct al userului, pe live**: sidebar de
+  navigație fix în stânga (înlocuiește bara orizontală de sus) cu iconițe și stare activă,
+  aplicat în `src/components/app-shell/` (`AppShell`, `AppShellSidebarNav`, `AppShellTopNav`
+  pentru mobil). A necesitat trecerea iconițelor ca JSX pre-randat din layout-urile server către
+  componenta client de nav — trimiterea referinței de componentă (funcție) direct producea 500
+  ("Functions cannot be passed directly to Client Components").
+- Text mărit global pe admin+portal (sidebar, titluri, tabele, formulare, empty states) — input-
+  urile shadcn au `md:text-sm` implicit pe desktop, suprascris explicit cu `md:text-base` unde
+  era nevoie de citire mai ușoară pe laptop.
+- **Bug real reparat**: căsuțele de prezență (`AttendanceCheckbox`) nu aveau `key` legat de dată
+  — la schimbarea datei sesiunii, React refolosea aceleași noduri DOM necontrolate
+  (`defaultChecked`), păstrând bifa vizuală veche în loc s-o ia din baza de date. Fix:
+  `key={sessionDate}` forțează remount.
+- Upload material de curs: din două acțiuni separate (alege fișier + apasă submit) într-una
+  singură — un buton „Alege și încarcă material" deschide direct dialogul de fișier, iar la
+  selecție se autocompletează titlul din numele fișierului și se trimite automat formularul.
+- Ștergere pentru studenți și materiale de curs (cu fișierul de pe disc), confirmare printr-un
+  dialog propriu al aplicației (Base UI `Dialog`), nu `window.confirm` nativ.
+  `client_max_body_size 50M` adăugat în nginx (lipsea, bloca orice upload peste 1MB cu 413).
+- Studenții marcați „Absolvent" nu mai apar în lista principală de Studenți (doar în Arhivă
+  absolvenți); arhiva e acum grupată pe anul absolvirii, nu toți la grămadă.
+- Search live după nume în lista de studenți; email/telefon complet opționale la adăugare (nu se
+  mai cere cel puțin un contact); pagina de Materiale reorganizată pe două coloane (formular
+  stânga, listă dreapta, înălțimi egale); lățimi de conținut uniformizate pe toate paginile
+  (tabelele nu mai sunt întinse artificial cu goluri mari între coloane scurte).
+
 ## 2026-07-21 (37)
 
 - **Deploy live pe VPS Hostinger KVM1** (`31.97.47.182`, Ubuntu 24.04, Frankfurt) — Vercel

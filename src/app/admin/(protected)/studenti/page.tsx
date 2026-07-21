@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { Users } from "lucide-react";
 import { db } from "@/db";
 import { students } from "@/db/schema";
@@ -12,6 +12,7 @@ export default async function StudentsPage() {
   const allStudents = await db
     .select()
     .from(students)
+    .where(eq(students.graduated, false))
     .orderBy(desc(students.createdAt));
 
   const addStudentButton = (

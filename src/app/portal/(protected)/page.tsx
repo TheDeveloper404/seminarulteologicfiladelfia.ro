@@ -34,11 +34,11 @@ export default async function PortalDashboardPage() {
         {links.map((link) => (
           <Link key={link.href} href={link.href}>
             <Card className="transition-shadow hover:shadow-md">
-              <CardContent className="flex items-center gap-4">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                  <link.icon className="size-5 text-primary" aria-hidden="true" />
+              <CardContent className="flex items-center gap-4 py-2">
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                  <link.icon className="size-6 text-primary" aria-hidden="true" />
                 </div>
-                <p className="font-medium text-foreground">{link.label}</p>
+                <p className="text-base font-medium text-foreground">{link.label}</p>
               </CardContent>
             </Card>
           </Link>

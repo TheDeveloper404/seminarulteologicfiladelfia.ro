@@ -41,11 +41,11 @@ export default async function AttendancePage({
         description="Marchează prezența studenților activi pentru sesiunea selectată."
       />
 
-      <div className="max-w-2xl">
-        <Card className="mt-6" size="sm">
+      <div>
+        <Card className="mt-6 max-w-md" size="sm">
           <form className="flex flex-wrap items-end gap-3 px-1" method="get">
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="data" className="text-sm font-medium">
+              <label htmlFor="data" className="text-base font-medium">
                 Data sesiunii
               </label>
               <input
@@ -53,12 +53,12 @@ export default async function AttendancePage({
                 name="data"
                 type="date"
                 defaultValue={sessionDate}
-                className="h-9 rounded-lg border border-input bg-background px-2.5 text-sm"
+                className="h-11 rounded-lg border border-input bg-background px-3 text-base"
               />
             </div>
             <button
               type="submit"
-              className="h-9 rounded-lg border border-input bg-background px-3 text-sm font-medium hover:bg-muted"
+              className="h-11 rounded-lg border border-input bg-background px-4 text-base font-medium hover:bg-muted"
             >
               Schimbă data
             </button>
@@ -73,20 +73,20 @@ export default async function AttendancePage({
           />
         ) : (
           <div className="mt-6 overflow-x-auto rounded-lg border">
-            <table className="w-full text-sm">
+            <table className="w-full text-base">
               <thead className="bg-muted/50 text-left">
                 <tr>
-                  <th className="p-3 font-medium whitespace-nowrap">ID</th>
-                  <th className="w-full p-3 font-medium">Nume</th>
-                  <th className="p-3 font-medium whitespace-nowrap">Prezent</th>
+                  <th className="p-4 font-medium whitespace-nowrap">ID</th>
+                  <th className="w-full p-4 font-medium">Nume</th>
+                  <th className="p-4 font-medium whitespace-nowrap">Prezent</th>
                 </tr>
               </thead>
               <tbody>
                 {activeStudents.map((student) => (
                   <tr key={student.id} className="border-t">
-                    <td className="p-3 font-mono whitespace-nowrap">{student.publicId}</td>
-                    <td className="p-3">{student.fullName}</td>
-                    <td className="p-3 whitespace-nowrap">
+                    <td className="p-4 font-mono whitespace-nowrap">{student.publicId}</td>
+                    <td className="p-4">{student.fullName}</td>
+                    <td className="p-4 whitespace-nowrap">
                       <AttendanceCheckbox
                         key={sessionDate}
                         studentId={student.id}

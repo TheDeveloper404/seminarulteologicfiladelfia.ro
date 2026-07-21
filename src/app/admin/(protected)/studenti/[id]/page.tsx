@@ -30,7 +30,7 @@ export default async function EditStudentPage({
   return (
     <div className="max-w-lg">
       <div className="flex items-center justify-between">
-        <h1 className="font-heading text-xl font-semibold">Editează student</h1>
+        <h1 className="font-heading text-2xl font-semibold">Editează student</h1>
         <DeleteStudentButton studentId={student.id} studentName={student.fullName} />
       </div>
       <div className="mt-6">
