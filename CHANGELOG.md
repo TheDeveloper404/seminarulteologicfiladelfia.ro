@@ -4,6 +4,15 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (58)
+
+- **Documentat (nu configurat acum — deja activ, doar nescris până azi): backup VPS.** Userul
+  are snapshot **săptămânal** al întregului server activat din panoul Hostinger (opțiune nativă
+  pe planul KVM1, zilnic/săptămânal/lunar disponibile). Nu era menționat nicăieri în
+  `CHANGELOG.md`/`docs/` — a dus la un fals-pozitiv azi (am semnalat lipsa de backup ca gol de
+  producție, verificând doar CHANGELOG/docs/memorie, fără să știu că exista deja). Notat acum în
+  `docs/arhitectura.md`, secțiunea Infrastructură (VPS), ca să nu se mai piardă informația.
+
 ## 2026-07-21 (57)
 
 - **Verificare targetată de securitate** pe rutele care servesc fișiere (materiale de curs,

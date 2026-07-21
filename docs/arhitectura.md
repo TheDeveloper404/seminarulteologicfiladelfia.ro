@@ -49,3 +49,8 @@ user dedicat **`seminar`** (nu root — hardening de securitate), nginx reverse-
 directă a galeriei, certificat Let's Encrypt (auto-reînnoire), Cloudflare (proxy activ) pentru
 DNS/HTTPS către vizitatori. SSH: doar autentificare prin cheie (`PasswordAuthentication no`,
 `PermitRootLogin prohibit-password`), `fail2ban` activ pe portul 22.
+
+**Backup:** snapshot **săptămânal** al întregului VPS, activat din panoul Hostinger (nivel
+platformă — restaurează tot serverul, inclusiv Postgres și `public/gallery/`/`uploads/`; nu e
+`pg_dump` separat). Configurat de user direct din Hostinger, opțiune existentă nativ pe planul
+KVM1 (zilnic/săptămânal/lunar disponibile, ales săptămânal ca suficient pentru scara proiectului).
