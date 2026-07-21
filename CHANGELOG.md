@@ -4,6 +4,22 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (55)
+
+- **Fix CI, care pica pe GitHub** (`npm ci` → `npm install` în `.github/workflows/ci.yml`) —
+  greșeală proprie: workflow-ul fusese scris și "verificat" doar local, fără să confirm efectiv
+  o rulare reușită pe GitHub Actions. `npm ci` e strict la potrivirea exactă cu versiunea de npm
+  care a generat lockfile-ul; mașina de dev are npm 11.10.1 upgradat manual, diferit de npm-ul
+  cu care vine Node 22 curat pe runner. `npm install` evită dependența asta. Nu verificat încă
+  live pe GitHub (necesită push, pe care îl face userul).
+
+## 2026-07-21 (54)
+
+- **Cloudflare Turnstile activat live** pe login admin + student — cheile configurate în
+  `.env.local` pe VPS, rebuild + restart, verificat live (widget randat cu site key-ul corect pe
+  ambele pagini de login). Plus, activat manual în dashboard Cloudflare: SSL/TLS Full (Strict),
+  Always Use HTTPS, Minimum TLS Version 1.2, Bot Fight Mode.
+
 ## 2026-07-21 (53)
 
 - **CI** (`.github/workflows/ci.yml`) — lint + test + build pe fiecare push/PR către `main`.

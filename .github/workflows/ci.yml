@@ -21,7 +21,9 @@ jobs:
           node-version: 22
           cache: "npm"
 
-      - run: npm ci
+      # nu "npm ci": e strict la potrivirea exactă cu versiunea de npm care a generat
+      # lockfile-ul (poate diferi de npm-ul mașinii de dev) — a picat CI-ul din cauza asta.
+      - run: npm install
 
       - run: npm run lint
 

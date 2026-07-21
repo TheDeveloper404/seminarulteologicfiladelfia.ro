@@ -66,9 +66,8 @@ etc?" — verificări suplimentare, dincolo de cele două audituri de cod de mai
 - **Cloudflare Turnstile** pe login admin + student (`src/lib/turnstile.ts`,
   `src/components/turnstile-widget.tsx`) — verificare anti-bot, motivată de scanări automate
   deja observate în log-uri (probe-uri cu ID-uri false de Server Action). Cod implementat și
-  gated pe env vars (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`) — **inactiv până
-  cheile sunt configurate** pe VPS (widget nu se randează, verificarea server-side e sărită
-  automat fără cheia secretă — nu blochează login-ul, doar nu-l protejează încă).
+  gated pe env vars (`NEXT_PUBLIC_TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET_KEY`) — **activ din
+  2026-07-21**, chei configurate pe VPS, verificat live (widget randat pe ambele login-uri).
 
 ## Risc rezidual, cunoscut și acceptat
 
