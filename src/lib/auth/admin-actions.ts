@@ -24,7 +24,7 @@ export async function loginAdmin(
   }
 
   const ip = await getClientIp();
-  if (isRateLimited(`admin-login:${ip}`)) {
+  if (await isRateLimited(`admin-login:${ip}`)) {
     return { error: "Prea multe încercări. Încearcă din nou peste câteva minute." };
   }
 

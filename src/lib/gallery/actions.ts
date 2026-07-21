@@ -7,21 +7,12 @@ import { db } from "@/db";
 import { galleryAlbums, galleryPhotos } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { deleteGalleryPhoto, isAllowedImageExtension, saveGalleryPhoto } from "./storage";
+import { slugify } from "./slugify";
 
 export type AlbumFormState = { error: string } | null;
 export type PhotoUploadState = { error: string } | null;
 
 const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20MB — poze de telefon/aparat foto
-
-function slugify(title: string, year: number): string {
-  const base = title
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "") // elimină diacritice
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-  return base ? `${year}-${base}` : String(year);
-}
 
 export async function createAlbum(
   _prevState: AlbumFormState,

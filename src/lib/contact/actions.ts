@@ -1,19 +1,10 @@
 "use server";
 
-import { z } from "zod";
 import { MailerooClient, EmailAddress } from "maileroo-sdk";
 import { getClientIp, isRateLimited } from "@/lib/rate-limit";
+import { contactSchema } from "./schema";
 
 export type ContactFormState = { error: string } | { success: true } | null;
-
-const contactSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  email: z.string().trim().email(),
-  phone: z.string().trim().max(20).optional().or(z.literal("")),
-  message: z.string().trim().min(10).max(2000),
-  // honeypot: câmp ascuns, trebuie să rămână gol — completat = bot
-  company: z.string().max(0).optional().or(z.literal("")),
-});
 
 const CONTACT_FROM_EMAIL = "contact@seminarulteologicfiladelfia.ro";
 const CONTACT_TO_EMAIL = "seminar.filadelfia@gmail.com";
@@ -78,7 +69,7 @@ export async function sendContactMessage(
   formData: FormData
 ): Promise<ContactFormState> {
   const ip = await getClientIp();
-  if (isRateLimited(`contact:${ip}`)) {
+  if (await isRateLimited(`contact:${ip}`)) {
     return { error: "Prea multe încercări. Te rugăm încearcă din nou peste câteva minute." };
   }
 

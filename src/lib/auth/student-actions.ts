@@ -28,7 +28,7 @@ export async function loginStudent(
   // valide — 5 încercări/15min per IP reduce fereastra de brute-force fără să deranjeze
   // utilizarea normală (o greșeală de tastare, nu 6).
   const ip = await getClientIp();
-  if (isRateLimited(`student-login:${ip}`, 5)) {
+  if (await isRateLimited(`student-login:${ip}`, 5)) {
     return { error: "Prea multe încercări. Încearcă din nou peste câteva minute." };
   }
 

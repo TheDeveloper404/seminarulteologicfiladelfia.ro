@@ -105,3 +105,11 @@ export const galleryPhotos = pgTable("gallery_photos", {
   fileName: text("file_name").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// Rate limiting persistent (Postgres, nu in-memory) — supraviețuiește restart-urilor de deploy.
+// `key` e namespaced per caz de utilizare (ex. `contact:1.2.3.4`, `admin-login:1.2.3.4`).
+export const rateLimitAttempts = pgTable("rate_limit_attempts", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(1),
+  resetAt: timestamp("reset_at").notNull(),
+});

@@ -43,6 +43,13 @@
       "when": 1784622042918,
       "tag": "0005_happy_franklin_richards",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784631599486,
+      "tag": "0006_premium_firestar",
+      "breakpoints": true
     }
   ]
 }

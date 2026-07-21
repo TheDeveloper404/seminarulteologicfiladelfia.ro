@@ -4,6 +4,33 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (51)
+
+- **Suită de teste automate (vitest, prima din proiect)** — 23 teste unitare pe logica critică:
+  `hashToken` (sesiune, determinist + niciodată token-ul brut), alfabetul/generarea ID-urilor
+  publice de student (fără caractere ambigue 0/O/1/I/L), `slugify` galerie (diacritice, fallback
+  pe an gol), schema Zod a formularului de contact (honeypot, validare email/mesaj/nume),
+  `isRateLimited` (prag de decizie, limită custom). Câteva funcții mutate din fișiere `"use
+  server"` în fișiere separate (`src/lib/gallery/slugify.ts`, `src/lib/contact/schema.ts`) —
+  Next.js interzice exporturi non-async dintr-un fișier Server Action, nu se putea testa altfel
+  fără să spargă build-ul. `npm run test` rulează local (vitest) — vezi split
+  unit-eu/e2e-userul din CLAUDE.md.
+- **Rate limiting mutat din memorie (Map) în Postgres** (`rate_limit_attempts`, migrare
+  `drizzle/0006`) — limita nu se mai resetează la fiecare `pm2 restart`/deploy. Upsert atomic
+  într-un singur round-trip (`ON CONFLICT ... DO UPDATE` cu `CASE` pe fereastra expirată),
+  sigur la request-uri concurente.
+- **Aplicația mutată de pe `root` pe un user dedicat, fără privilegii (`seminar`)** pe VPS —
+  hardening: dacă aplicația ar fi vreodată compromisă, paguba rămâne izolată la
+  `/var/www/app`, nu se extinde la tot serverul. `pm2` rulează acum sub `seminar`
+  (`pm2-seminar.service`, autostart la reboot), vechiul serviciu `pm2-root` dezactivat.
+  **Important pentru deploy-uri viitoare**: comenzile `npm`/`pm2` trebuie rulate ca `seminar`
+  (`su - seminar -c '...'`), nu ca root — altfel se strică proprietarul fișierelor din
+  `public/gallery/` și `uploads/`.
+- **`pm2-logrotate` instalat** — log-urile aplicației nu mai cresc nelimitat.
+- **Dependabot configurat** (`.github/dependabot.yml`) — verificare lunară a dependințelor npm
+  și GitHub Actions; doar update-uri patch/minor ajung automat în PR (major e ignorat aici,
+  verificat manual când chiar e nevoie, ca să nu vină breaking changes nesupravegheate).
+
 ## 2026-07-21 (50)
 
 - **Audit de infrastructură + hardening VPS**, ca urmare a unei verificări suplimentare (dincolo
