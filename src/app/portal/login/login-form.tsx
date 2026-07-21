@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { loginStudent, type StudentLoginState } from "@/lib/auth/student-actions";
 
@@ -37,10 +38,9 @@ export function LoginForm() {
             <Label htmlFor="password" className="text-base">
               Parolă
             </Label>
-            <Input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               autoComplete="current-password"
               className="h-11 md:text-base"
               required

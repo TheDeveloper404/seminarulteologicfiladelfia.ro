@@ -14,6 +14,7 @@ type StudentRow = {
   phone: string | null;
   email: string | null;
   enrollmentYear: number;
+  studyYear: number;
   graduated: boolean;
 };
 
@@ -55,6 +56,7 @@ export function StudentsTable({ students }: { students: StudentRow[] }) {
                 <th className="w-full p-4 font-medium">Nume</th>
                 <th className="p-4 font-medium whitespace-nowrap">Contact</th>
                 <th className="p-4 font-medium whitespace-nowrap">An înscriere</th>
+                <th className="p-4 font-medium whitespace-nowrap">An studiu</th>
                 <th className="p-4" />
               </tr>
             </thead>
@@ -67,6 +69,9 @@ export function StudentsTable({ students }: { students: StudentRow[] }) {
                     {student.phone || student.email || "—"}
                   </td>
                   <td className="p-4 whitespace-nowrap">{student.enrollmentYear}</td>
+                  <td className="p-4 whitespace-nowrap">
+                    {student.studyYear === 2 ? "Anul II" : "Anul I"}
+                  </td>
                   <td className="p-4 text-right whitespace-nowrap">
                     <div className="flex justify-end gap-2">
                       <Button

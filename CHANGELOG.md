@@ -4,6 +4,28 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (44)
+
+- **Câmp nou „An de studiu" (Anul I / Anul II)** pe student — migrație `drizzle/0004_fearless_lake.sql`
+  (`students.study_year integer default 1`), editabil din formularul admin, afișat în tabelul de
+  Studenți. Actualizat manual de admin (nu există calendar academic din care platforma să deducă
+  automat trecerea între ani).
+- **Populați cei 19 studenți reali ai Seminarului** (din evidența pe hârtie a userului): 6 activi
+  Anul I (înscriși septembrie 2025), 13 marcați direct Absolvent (Anul II, înscriși septembrie
+  2024) — trecuți automat în arhivă, fără acces la portal (comportament din CHANGELOG 43).
+  ID-uri publice generate cu același generator folosit de aplicație (alfabet fără caractere
+  ambigue). Date introduse direct în DB de producție (echivalent cu „admin rulează SQL manual",
+  convenția proiectului) — nu există încă un flow de bulk-import în UI.
+
+## 2026-07-21 (43)
+
+- **Studenții absolvenți nu mai au acces la portal**: `loginStudent` (`src/lib/auth/student-actions.ts`)
+  respinge autentificarea cu mesaj explicit dacă `student.graduated`. `updateStudent`
+  (`src/lib/students/actions.ts`) taie imediat orice sesiune de portal deja activă în momentul
+  marcării ca „Absolvent" (nu mai așteaptă expirarea de 7 zile a cookie-ului). Testat end-to-end
+  live: login înainte de absolvire → funcționează; marcare Absolvent din admin → sesiunea activă
+  dispare din DB; retry login → blocat cu mesajul corect.
+
 ## 2026-07-21 (42)
 
 - **Reparate cele 2 findings MEDIUM/LOW rămase din auditul de securitate (41)**:

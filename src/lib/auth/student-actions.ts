@@ -48,6 +48,12 @@ export async function loginStudent(
     return { error: "ID sau parolă incorectă." };
   }
 
+  if (student.graduated) {
+    return {
+      error: "Acest cont a fost arhivat (absolvent) și nu mai are acces la portal.",
+    };
+  }
+
   await createSession("student", student.id);
   redirect("/portal");
 }

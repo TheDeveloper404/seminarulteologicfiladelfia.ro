@@ -89,6 +89,31 @@ export function StudentForm({
           required
         />
       </div>
+      <div className="flex flex-col gap-1.5">
+        <Label className={labelClassName}>An de studiu</Label>
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2 text-base">
+            <input
+              type="radio"
+              name="studyYear"
+              value="1"
+              defaultChecked={mode === "create" || student.studyYear === 1}
+              className="size-5"
+            />
+            Anul I
+          </label>
+          <label className="flex items-center gap-2 text-base">
+            <input
+              type="radio"
+              name="studyYear"
+              value="2"
+              defaultChecked={mode === "edit" && student.studyYear === 2}
+              className="size-5"
+            />
+            Anul II
+          </label>
+        </div>
+      </div>
       {mode === "edit" && (
         <label className="flex items-center gap-2 text-base">
           <input

@@ -2,9 +2,9 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
-import { students } from "@/db/schema";
+import { sessions, students } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { generateUniquePublicId } from "./generate-public-id";
 
@@ -20,6 +20,7 @@ export async function createStudent(
   const phone = String(formData.get("phone") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const enrollmentYear = Number(formData.get("enrollmentYear"));
+  const studyYear = formData.get("studyYear") === "2" ? 2 : 1;
 
   if (!fullName) {
     return { error: "Numele complet este obligatoriu." };
@@ -36,6 +37,7 @@ export async function createStudent(
     phone: phone || null,
     email: email || null,
     enrollmentYear,
+    studyYear,
   });
 
   revalidatePath("/admin/studenti");
@@ -53,6 +55,7 @@ export async function updateStudent(
   const phone = String(formData.get("phone") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const enrollmentYear = Number(formData.get("enrollmentYear"));
+  const studyYear = formData.get("studyYear") === "2" ? 2 : 1;
   const graduated = formData.get("graduated") === "on";
 
   if (!fullName) {
@@ -69,10 +72,19 @@ export async function updateStudent(
       phone: phone || null,
       email: email || null,
       enrollmentYear,
+      studyYear,
       graduated,
       graduatedAt: graduated ? new Date() : null,
     })
     .where(eq(students.id, studentId));
+
+  if (graduated) {
+    // Taie orice sesiune de portal deja activă a studentului — nu mai are acces din momentul
+    // absolvirii, chiar dacă era logat cu câteva minute înainte.
+    await db
+      .delete(sessions)
+      .where(and(eq(sessions.role, "student"), eq(sessions.studentId, studentId)));
+  }
 
   revalidatePath("/admin/studenti");
   redirect("/admin/studenti");

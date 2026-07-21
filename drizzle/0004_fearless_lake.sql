@@ -1,0 +1,1 @@
+ALTER TABLE "students" ADD COLUMN "study_year" integer DEFAULT 1 NOT NULL;

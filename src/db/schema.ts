@@ -33,6 +33,9 @@ export const students = pgTable("students", {
   phone: varchar("phone", { length: 30 }),
   email: varchar("email", { length: 255 }),
   enrollmentYear: integer("enrollment_year").notNull(),
+  // Anul curent de studiu (1 sau 2) — actualizat manual de admin, nu există calendar academic
+  // din care platforma să-l deducă automat.
+  studyYear: integer("study_year").notNull().default(1),
   graduated: boolean("graduated").notNull().default(false),
   graduatedAt: timestamp("graduated_at"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
