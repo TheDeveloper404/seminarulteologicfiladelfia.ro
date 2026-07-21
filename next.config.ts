@@ -2,17 +2,14 @@ import type { NextConfig } from "next";
 
 const isDev = process.env.NODE_ENV === "development";
 
-// CSP calibrat pe ce folosește site-ul: Vercel Blob (img/media, moștenit — de revizuit dacă
-// galeria nu se mai face pe Blob). Formularul de contact trimite server-side (Maileroo), nu mai
-// are nevoie de excepție connect-src.
 // 'unsafe-inline' la script-src e cerut de runtime-ul Next.js (fără nonce-uri pe site static);
-// 'unsafe-eval' doar în dev (React Fast Refresh).
+// 'unsafe-eval' doar în dev (React Fast Refresh). Galeria foto e servită same-origin (nginx),
+// nu mai e nevoie de excepții externe la img-src/media-src (Vercel Blob abandonat).
 const csp = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob: https://*.public.blob.vercel-storage.com",
-  "media-src 'self' https://*.public.blob.vercel-storage.com",
+  "img-src 'self' data: blob:",
   "font-src 'self'",
   "connect-src 'self'",
   "object-src 'none'",
@@ -39,14 +36,6 @@ const nextConfig: NextConfig = {
       // Implicit 1MB — prea mic pentru materiale de curs (PDF/documente).
       bodySizeLimit: "50mb",
     },
-  },
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "*.public.blob.vercel-storage.com",
-      },
-    ],
   },
   async headers() {
     return [

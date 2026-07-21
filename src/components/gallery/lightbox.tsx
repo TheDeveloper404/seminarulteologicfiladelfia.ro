@@ -1,15 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { MediaItem } from "@/lib/content/types";
+
+interface PhotoItem {
+  id: number;
+  url: string;
+}
 
 interface LightboxProps {
-  items: MediaItem[];
+  items: PhotoItem[];
   albumTitle: string;
 }
 
@@ -28,7 +31,7 @@ export function Lightbox({ items, albumTitle }: LightboxProps) {
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {items.map((item, index) => (
           <button
-            key={item.url}
+            key={item.id}
             type="button"
             onClick={() => setOpenIndex(index)}
             className={cn(
@@ -36,12 +39,11 @@ export function Lightbox({ items, albumTitle }: LightboxProps) {
               "focus-visible:ring-3 focus-visible:ring-ring/50 outline-none"
             )}
           >
-            <Image
-              src={item.thumbUrl ?? item.url}
-              alt={item.alt}
-              fill
-              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-              className="object-cover transition-transform hover:scale-105"
+            {/* eslint-disable-next-line @next/next/no-img-element -- vezi nota din gallery-card.tsx */}
+            <img
+              src={item.url}
+              alt={`${albumTitle} — poza ${index + 1}`}
+              className="size-full object-cover transition-transform hover:scale-105"
             />
           </button>
         ))}
@@ -50,26 +52,17 @@ export function Lightbox({ items, albumTitle }: LightboxProps) {
       <Dialog open={openIndex !== null} onOpenChange={(open) => !open && setOpenIndex(null)}>
         <DialogContent className="max-w-3xl bg-background p-2 sm:p-2">
           <DialogTitle className="sr-only">
-            {albumTitle} — {active?.alt}
+            {albumTitle} — poza {openIndex !== null ? openIndex + 1 : ""}
           </DialogTitle>
           {active && (
             <div className="relative">
-              <div className="relative aspect-video overflow-hidden rounded-lg bg-black">
-                {active.type === "image" ? (
-                  <Image
-                    src={active.url}
-                    alt={active.alt}
-                    fill
-                    sizes="100vw"
-                    className="object-contain"
-                  />
-                ) : (
-                  <video
-                    src={active.url}
-                    controls
-                    className="h-full w-full object-contain"
-                  />
-                )}
+              <div className="relative flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-black">
+                {/* eslint-disable-next-line @next/next/no-img-element -- vezi nota din gallery-card.tsx */}
+                <img
+                  src={active.url}
+                  alt={`${albumTitle} — poza ${(openIndex ?? 0) + 1}`}
+                  className="max-h-full max-w-full object-contain"
+                />
               </div>
               {items.length > 1 && (
                 <>

@@ -57,6 +57,7 @@ export async function updateStudent(
   const enrollmentYear = Number(formData.get("enrollmentYear"));
   const studyYear = formData.get("studyYear") === "2" ? 2 : 1;
   const graduated = formData.get("graduated") === "on";
+  const graduatedAtInput = String(formData.get("graduatedAt") ?? "").trim();
 
   if (!fullName) {
     return { error: "Numele complet este obligatoriu." };
@@ -64,6 +65,17 @@ export async function updateStudent(
   if (!Number.isInteger(enrollmentYear) || enrollmentYear < 2000) {
     return { error: "Anul de înscriere nu este valid." };
   }
+  if (graduatedAtInput && Number.isNaN(Date.parse(graduatedAtInput))) {
+    return { error: "Data absolvirii nu este validă." };
+  }
+
+  // Dacă adminul a completat manual data absolvirii, o folosim pe aceea (poate fi în trecut,
+  // pentru studenți absolviți deja înainte de portal); altfel, la prima bifare, folosim azi.
+  const graduatedAt = graduated
+    ? graduatedAtInput
+      ? new Date(graduatedAtInput)
+      : new Date()
+    : null;
 
   await db
     .update(students)
@@ -74,7 +86,7 @@ export async function updateStudent(
       enrollmentYear,
       studyYear,
       graduated,
-      graduatedAt: graduated ? new Date() : null,
+      graduatedAt,
     })
     .where(eq(students.id, studentId));
 

@@ -62,7 +62,7 @@ export const mainNav: NavItem[] = [
       { label: "Încheiere pregătire", href: "/absolventi/incheiere-pregatire" },
     ],
   },
-  { label: "Arhiva foto/video", href: "/arhiva" },
+  { label: "Arhiva foto", href: "/arhiva" },
   { label: "Contact", href: "/contact" },
 ];
 

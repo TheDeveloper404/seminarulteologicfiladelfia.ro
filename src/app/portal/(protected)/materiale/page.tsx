@@ -22,7 +22,7 @@ export default async function StudentMaterialsPage() {
           description="Materialele încărcate de admin vor apărea aici, gata de descărcare."
         />
       ) : (
-        <ul className="mt-6 flex max-w-2xl flex-col gap-3">
+        <ul className="mx-auto mt-6 flex max-w-2xl flex-col gap-3">
           {materials.map((material) => (
             <li key={material.id} className="rounded-lg border p-4">
               <div className="flex items-start justify-between gap-2">

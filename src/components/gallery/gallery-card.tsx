@@ -1,31 +1,36 @@
 import Link from "next/link";
-import Image from "next/image";
-import type { GalleryAlbum } from "@/lib/content/types";
 
 interface GalleryCardProps {
-  album: GalleryAlbum;
+  slug: string;
+  title: string;
+  year: number;
+  coverUrl: string | null;
+  photoCount: number;
 }
 
-export function GalleryCard({ album }: GalleryCardProps) {
+export function GalleryCard({ slug, title, year, coverUrl, photoCount }: GalleryCardProps) {
   return (
     <Link
-      href={`/arhiva/${album.slug}`}
+      href={`/arhiva/${slug}`}
       className="group overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-shadow hover:shadow-md"
     >
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-        <Image
-          src={album.coverImageUrl}
-          alt={album.title}
-          fill
-          sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
+        {coverUrl ? (
+          // Poze admin-uploaded, servite direct de nginx din public/gallery/ — next/image nu
+          // recunoaște fișiere adăugate după ultimul build.
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={coverUrl}
+            alt={title}
+            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : null}
       </div>
       <div className="p-4">
-        <p className="font-heading text-base font-semibold text-foreground">
-          {album.title}
+        <p className="font-heading text-base font-semibold text-foreground">{title}</p>
+        <p className="mt-0.5 text-sm text-muted-foreground">
+          {year} · {photoCount} {photoCount === 1 ? "poză" : "poze"}
         </p>
-        <p className="mt-0.5 text-sm text-muted-foreground">{album.date}</p>
       </div>
     </Link>
   );

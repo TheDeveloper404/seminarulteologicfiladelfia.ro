@@ -4,6 +4,95 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (50)
+
+- **Audit de infrastructură + hardening VPS**, ca urmare a unei verificări suplimentare (dincolo
+  de cele două audituri de cod din (41) și (49)) — cerută explicit după întrebarea „ai verificat
+  tot, nu sunt buguri, rute descoperite, headers etc?". Găsiri reale, remediate:
+  - **SSH permitea login pe root cu parolă** (`sshd -T` confirma efectiv `permitrootlogin yes` +
+    `passwordauthentication yes`, deși un fișier de la cloud-init sugera altceva — ambiguitate
+    cauzată de ordinea de includere `/etc/ssh/sshd_config.d/*.conf`, unde primul fișier găsit
+    alfabetic câștigă). Fixat: `/etc/ssh/sshd_config.d/00-hardening.conf` nou, cu
+    `PermitRootLogin prohibit-password` + `PasswordAuthentication no` — login SSH doar prin
+    cheie, verificat live (conexiune nouă prin cheie funcționează, login prin parolă e respins
+    cu „Permission denied (publickey)").
+  - **fail2ban instalat și activat** (nu exista deloc) — jail `sshd` (backend systemd): 5
+    încercări greșite / 10 minute → ban 1 oră.
+  - Verificări suplimentare fără găsiri: `npm audit` (4 moderate, toate în `drizzle-kit`/esbuild,
+    unealtă de dev, nu rulează în producție — risc practic zero), fișiere sensibile expuse public
+    (`.env`, `.git/config`, `package.json`, SQL de migrare — toate 404), `/api/materiale/[id]`
+    fără sesiune (401 corect).
+  - **Netratat, documentat pentru mai târziu**: procesul Node (pm2) rulează ca user `root` pe VPS
+    — ar trebui mutat pe un user dedicat, fără privilegii (schimbare cu atingere mai mare:
+    permisiuni fișiere, acces Postgres, config pm2). Reboot VPS pending (kernel actualizat,
+    neaplicat încă) — netratat, nu urgent.
+
+## 2026-07-21 (49)
+
+- **Code review + audit de securitate complet pe toată aplicația** (al doilea, după cel din (41);
+  de data asta cu focus pe cod nou de atunci: galerie foto, `graduatedAt` editabil, config nginx).
+  Verdict: **APPROVED**, zero findings Critical/High/Medium. Verificat direct pe live (nu doar
+  teoretic): path traversal pe `/gallery/` — respins (400/404), listare de directoare — blocată
+  (403). Un singur finding LOW (dead-code fallback în `slugify()` din
+  `src/lib/gallery/actions.ts`, reparat).
+  - CSP curățat: `img-src`/`media-src` nu mai permit `*.public.blob.vercel-storage.com`
+    (Vercel Blob abandonat, galeria e same-origin acum) — `images.remotePatterns` din
+    `next.config.ts` eliminat, nefolosit nicăieri în cod.
+
+## 2026-07-21 (48)
+
+- `public/gallery/` adăugat în `.gitignore` — poze de galerie trăiesc doar pe VPS, nu în repo.
+- **Paginile portal student centrate** (Note, Prezență, Materiale, dashboard) — aveau `max-w-*`
+  fără `mx-auto`, aceeași problemă reparată deja pe partea de admin.
+- **Albumele „Absolvire 2018" și „Cursuri 2018" unite** într-un singur album „Seminar 2018" (16
+  poze) — mutare la nivel de DB, fișierele fizice erau deja în același folder de an, fără
+  coliziuni de nume.
+- **Data absolvirii, editabilă manual** pe pagina de editare student — înainte, bifarea
+  „Absolvent" seta mereu `graduatedAt = azi`, fără posibilitate de corecție pentru absolvenți din
+  trecut. Acum admin poate introduce orice dată; câmpul e prepopulat cu data curentă la prima
+  bifare, dar rămâne editabil oricând după.
+
+## 2026-07-21 (47)
+
+- **Galerie foto — implementată complet** (Faza 3, era ON HOLD). Doar poze, fără video (decizie
+  explicită a userului — elimină complet `MediaItem`/`GalleryAlbum` din `src/lib/content/types.ts`,
+  vechiul sistem static bazat pe Vercel Blob).
+  - Schimbare de schemă: `gallery_albums`, `gallery_photos` (migrația `drizzle/0005_happy_franklin_richards.sql`).
+  - Poze stocate în `public/gallery/<an>/` pe VPS, nume aleator (UUID), nu numele original.
+  - Panou admin nou `/admin/galerie` — creează/șterge album, încarcă poze multiple dintr-o
+    singură selecție (auto-submit, ca la materiale de curs), șterge poză individual (hover,
+    dialog propriu de confirmare, nu `window.confirm`).
+  - **Bug real prins și reparat înainte de livrare**: Next.js (`next start`) nu servește fișiere
+    adăugate în `public/` DUPĂ ultimul build — o poză încărcată de admin la runtime rămânea 404
+    până la un rebuild manual. Fix: nginx servește `/gallery/` direct din disc
+    (`location /gallery/ { alias .../public/gallery/; }`, înaintea proxy-ului către Next), iar
+    componentele publice (`GalleryCard`, `Lightbox`) și cele din admin folosesc `<img>` simplu în
+    loc de `next/image`, ca să nu depindă deloc de manifestul de build al Next. Testat live:
+    poză încărcată din admin, servită 200 imediat, fără rebuild.
+  - Populate 6 albume reale din poze furnizate de user: Absolvire 2013 (6), Absolvire 2014 (5),
+    Seminar 2016 (6), Absolvire 2018 (5), Cursuri 2018 (11), Seminar 2025 (4) — 37 poze total.
+  - Paginile publice `/arhiva` și `/arhiva/[slug]` rescrise să citească din Postgres (`force-dynamic`,
+    nu mai pot fi statice ca înainte — depind de DB la fiecare request).
+  - Label-uri actualizate „Arhiva foto/video" → „Arhiva foto" (site-config.ts, meniu).
+
+## 2026-07-21 (46)
+
+- **Sortare pe coloane (Nume, An înscriere, An studiu)** în tabelele Studenți, Prezență și
+  Absolvenți — componentă nouă reutilizabilă `src/components/app-shell/sortable-header.tsx`
+  (click pe antet, indicator de direcție). Prezența și Absolvenții au primit și coloana „An
+  studiu" care le lipsea. Extrase în componente client dedicate: `attendance-table.tsx`,
+  `graduates-table.tsx` (Studenți era deja client).
+- **Rescrise, centrate ca restul paginilor**: `/admin/studenti/[id]/note` (formular într-un Card,
+  `PageHeader`), `/admin/studenti/[id]` (editare) și `/admin/studenti/nou` (adăugare) — foloseau
+  `max-w-lg` fără `mx-auto`, lipite de marginea din stânga în loc să fie centrate.
+
+## 2026-07-21 (45)
+
+- **Toggle vizibilitate parolă** (iconiță ochi) pe ambele formulare de login — componentă nouă
+  reutilizabilă `src/components/ui/password-input.tsx`, buton accesibil din tastatură (focus
+  vizibil, `aria-label`/`aria-pressed`), folosită în `src/app/admin/login/login-form.tsx` și
+  `src/app/portal/login/login-form.tsx`.
+
 ## 2026-07-21 (44)
 
 - **Câmp nou „An de studiu" (Anul I / Anul II)** pe student — migrație `drizzle/0004_fearless_lake.sql`

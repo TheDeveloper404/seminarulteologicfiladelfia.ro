@@ -40,20 +40,3 @@ export interface StaffMember {
   photoUrl?: string;
   bio?: string;
 }
-
-export interface MediaItem {
-  type: "image" | "video";
-  url: string;
-  thumbUrl?: string;
-  alt: string;
-  width?: number;
-  height?: number;
-}
-
-export interface GalleryAlbum {
-  slug: string;
-  title: string;
-  date: string;
-  coverImageUrl: string;
-  items: MediaItem[];
-}

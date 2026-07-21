@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { StudentForm } from "../student-form";
+import { PageHeader } from "@/components/app-shell/page-header";
+import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
   title: "Adaugă student",
@@ -8,14 +10,16 @@ export const metadata: Metadata = {
 
 export default function NewStudentPage() {
   return (
-    <div className="max-w-lg">
-      <h1 className="font-heading text-2xl font-semibold">Adaugă student</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        ID-ul de acces se generează automat, aleator — nu-l alegi tu.
-      </p>
-      <div className="mt-6">
-        <StudentForm mode="create" />
-      </div>
+    <div className="mx-auto max-w-2xl">
+      <PageHeader
+        title="Adaugă student"
+        description="ID-ul de acces se generează automat, aleator — nu-l alegi tu."
+      />
+      <Card className="mt-6">
+        <CardContent>
+          <StudentForm mode="create" />
+        </CardContent>
+      </Card>
     </div>
   );
 }

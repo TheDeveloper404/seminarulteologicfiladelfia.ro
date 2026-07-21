@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { CalendarCheck } from "lucide-react";
 import { db } from "@/db";
 import { attendance, students } from "@/db/schema";
-import { AttendanceCheckbox } from "./attendance-checkbox";
+import { AttendanceTable } from "./attendance-table";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { Card } from "@/components/ui/card";
@@ -30,7 +30,7 @@ export default async function AttendancePage({
     .from(attendance)
     .where(eq(attendance.sessionDate, sessionDate));
 
-  const presentByStudentId = new Map(
+  const presentByStudentId: Record<number, boolean> = Object.fromEntries(
     attendanceRecords.map((record) => [record.studentId, record.present])
   );
 
@@ -72,33 +72,11 @@ export default async function AttendancePage({
             description="Adaugă studenți din secțiunea Studenți pentru a putea marca prezența."
           />
         ) : (
-          <div className="mt-6 overflow-x-auto rounded-lg border">
-            <table className="w-full text-base">
-              <thead className="bg-muted/50 text-left">
-                <tr>
-                  <th className="p-4 font-medium whitespace-nowrap">ID</th>
-                  <th className="w-full p-4 font-medium">Nume</th>
-                  <th className="p-4 font-medium whitespace-nowrap">Prezent</th>
-                </tr>
-              </thead>
-              <tbody>
-                {activeStudents.map((student) => (
-                  <tr key={student.id} className="border-t">
-                    <td className="p-4 font-mono whitespace-nowrap">{student.publicId}</td>
-                    <td className="p-4">{student.fullName}</td>
-                    <td className="p-4 whitespace-nowrap">
-                      <AttendanceCheckbox
-                        key={sessionDate}
-                        studentId={student.id}
-                        sessionDate={sessionDate}
-                        initialPresent={presentByStudentId.get(student.id) ?? false}
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <AttendanceTable
+            students={activeStudents}
+            presentByStudentId={presentByStudentId}
+            sessionDate={sessionDate}
+          />
         )}
       </div>
     </div>

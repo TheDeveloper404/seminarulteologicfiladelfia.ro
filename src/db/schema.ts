@@ -84,3 +84,24 @@ export const grades = pgTable("grades", {
   gradedAt: date("graded_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+// Galerie foto publică — doar imagini, fără video (decizie explicită). Fișierele stau în
+// `public/gallery/<year>/`, servite direct (public, fără autentificare), spre deosebire de
+// materialele de curs care sunt protejate.
+export const galleryAlbums = pgTable("gallery_albums", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 255 }).notNull().unique(),
+  title: varchar("title", { length: 255 }).notNull(),
+  year: integer("year").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const galleryPhotos = pgTable("gallery_photos", {
+  id: serial("id").primaryKey(),
+  albumId: integer("album_id")
+    .notNull()
+    .references(() => galleryAlbums.id, { onDelete: "cascade" }),
+  // Nume de fișier pe disc (generat, ex. UUID+extensie), relativ la `public/gallery/<year>/`.
+  fileName: text("file_name").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});

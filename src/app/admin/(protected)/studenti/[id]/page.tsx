@@ -4,6 +4,8 @@ import { db } from "@/db";
 import { students } from "@/db/schema";
 import { StudentForm } from "../student-form";
 import { DeleteStudentButton } from "../delete-student-button";
+import { PageHeader } from "@/components/app-shell/page-header";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default async function EditStudentPage({
   params,
@@ -28,14 +30,16 @@ export default async function EditStudentPage({
   }
 
   return (
-    <div className="max-w-lg">
-      <div className="flex items-center justify-between">
-        <h1 className="font-heading text-2xl font-semibold">Editează student</h1>
-        <DeleteStudentButton studentId={student.id} studentName={student.fullName} />
-      </div>
-      <div className="mt-6">
-        <StudentForm mode="edit" student={student} />
-      </div>
+    <div className="mx-auto max-w-2xl">
+      <PageHeader
+        title="Editează student"
+        action={<DeleteStudentButton studentId={student.id} studentName={student.fullName} />}
+      />
+      <Card className="mt-6">
+        <CardContent>
+          <StudentForm mode="edit" student={student} />
+        </CardContent>
+      </Card>
     </div>
   );
 }

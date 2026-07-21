@@ -28,7 +28,7 @@ export default async function StudentAttendancePage() {
           description="Prezența marcată de admin la fiecare sesiune va apărea aici."
         />
       ) : (
-        <div className="mt-6 max-w-md overflow-x-auto rounded-lg border">
+        <div className="mx-auto mt-6 max-w-md overflow-x-auto rounded-lg border">
           <table className="w-full text-base">
             <thead className="bg-muted/50 text-left">
               <tr>

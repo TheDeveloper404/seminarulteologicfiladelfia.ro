@@ -26,12 +26,15 @@ un proiect "soră" egal. Footer-ul reflectă asta ("Parte din Biserica Filadelfi
   în loc de `asChild` (pattern Radix). **Atenție:** `Button` cu `render={<Link .../>}` are nevoie
   explicit de `nativeButton={false}`, altfel Base UI aruncă o eroare în consolă (vezi
   `src/components/sections/hero.tsx`, `src/app/not-found.tsx`).
-- **Fără DB, fără admin/CMS.** Tot conținutul text e în `src/lib/content/*.ts` (tipizat prin
-  `src/lib/content/types.ts`), editat direct prin commit. Conținutul curent e **placeholder/TODO**
-  — textele reale vin ulterior de la Seminar.
-- **Vercel Blob** pentru galerii foto/video (`src/lib/content/galerii.ts`, azi gol — array
-  `GalleryAlbum[]`). Populare manuală, fără admin UI runtime, printr-un script CLI (de scris în
-  Faza 3, `scripts/upload-gallery.ts`).
+- **Conținutul textelor statice** (Despre Noi, Admitere, Programa etc.) rămâne în `src/lib/content/*.ts`
+  (tipizat prin `src/lib/content/types.ts`), editat direct prin commit — nu prin admin UI.
+  **Nu mai e valabil** că site-ul n-are DB/admin: din 2026-07-20/21 există portal admin+student
+  complet (Postgres pe VPS) pentru studenți/prezență/note/materiale/galerie foto (vezi mai jos).
+- **Galerie foto** (`gallery_albums`/`gallery_photos` în Postgres, poze în `public/gallery/<an>/`
+  pe VPS, servite direct de nginx — vezi `src/lib/gallery/`). Admin gestionează din
+  `/admin/galerie` (creează albume, încarcă/șterge poze). NU pe Vercel Blob (planul vechi,
+  abandonat — proiectul nu mai e pe Vercel). **Doar poze, fără video** (decizie explicită a
+  userului, 2026-07-21).
 - **Formular de contact prin Maileroo** (server-side, Server Action în
   `src/lib/contact/actions.ts`), NU EmailJS (abandonat 2026-07-21 — public key expus fără
   restricție de domeniu pe plan gratuit) și NU Resend (planul free al userului limitat la 1
@@ -51,10 +54,11 @@ un proiect "soră" egal. Footer-ul reflectă asta ("Parte din Biserica Filadelfi
 src/lib/content/        conținut static tipizat (types.ts, site-config.ts, despre-noi.ts, ...)
 src/components/layout/   Header, Footer, MainNav (dropdown pe hover/focus), MobileNav (Sheet)
 src/components/sections/ Hero, ContentSection, PageHeader, SubNav, ContentPage (wrapper reutilizat)
-src/components/gallery/  GalleryGrid, GalleryCard, Lightbox (Dialog cu prev/next)
+src/components/gallery/  GalleryGrid, GalleryCard, Lightbox (Dialog cu prev/next) — citesc din Postgres
 src/components/contact/  ContactForm (Server Action, Zod server-side, Maileroo)
 src/components/ui/       primitive shadcn (button, card, input, sheet, dialog, navigation-menu...)
-scripts/                 (de creat în Faza 3) upload-gallery.ts — upload local → Vercel Blob
+src/lib/gallery/         storage.ts (fișiere în public/gallery/<an>/) + actions.ts (Server Actions admin)
+scripts/                 create-admin.ts, set-shared-password.ts — SQL generat, rulat manual
 ```
 
 Fiecare pagină de conținut (despre-noi, studenti, admitere, absolventi) reutilizează
@@ -100,14 +104,18 @@ CRUD studenți cu ID generat, prezență, plăți, note, materiale de curs (uplo
 arhivă absolvenți. Build+lint verificate curat. **Live pe VPS din 2026-07-21** (vezi secțiunea de
 deploy de mai sus) — punctele 4 și 5 de mai jos (DNS + VPS) sunt acum COMPLETE.
 
-Rămân 2 lucruri, blocate pe resurse externe pe care userul le aduce între sesiuni:
+Rămâne 1 lucru, blocat pe resurse externe pe care userul le aduce între sesiuni:
 
 1. **Profesori — poze + listă** (`src/lib/content/profesori.ts`, singurul TODO de conținut
    rămas): așteaptă lista de profesori + fotografiile de la Seminar.
-2. **Faza 3 — Galerii (ON HOLD, opțional)**: userul decide dacă mai vrea galeria foto/video.
-   Dacă da, merge pe DB+storage de pe VPS (organizată pe ani de absolvire, upload din panelul
-   admin), NU pe Vercel Blob (planul vechi e definitiv abandonat — proiectul nu mai e pe Vercel).
-   Vezi `docs/decizie-infrastructura-si-functionalitati-noi.md` secțiunea 3.
+
+**Faza 3 — Galerie foto (COMPLET, 2026-07-21):** `gallery_albums`/`gallery_photos` în Postgres,
+poze în `public/gallery/<an>/` pe VPS, servite direct de nginx (`location /gallery/` alias, NU
+prin Next.js — Next nu recunoaște fișiere adăugate în `public/` după ultimul build, verificat
+empiric). Componentele publice (`GalleryCard`, `Lightbox`) folosesc `<img>` simplu, nu
+`next/image` — evită orice dependență de manifestul de build al Next pentru conținut încărcat
+dinamic de admin. Populate 6 albume reale (37 poze: Absolvire 2013/2014/2018, Cursuri 2018,
+Seminar 2016/2025) din poze furnizate de user. **Doar poze, fără video** — decizie explicită.
 
 **Faza 4 — Contact live (COMPLET, 2026-07-21):** trece prin Maileroo (nu EmailJS, migrat în
 aceeași zi — vezi CHANGELOG (40) pentru motiv). Domeniu verificat, `MAILEROO_API_KEY` pe VPS,

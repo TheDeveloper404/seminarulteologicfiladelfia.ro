@@ -115,15 +115,33 @@ export function StudentForm({
         </div>
       </div>
       {mode === "edit" && (
-        <label className="flex items-center gap-2 text-base">
-          <input
-            type="checkbox"
-            name="graduated"
-            defaultChecked={student.graduated}
-            className="size-5"
-          />
-          Absolvent
-        </label>
+        <>
+          <label className="flex items-center gap-2 text-base">
+            <input
+              type="checkbox"
+              name="graduated"
+              defaultChecked={student.graduated}
+              className="size-5"
+            />
+            Absolvent
+          </label>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor="graduatedAt" className={labelClassName}>
+              Data absolvirii (dacă e cazul)
+            </Label>
+            <Input
+              id="graduatedAt"
+              name="graduatedAt"
+              type="date"
+              defaultValue={
+                student.graduatedAt
+                  ? new Date(student.graduatedAt).toISOString().slice(0, 10)
+                  : ""
+              }
+              className={inputClassName}
+            />
+          </div>
+        </>
       )}
       {state?.error && (
         <p className="text-base text-destructive" role="alert">

@@ -50,3 +50,6 @@ next-env.d.ts
 # Claude session memory buffer (local, not project code)
 .remember/
 uploads/
+
+# poze de galerie (încărcate de admin la runtime, trăiesc doar pe VPS — nu în git)
+public/gallery/

@@ -1,8 +1,15 @@
 import { GalleryCard } from "@/components/gallery/gallery-card";
-import type { GalleryAlbum } from "@/lib/content/types";
+
+interface AlbumSummary {
+  slug: string;
+  title: string;
+  year: number;
+  coverUrl: string | null;
+  photoCount: number;
+}
 
 interface GalleryGridProps {
-  albums: GalleryAlbum[];
+  albums: AlbumSummary[];
 }
 
 export function GalleryGrid({ albums }: GalleryGridProps) {
@@ -13,7 +20,7 @@ export function GalleryGrid({ albums }: GalleryGridProps) {
           Nu există încă galerii publicate
         </p>
         <p className="mt-2 text-sm text-muted-foreground">
-          Arhiva foto/video va fi completată în perioada următoare.
+          Arhiva foto va fi completată în perioada următoare.
         </p>
       </div>
     );
@@ -22,7 +29,7 @@ export function GalleryGrid({ albums }: GalleryGridProps) {
   return (
     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {albums.map((album) => (
-        <GalleryCard key={album.slug} album={album} />
+        <GalleryCard key={album.slug} {...album} />
       ))}
     </div>
   );

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SortableHeader } from "@/components/app-shell/sortable-header";
 import { DeleteStudentButton } from "./delete-student-button";
 
 type StudentRow = {
@@ -18,14 +19,40 @@ type StudentRow = {
   graduated: boolean;
 };
 
+type SortField = "fullName" | "enrollmentYear" | "studyYear";
+
 export function StudentsTable({ students }: { students: StudentRow[] }) {
   const [query, setQuery] = useState("");
+  const [sortField, setSortField] = useState<SortField>("fullName");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
+  function handleSort(field: SortField) {
+    if (field === sortField) {
+      setSortDirection((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  }
 
   const filtered = useMemo(() => {
     const normalized = query.trim().toLowerCase();
-    if (!normalized) return students;
-    return students.filter((s) => s.fullName.toLowerCase().includes(normalized));
-  }, [students, query]);
+    const base = normalized
+      ? students.filter((s) => s.fullName.toLowerCase().includes(normalized))
+      : students;
+
+    const sorted = [...base].sort((a, b) => {
+      let comparison = 0;
+      if (sortField === "fullName") {
+        comparison = a.fullName.localeCompare(b.fullName, "ro");
+      } else {
+        comparison = a[sortField] - b[sortField];
+      }
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+
+    return sorted;
+  }, [students, query, sortField, sortDirection]);
 
   return (
     <div>
@@ -53,10 +80,34 @@ export function StudentsTable({ students }: { students: StudentRow[] }) {
             <thead className="bg-muted/50 text-left">
               <tr>
                 <th className="p-4 font-medium whitespace-nowrap">ID</th>
-                <th className="w-full p-4 font-medium">Nume</th>
+                <th className="w-full p-4 font-medium">
+                  <SortableHeader
+                    label="Nume"
+                    field="fullName"
+                    activeField={sortField}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                </th>
                 <th className="p-4 font-medium whitespace-nowrap">Contact</th>
-                <th className="p-4 font-medium whitespace-nowrap">An înscriere</th>
-                <th className="p-4 font-medium whitespace-nowrap">An studiu</th>
+                <th className="p-4 font-medium whitespace-nowrap">
+                  <SortableHeader
+                    label="An înscriere"
+                    field="enrollmentYear"
+                    activeField={sortField}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                </th>
+                <th className="p-4 font-medium whitespace-nowrap">
+                  <SortableHeader
+                    label="An studiu"
+                    field="studyYear"
+                    activeField={sortField}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                </th>
                 <th className="p-4" />
               </tr>
             </thead>

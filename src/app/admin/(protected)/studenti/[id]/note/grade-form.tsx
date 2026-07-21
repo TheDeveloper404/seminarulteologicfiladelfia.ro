@@ -11,7 +11,7 @@ export function GradeForm({ studentId }: { studentId: number }) {
   const [state, formAction, isPending] = useActionState<GradeFormState, FormData>(action, null);
 
   return (
-    <form action={formAction} className="flex flex-col gap-4 rounded-lg border p-4">
+    <form action={formAction} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="subject" className="text-base">
           Disciplină

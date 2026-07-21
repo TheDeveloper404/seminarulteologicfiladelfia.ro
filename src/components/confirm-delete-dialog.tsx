@@ -18,10 +18,14 @@ export function ConfirmDeleteDialog({
   title,
   description,
   onConfirm,
+  trigger,
+  triggerContent,
 }: {
   title: string;
   description: string;
   onConfirm: () => void | Promise<void>;
+  trigger?: React.ReactElement;
+  triggerContent?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -30,16 +34,22 @@ export function ConfirmDeleteDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger
         render={
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="text-destructive hover:bg-destructive/10"
-          />
+          trigger ?? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="text-destructive hover:bg-destructive/10"
+            />
+          )
         }
       >
-        <Trash2 className="size-4" aria-hidden="true" />
-        Șterge
+        {triggerContent ?? (
+          <>
+            <Trash2 className="size-4" aria-hidden="true" />
+            Șterge
+          </>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
