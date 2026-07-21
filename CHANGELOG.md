@@ -4,6 +4,29 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-21 (37)
+
+- **Deploy live pe VPS Hostinger KVM1** (`31.97.47.182`, Ubuntu 24.04, Frankfurt) — Vercel
+  abandonat definitiv pentru acest proiect. Stack instalat: Postgres 16 (user dedicat
+  `seminar_app`, ascultă doar pe localhost), Node 22, nginx (reverse proxy), `pm2` (auto-start la
+  reboot), `ufw` (doar 22/80/443 deschise). Cele 4 migrații din `drizzle/*.sql` rulate pe DB-ul de
+  producție, cont admin + parolă comună de student create prin `scripts/create-admin.ts` /
+  `scripts/set-shared-password.ts` (SQL generat, rulat manual, ca de obicei).
+- **Domeniu + HTTPS**: `seminarulteologicfiladelfia.ro` conectat prin Cloudflare (nameserver mutate
+  de la Hosterion), A records `@`/`www` → IP VPS, proxy Cloudflare activ. Certificat Let's Encrypt
+  instalat pe VPS via certbot (auto-reînnoire prin systemd timer), nginx redirectează HTTP→HTTPS.
+  Verificat cu userul: domeniul nu avea MX configurat înainte de migrare, deci niciun risc de a
+  pierde email.
+- **Refactor UI/UX admin + portal student**: paginile publice mutate în route-group `(site)`
+  (`src/app/(site)/`) cu propriul `layout.tsx` (Header+Footer) — `/admin` și `/portal` nu mai
+  moștenesc chrome-ul site-ului public. Componente noi reutilizabile în
+  `src/components/app-shell/` (`AppShell`, `AppShellNav` cu stare activă, `PageHeader`,
+  `EmptyState`). Dashboard-urile `/admin` și `/portal` afișează acum statistici reale (nr. studenți
+  activi/absolvenți/materiale) în loc de text placeholder. Empty states reale (icon + titlu +
+  descriere + CTA) pe studenți, materiale, absolvenți, prezență — înainte erau o singură
+  propoziție gri fără cadru. `layout.tsx` rădăcină simplificat la doar `html`/`body`/fonturi.
+  Build + lint + type-check verificate curat.
+
 ## 2026-07-20 (33)
 
 - Implementat portalul admin + student descris în
