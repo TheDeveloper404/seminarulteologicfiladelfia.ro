@@ -1,0 +1,4 @@
+Contact: mailto:seminar.filadelfia@gmail.com
+Expires: 2027-07-22T00:00:00.000Z
+Preferred-Languages: ro, en
+Canonical: https://seminarulteologicfiladelfia.ro/.well-known/security.txt
