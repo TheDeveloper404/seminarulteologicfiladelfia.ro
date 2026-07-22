@@ -85,6 +85,11 @@ statistici reale și empty states corecte.
 **Deploy-uri viitoare pe VPS**: nu există încă pipeline automat — actualizarea codului pe server
 se face manual (`git pull` sau copiere `src/`, apoi `npm run build` + `pm2 restart seminar-app`).
 De discutat cu userul dacă merită un script/CI simplu odată ce ritmul de modificări se stabilizează.
+
+**Regulă permanentă (2026-07-22): orice modificare terminată pe acest proiect se urmează AUTOMAT
+de deploy pe VPS** (tar+scp, vezi `docs/deploy.md`), fără să aștepți o cerere separată „fă deploy".
+Excepție: userul cere explicit doar o schimbare locală/draft, sau modificarea nu atinge nimic ce
+rulează pe server (ex. doar `docs/` sau `CHANGELOG.md`).
 **Important (din 2026-07-21, audit infra):** aplicația rulează pe VPS ca user dedicat `seminar`
 (NU root — hardening de securitate), pm2 e pornit sub `su - seminar -c '...'`, nu direct ca root.
 Orice comandă de deploy/pm2/npm pe server trebuie rulată ca `seminar`, altfel proprietarul

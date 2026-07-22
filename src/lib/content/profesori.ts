@@ -17,11 +17,12 @@ export const profesori: StaffMember[] = [
   },
   {
     // TODO: poză — așteaptă de la Seminar.
-    name: "Prof. Larisa Bulancea",
+    name: "Larisa Bulancea",
+    role: "Secretara Seminarului",
     tier: 2,
   },
   {
-    name: "Prof. Claudiu Valer Todeciu",
+    name: "Prof. Claudiu Valeriu Todeciu",
     photoUrl: "/images/profesori/todeciu-claudiu-valer.png",
     tier: 2,
   },
@@ -33,7 +34,12 @@ export const profesori: StaffMember[] = [
   },
   {
     // TODO: poză — așteaptă de la Seminar.
-    name: "Prof. Florin Dontu",
+    name: "Prof. Sorin Donțu",
+    tier: 3,
+  },
+  {
+    // TODO: poză — așteaptă de la Seminar.
+    name: "Prof. Bălăceanu Daniel",
     tier: 3,
   },
 ];

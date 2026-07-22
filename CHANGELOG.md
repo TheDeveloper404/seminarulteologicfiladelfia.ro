@@ -4,6 +4,27 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-22 (64)
+
+**Pagina Profesori** — poză nouă, layout egalizat, corecturi de nume, un profesor nou.
+
+- **Poză Claudiu Valeriu Todeciu** înlocuită (`public/images/profesori/todeciu-claudiu-valer.png`).
+  **Notă tehnică importantă**: suprascrierea fișierului NU e suficientă când poza e servită prin
+  `next/image` (cazul acestei pagini, spre deosebire de galerie care folosește `<img>` simplu) —
+  Next cache-uiește pe disc (`.next/cache/images`) versiunile redimensionate, cheiate doar după
+  URL, nu după conținut. Trebuie golit explicit `.next/cache/images` + `pm2 restart` după orice
+  înlocuire de poză referențiată prin `next/image`, altfel se vede în continuare poza veche.
+- **Fix layout**: cardurile de pe tier 2 și tier 3 aveau lățimi diferite (424px vs 324px) pentru
+  că foloseau grid-uri separate cu container-e de lățimi diferite. Înlocuit cu `flex flex-wrap
+  justify-center` + lățime fixă pe card (`w-64`/`w-72` pentru director) — toate cardurile sunt
+  acum egale indiferent de tier sau câte intră pe rând.
+- **Corecturi nume**: "Prof. Florin Dontu" → "Prof. Sorin Donțu" (nume greșit inițial).
+- **Profesor nou adăugat**: Prof. Bălăceanu Daniel (tier 3, fără poză/rol încă — așteaptă de la
+  Seminar, ca și ceilalți profesori incompleți).
+- **Regulă de proces nouă, notată permanent** (memory + CLAUDE.md): orice modificare terminată pe
+  acest proiect se urmează automat de deploy pe VPS, fără să se aștepte cerere separată „fă
+  deploy" — vezi secțiunea de deploy din `CLAUDE.md`.
+
 ## 2026-07-22 (63)
 
 **SEO + hardening Cloudflare** (Google Search Console, security.txt, audit Security Insights pe

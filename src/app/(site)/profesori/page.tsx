@@ -10,9 +10,12 @@ export const metadata: Metadata = { title: "Profesori" };
 function StaffCard({ prof, size = "default" }: { prof: StaffMember; size?: "default" | "large" }) {
   const photoSize = size === "large" ? "size-32" : "size-24";
   const photoPx = size === "large" ? 128 : 96;
+  const cardWidth = size === "large" ? "w-72" : "w-64";
 
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-border bg-card p-6 text-center shadow-sm">
+    <div
+      className={`flex ${cardWidth} flex-col items-center rounded-2xl border border-border bg-card p-6 text-center shadow-sm`}
+    >
       {prof.photoUrl ? (
         <Image
           src={prof.photoUrl}
@@ -57,7 +60,7 @@ export default function Page() {
         )}
 
         {tier2.length > 0 && (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-wrap justify-center gap-6">
             {tier2.map((prof) => (
               <StaffCard key={prof.name} prof={prof} />
             ))}
@@ -65,7 +68,7 @@ export default function Page() {
         )}
 
         {tier3.length > 0 && (
-          <div className="mx-auto mt-10 grid max-w-2xl gap-6 sm:grid-cols-2">
+          <div className="mt-10 flex flex-wrap justify-center gap-6">
             {tier3.map((prof) => (
               <StaffCard key={prof.name} prof={prof} />
             ))}
