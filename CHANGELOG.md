@@ -4,6 +4,43 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-22 (63)
+
+**SEO + hardening Cloudflare** (Google Search Console, security.txt, audit Security Insights pe
+cele 3 zone Cloudflare ale userului).
+
+- **Google Search Console**: verificare de proprietate prin fișier HTML —
+  `public/googleb494341f4a9a53d6.html` (conținut standard `google-site-verification: ...`).
+  Sitemap (`src/app/sitemap.ts` → `/sitemap.xml`) și `robots.txt` (`src/app/robots.ts`) existau deja
+  complet, adăugate direct în GSC.
+- **`security.txt`** (RFC 9116) adăugat pe origin: `public/.well-known/security.txt`, contact
+  `seminar.filadelfia@gmail.com`, expiră 2027-07-22.
+- **Notă tehnică de reținut**: fișiere noi în `public/` NU sunt servite de Next.js fără restart
+  al procesului `seminar-app` (`pm2 restart seminar-app`) — nu neapărat rebuild complet, doar
+  restart e suficient (verificat empiric de 2 ori azi). Actualizează `docs/deploy.md` cu asta
+  dacă se repetă.
+- **Cloudflare Security Insights** — audit pe cele 3 zone ale userului (seminarulteologicfiladelfia.ro,
+  filadelfia-petrosani.ro, acl-smartsoftware.ro, toate pe același cont Cloudflare):
+  - **seminarulteologicfiladelfia.ro**: activate AI Labyrinth, Security.txt (feature Cloudflare,
+    separat de fișierul de pe origin), politică AI bot Training → Block (aliniat cu
+    `Content-Signal: ai-train=no` deja existent în robots.txt), Leaked Credentials Detection,
+    Hotlink Protection. Verificat live: portalul admin/student, galeria și materialele nu sunt
+    afectate (Hotlink Protection blochează doar referer extern; Leaked Credentials e doar
+    detecție, fără regulă de blocare activă).
+  - **filadelfia-petrosani.ro** (alt proiect, dar pe același VPS): DNS-ul principal era
+    "DNS only" de la crearea zonei (aprilie) — expunea IP-ul real al VPS-ului (shared cu
+    seminarul) fără protecție Cloudflare. Activat Proxy pe apex + `www`. Notă: prima încercare a
+    userului a proxiat greșit `click.` (subdomeniul de tracking Maileroo) în loc de `www` — a
+    picat cu HTTP 525 (SSL handshake failed către infra Maileroo). Corectat: `click.` înapoi pe
+    DNS-only, `www` pe Proxied.
+  - **acl-smartsoftware.ro** (alt proiect, deploy Vercel): DMARC întărit de la `p=none` la
+    `p=quarattine`/`p=reject` (userul a aplicat schimbarea).
+- Aceste 3 domenii sunt pe **același cont Cloudflare** (`Dev.workspacehub@gmail.com's Account`,
+  id `d51978c8751462eb478673ca9988ead1`) — tokenul API disponibil e read-only și NU are scope
+  pentru Security Center / Bot Management / Zone Settings (confirmat: `/zones/{id}/settings`,
+  `/security-center/*`, `/bot_management` → toate 401/403), doar DNS + zone list merg. Userul ar
+  trebui să extindă permisiunile tokenului dacă vrea verificări automate pe viitor la acel panou.
+
 ## 2026-07-21 (62)
 
 **Code review + audit de securitate de închidere de sesiune** (agenți `security-engineer` +
