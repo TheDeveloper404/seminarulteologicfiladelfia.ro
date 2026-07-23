@@ -4,6 +4,21 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-23 (66)
+
+**Poză Prof. Sorin Donțu** adăugată (`public/images/profesori/dontu-sorin.png`), pe pagina
+`/profesori`. Deploy pe VPS (build + `pm2 restart seminar-app`).
+
+## 2026-07-23 (65)
+
+**Poză Daniel Bălăceanu** adăugată (`public/images/profesori/balaceanu-daniel.png`) și numele
+reordonat "Prof. Bălăceanu Daniel" → "Prof. Daniel Bălăceanu" (prenume înainte, ca la ceilalți
+profesori). Prima poză furnizată era portret vertical strâns (cap sus în cadru) — crop centrat
+`object-cover` tăia vârful capului; am reîncercat cu un crop manual, dar userul a preferat a doua
+poză furnizată (portret cu mai mult spațiu deasupra capului) folosită neprelucrată — component-ul
+`object-cover` o încadrează corect fără crop manual. Deploy pe VPS de două ori (poză inițială +
+înlocuire).
+
 ## 2026-07-22 (64)
 
 **Pagina Profesori** — poză nouă, layout egalizat, corecturi de nume, un profesor nou.

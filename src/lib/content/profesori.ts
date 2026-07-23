@@ -18,7 +18,7 @@ export const profesori: StaffMember[] = [
   {
     // TODO: poză — așteaptă de la Seminar.
     name: "Larisa Bulancea",
-    role: "Secretara Seminarului",
+    role: "Caseriță",
     tier: 2,
   },
   {
@@ -33,8 +33,8 @@ export const profesori: StaffMember[] = [
     tier: 3,
   },
   {
-    // TODO: poză — așteaptă de la Seminar.
     name: "Prof. Sorin Donțu",
+    photoUrl: "/images/profesori/dontu-sorin.png",
     tier: 3,
   },
   {
