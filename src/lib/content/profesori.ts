@@ -38,8 +38,8 @@ export const profesori: StaffMember[] = [
     tier: 3,
   },
   {
-    // TODO: poză — așteaptă de la Seminar.
-    name: "Prof. Bălăceanu Daniel",
+    name: "Prof. Daniel Bălăceanu",
+    photoUrl: "/images/profesori/balaceanu-daniel.png",
     tier: 3,
   },
 ];
