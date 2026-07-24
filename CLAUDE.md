@@ -8,6 +8,16 @@ Plan complet de arhitectură: `C:\dev\persist\claude\plans\salutare-claude-haide
 **Ține la zi `CHANGELOG.md`** — după fiecare modificare făcută în acest repo, adaugă o intrare
 nouă (dată + ce s-a schimbat). E arhiva de referință a proiectului, nu doar note interne.
 
+## Convenții rapide
+
+Tipare mici, ca să nu mai fie nevoie de întrebări repetate pe lucruri banale:
+
+- Când userul zice "citește poza"/"vezi screenshot-ul" fără cale: fișierele trimise ad-hoc în
+  timpul unei sesiuni aterizează de obicei **direct în rădăcina repo-ului** (ex. `1.png`, `2.png`
+  dintr-o sesiune anterioară — șterse după ce nu mai erau necesare). Verifică acolo întâi.
+- Poze permanente de conținut (profesori etc.) merg în `public/images/profesori/`, nu în rădăcină.
+- (Secțiune vie — se extinde pe măsură ce apar tipare noi confirmate, nu presupuneri.)
+
 ## Ce este
 
 Site instituțional (Despre Noi, Profesori, Studenți, Admitere, Programa, Absolvenți, Arhivă

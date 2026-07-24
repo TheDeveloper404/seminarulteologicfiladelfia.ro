@@ -4,6 +4,26 @@ Arhivă a tuturor modificărilor aduse acestui proiect. Fiecare intrare: dată +
 Nu e un changelog de release (nu există versiuni publicate încă) — e jurnalul de lucru al
 proiectului, actualizat după fiecare set de modificări.
 
+## 2026-07-23 (68)
+
+**Audit de configurație cross-proiect** (nu doar acest repo): comparate regulile/hooks/memoria
+dintre Seminar, filadelfia.live, DETALIA, ACL-Smart Software. Găsit și reparat: cheie SSH
+dedicată pentru userul `filadelfia` (era root+sudo), header HSTS lipsă pe filadelfia-petrosani.ro,
+un hook local redundant la DETALIA (`block-push-main.js`, duplicat exact al celui global),
+o cheie API Firebase expusă în clar + o regulă de citire `.env` de producție în `settings.json`
+global (șterse). Fără schimbări de cod în acest repo — doar infra/config, documentat în memoria
+persistentă cross-proiect.
+
+## 2026-07-23 (67)
+
+**Hardening rețea — Next.js legat doar pe loopback.** Procesul `seminar-app` (pm2) asculta pe
+`*:3000` (toate interfețele), spre deosebire de aplicația `filadelfia` de pe același VPS care
+ascultă explicit doar pe `127.0.0.1`. Firewall-ul (`ufw`, deny by default pe restul porturilor)
+proteja deja, dar nu era defense-in-depth — dacă `ufw` ar fi fost vreodată dezactivat temporar,
+portul 3000 ar fi fost expus direct din exterior. Fix: `package.json` → `"start": "next start -H
+127.0.0.1"`. Deploy doar `package.json` + `pm2 restart seminar-app` + `pm2 save`. Verificat:
+`ss -tlnp` arată acum `127.0.0.1:3000`, site-ul răspunde 200 normal.
+
 ## 2026-07-23 (66)
 
 **Poză Prof. Sorin Donțu** adăugată (`public/images/profesori/dontu-sorin.png`), pe pagina
