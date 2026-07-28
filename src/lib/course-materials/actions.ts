@@ -8,6 +8,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { deleteCourseMaterialFile, isAllowedExtension, saveCourseMaterialFile } from "./storage";
 
 export type MaterialFormState = { error: string } | null;
+export type EditMaterialState = { error: string } | { ok: true } | null;
 
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024; // 50MB, aliniat la bodySizeLimit din next.config.ts
 
@@ -23,6 +24,9 @@ export async function uploadCourseMaterial(
 
   if (!title) {
     return { error: "Titlul este obligatoriu." };
+  }
+  if (title.length > 255) {
+    return { error: "Titlul este prea lung (maxim 255 de caractere)." };
   }
   if (!(file instanceof File) || file.size === 0) {
     return { error: "Selectează un fișier." };
@@ -41,10 +45,61 @@ export async function uploadCourseMaterial(
     description: description || null,
     filePath: diskFileName,
     originalFileName: file.name,
+    // Intenționat nepublicat: adminul pregătește cursurile în avans și le face vizibile manual,
+    // când ajunge la ora respectivă (cerință client 2026-07-28).
+    published: false,
   });
 
   revalidatePath("/admin/materiale");
   return null;
+}
+
+export async function setMaterialPublished(
+  materialId: number,
+  published: boolean
+): Promise<void> {
+  await requireAdmin();
+
+  // Argumentele unui Server Action vin de la client — validate ca în updateCourseMaterial.
+  if (!Number.isInteger(materialId)) return;
+
+  await db
+    .update(courseMaterials)
+    .set({ published })
+    .where(eq(courseMaterials.id, materialId));
+
+  revalidatePath("/admin/materiale");
+  revalidatePath("/portal/materiale");
+}
+
+export async function updateCourseMaterial(
+  _prevState: EditMaterialState,
+  formData: FormData
+): Promise<EditMaterialState> {
+  await requireAdmin();
+
+  const materialId = Number(formData.get("materialId"));
+  const title = String(formData.get("title") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+
+  if (!Number.isInteger(materialId)) {
+    return { error: "Material inexistent." };
+  }
+  if (!title) {
+    return { error: "Titlul este obligatoriu." };
+  }
+  if (title.length > 255) {
+    return { error: "Titlul este prea lung (maxim 255 de caractere)." };
+  }
+
+  await db
+    .update(courseMaterials)
+    .set({ title, description: description || null })
+    .where(eq(courseMaterials.id, materialId));
+
+  revalidatePath("/admin/materiale");
+  revalidatePath("/portal/materiale");
+  return { ok: true };
 }
 
 export async function deleteCourseMaterial(materialId: number): Promise<void> {

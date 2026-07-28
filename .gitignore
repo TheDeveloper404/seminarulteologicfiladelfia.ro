@@ -53,3 +53,10 @@ uploads/
 
 # poze de galerie (încărcate de admin la runtime, trăiesc doar pe VPS — nu în git)
 public/gallery/
+
+# Documentație internă de proiect — NU în repo (public). Jurnalul de lucru, backlog-ul, auditul
+# de securitate, procedura de deploy și lista de testare sunt pentru echipă, nu pentru vizitatori;
+# unele descriu infrastructura live. Rămân local, în folderul de lucru.
+/CHANGELOG.md
+/BACKLOG.md
+/docs/

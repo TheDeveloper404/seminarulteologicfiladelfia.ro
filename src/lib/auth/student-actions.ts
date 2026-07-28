@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { db } from "@/db";
 import { appSettings, students } from "@/db/schema";
 import { createSession, destroySession } from "./session";
-import { getClientIp, isRateLimited } from "@/lib/rate-limit";
+import { clearRateLimit, getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 
 export type StudentLoginState = { error: string } | null;
@@ -43,7 +43,10 @@ export async function loginStudent(
   }
 
   const [settings] = await db.select().from(appSettings).limit(1);
-  if (!settings || !(await bcrypt.compare(password, settings.sharedPasswordHash))) {
+  // Normalizată la fel ca la setare (scripts/set-shared-password.ts) — case-insensitive, ca
+  // studenții să nu fie respinși din cauza Caps Lock/Shift pe mobil.
+  const normalizedPassword = password.trim().toLowerCase();
+  if (!settings || !(await bcrypt.compare(normalizedPassword, settings.sharedPasswordHash))) {
     return { error: "ID sau parolă incorectă." };
   }
 
@@ -63,6 +66,10 @@ export async function loginStudent(
       error: "Acest cont a fost arhivat (absolvent) și nu mai are acces la portal.",
     };
   }
+
+  // Autentificare reușită → contorul per IP se resetează, ca studenții care ies prin același IP
+  // (wifi-ul seminarului) să nu se blocheze unii pe alții. Vezi comentariul din clearRateLimit.
+  await clearRateLimit(`student-login:${ip}`);
 
   await createSession("student", student.id);
   redirect("/portal");

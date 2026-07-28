@@ -34,6 +34,12 @@ export async function GET(
     return NextResponse.json({ error: "Nu a fost găsit" }, { status: 404 });
   }
 
+  // Materialele nepublicate sunt vizibile doar adminului — altfel un student cu ID-ul ghicit
+  // (id secvențial) ar putea descărca prin URL direct cursuri care nu au fost încă publicate.
+  if (!material.published && !adminSession) {
+    return NextResponse.json({ error: "Nu a fost găsit" }, { status: 404 });
+  }
+
   const fileBuffer = await readCourseMaterialFile(material.filePath);
 
   return new NextResponse(new Uint8Array(fileBuffer), {

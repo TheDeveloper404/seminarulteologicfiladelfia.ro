@@ -155,6 +155,10 @@ După ce se rezolvă cele 3 puncte de mai sus, proiectul e considerat livrat.
   strict (nu te baza doar pe `npm run lint`).
 - Pentru schimbări vizuale, verifică în browser (Playwright MCP disponibil) — homepage, o pagină
   de conținut cu sub-navigare, `/arhiva` (empty state), `/contact` (validare client), meniul mobil.
-- **`HUMAN_RUNS_TESTS` activ** (`.claude/HUMAN_RUNS_TESTS` există) — userul rulează comenzile de
-  test (ex. `npm run e2e` odată ce vor exista teste Playwright, Faza 5). Claude scrie/repară
-  testele și rulează `tsc --noEmit` / `lint` / `build`, dar nu comenzi de test.
+- **`HUMAN_RUNS_TESTS` activ** (`.claude/HUMAN_RUNS_TESTS` există) — userul rulează testele.
+  Claude scrie/repară testele unitare și rulează `tsc --noEmit` / `lint` / `build`.
+- **Nu există și nu se adaugă teste e2e automate (Playwright) — decizie Liviu, 2026-07-28.**
+  Fluxurile sunt puține și stabile; e2e-ul se face manual, în browser, de către Liviu, după
+  `docs/testare-manuala.md`. Aia e suita e2e a proiectului: **orice flux nou sau modificat se
+  adaugă/actualizează acolo în aceeași sesiune**, iar la finalul unei schimbări indică-i explicit
+  ce secțiuni să parcurgă. Nu propune instalarea Playwright pentru teste.

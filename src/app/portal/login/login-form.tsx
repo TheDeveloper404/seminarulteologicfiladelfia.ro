@@ -51,8 +51,11 @@ export function LoginForm() {
               className="h-11 md:text-base"
               required
             />
+            <p className="text-sm text-muted-foreground">
+              Parola comună primită de la seminar. Nu contează majusculele.
+            </p>
           </div>
-          <TurnstileWidget onReadyChange={setTurnstileReady} />
+          <TurnstileWidget onReadyChange={setTurnstileReady} resetSignal={state} />
           {state?.error && (
             <p className="text-base text-destructive" role="alert">
               {state.error}

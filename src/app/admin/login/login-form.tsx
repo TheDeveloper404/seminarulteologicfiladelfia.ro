@@ -52,7 +52,7 @@ export function LoginForm() {
               required
             />
           </div>
-          <TurnstileWidget onReadyChange={setTurnstileReady} />
+          <TurnstileWidget onReadyChange={setTurnstileReady} resetSignal={state} />
           {state?.error && (
             <p className="text-base text-destructive" role="alert">
               {state.error}

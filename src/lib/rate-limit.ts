@@ -35,3 +35,12 @@ export async function isRateLimited(
   const count = Number(result.rows[0]?.count ?? 1);
   return count > maxAttempts;
 }
+
+// De apelat după o autentificare REUȘITĂ. Fără asta, contorul e per IP și numără și reușitele,
+// iar studenții conectați la același wifi (un singur IP public la ieșire) se blochează unii pe
+// alții: al 6-lea login corect din clădire în 15 minute era respins cu „Prea multe încercări".
+// Ștergerea cheii pe succes păstrează protecția reală — brute-force-ul rămâne limitat la 5
+// EȘECURI consecutive — fără să penalizeze utilizarea normală.
+export async function clearRateLimit(key: string): Promise<void> {
+  await db.execute(sql`DELETE FROM rate_limit_attempts WHERE key = ${key}`);
+}

@@ -49,6 +49,9 @@ export const courseMaterials = pgTable("course_materials", {
   filePath: text("file_path").notNull(),
   // Numele original al fișierului, doar pentru afișare/descărcare (Content-Disposition).
   originalFileName: varchar("original_file_name", { length: 255 }).notNull(),
+  // Draft implicit la upload — admin îl face vizibil studenților manual, când decide (nu vrea ca
+  // materialele să fie disponibile în avans, ca să nu scadă prezența la curs).
+  published: boolean("published").notNull().default(false),
   uploadedAt: timestamp("uploaded_at").notNull().defaultNow(),
 });
 

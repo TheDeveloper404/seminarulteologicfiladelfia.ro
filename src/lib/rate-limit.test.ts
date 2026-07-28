@@ -8,7 +8,7 @@ vi.mock("@/db", () => ({
   db: { execute: (...args: unknown[]) => executeMock(...args) },
 }));
 
-const { isRateLimited } = await import("./rate-limit");
+const { isRateLimited, clearRateLimit } = await import("./rate-limit");
 
 describe("isRateLimited", () => {
   beforeEach(() => {
@@ -33,5 +33,24 @@ describe("isRateLimited", () => {
   it("does not rate limit at exactly the boundary (count === maxAttempts)", async () => {
     executeMock.mockResolvedValue({ rows: [{ count: 5 }] });
     expect(await isRateLimited("student-login:1.2.3.4", 5)).toBe(false);
+  });
+});
+
+describe("clearRateLimit", () => {
+  beforeEach(() => {
+    executeMock.mockReset();
+    executeMock.mockResolvedValue({ rows: [] });
+  });
+
+  // Apelat după un login reușit: fără el, studenții din spatele aceluiași IP (wifi-ul
+  // seminarului) consumau reciproc cele 5 încercări și se blocau unii pe alții.
+  it("issues a delete scoped to the given key", async () => {
+    await clearRateLimit("student-login:1.2.3.4");
+
+    expect(executeMock).toHaveBeenCalledTimes(1);
+    const query = executeMock.mock.calls[0][0] as { queryChunks?: unknown[] };
+    const sqlText = JSON.stringify(query);
+    expect(sqlText).toContain("DELETE FROM rate_limit_attempts");
+    expect(sqlText).toContain("student-login:1.2.3.4");
   });
 });

@@ -1,13 +1,14 @@
 "use client";
 
 import Script from "next/script";
-import { useEffect, useId } from "react";
+import { useEffect, useId, useRef } from "react";
 
 declare global {
   interface Window {
     // Callback-urile Turnstile trebuie să fie funcții globale simple (vezi docs Cloudflare) —
     // fiecare instanță a widget-ului își înregistrează aici propriile callback-uri, sub nume unice.
     [callbackName: `turnstileCb_${string}`]: ((...args: unknown[]) => void) | undefined;
+    turnstile?: { reset: (container?: string | HTMLElement) => void };
   }
 }
 
@@ -19,8 +20,12 @@ declare global {
 // submit-ul până atunci.
 export function TurnstileWidget({
   onReadyChange,
+  resetSignal,
 }: {
   onReadyChange?: (ready: boolean) => void;
+  // Schimbă valoarea (ex. state-ul din useActionState) după fiecare submit ca să forțeze
+  // regenerarea tokenului — vezi comentariul de mai jos.
+  resetSignal?: unknown;
 }) {
   const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const rawId = useId().replace(/[^a-zA-Z0-9]/g, "");
@@ -29,6 +34,8 @@ export function TurnstileWidget({
   // (truthy) — dacă am refolosi handler-ul de succes pentru amândouă, o eroare ar fi
   // interpretată greșit ca "token valid". Un singur handler comun, dedicat "nu e gata".
   const notReadyCallback = `turnstileCb_${rawId}_reset` as const;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     if (!siteKey) return;
@@ -40,12 +47,29 @@ export function TurnstileWidget({
     };
   }, [siteKey, successCallback, notReadyCallback, onReadyChange]);
 
+  // Tokenul Turnstile e single-use — odată trimis la server (chiar și cu parolă greșită),
+  // Cloudflare îl marchează folosit. Fără reset, un al doilea submit imediat trimite același
+  // token "ars" și serverul respinge cu "verificare antibot eșuată", deși widgetul arată tot
+  // verde (bug raportat de client, 2026-07-28). Fix: la fiecare schimbare de resetSignal
+  // (adică după fiecare rezultat de submit), resetăm widgetul ca să genereze token nou.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    if (!siteKey || !containerRef.current) return;
+    onReadyChange?.(false);
+    window.turnstile?.reset(containerRef.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [resetSignal]);
+
   if (!siteKey) return null;
 
   return (
     <>
       <Script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
       <div
+        ref={containerRef}
         className="cf-turnstile"
         data-sitekey={siteKey}
         data-theme="light"

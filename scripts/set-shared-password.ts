@@ -11,7 +11,11 @@ if (!password) {
   process.exit(1);
 }
 
-const hash = bcrypt.hashSync(password, 12);
+// Normalizată (trim + lowercase) — verificarea la login face aceeași normalizare, ca studenții
+// să nu fie respinși din cauza Caps Lock/Shift pe mobil (parolă comună, deci nu case-sensitive
+// nu slăbește practic securitatea).
+const normalized = password.trim().toLowerCase();
+const hash = bcrypt.hashSync(normalized, 12);
 
 console.log(
   `INSERT INTO app_settings (id, shared_password_hash) VALUES (1, '${hash}')\n` +

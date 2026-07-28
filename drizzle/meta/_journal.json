@@ -50,6 +50,13 @@
       "when": 1784631599486,
       "tag": "0006_premium_firestar",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785225638505,
+      "tag": "0007_deep_ezekiel",
+      "breakpoints": true
     }
   ]
 }
