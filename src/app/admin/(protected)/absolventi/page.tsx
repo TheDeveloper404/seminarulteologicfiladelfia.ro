@@ -1,12 +1,18 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, inArray } from "drizzle-orm";
 import { GraduationCap } from "lucide-react";
 import { db } from "@/db";
-import { students } from "@/db/schema";
+import { grades, students } from "@/db/schema";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { GraduatesTable } from "./graduates-table";
 
-type Student = typeof students.$inferSelect;
+type Student = {
+  id: number;
+  publicId: string;
+  fullName: string;
+  enrollmentYear: number;
+  graduatedAt: Date | null;
+};
 
 function groupByGraduationYear(graduates: Student[]): [string, Student[]][] {
   const groups = new Map<string, Student[]>();
@@ -29,12 +35,45 @@ function groupByGraduationYear(graduates: Student[]): [string, Student[]][] {
 
 export default async function GraduatesPage() {
   const graduates = await db
-    .select()
+    .select({
+      id: students.id,
+      publicId: students.publicId,
+      fullName: students.fullName,
+      enrollmentYear: students.enrollmentYear,
+      graduatedAt: students.graduatedAt,
+    })
     .from(students)
     .where(eq(students.graduated, true))
     .orderBy(desc(students.graduatedAt));
 
   const groups = groupByGraduationYear(graduates);
+
+  type GradeSummary = { id: number; subject: string; grade: string; gradedAt: string };
+  const gradesByStudent = new Map<number, GradeSummary[]>();
+  if (graduates.length > 0) {
+    const graduateGrades = await db
+      .select({
+        id: grades.id,
+        studentId: grades.studentId,
+        subject: grades.subject,
+        grade: grades.grade,
+        gradedAt: grades.gradedAt,
+      })
+      .from(grades)
+      .where(
+        inArray(
+          grades.studentId,
+          graduates.map((g) => g.id)
+        )
+      )
+      .orderBy(desc(grades.gradedAt));
+
+    for (const { studentId, ...grade } of graduateGrades) {
+      const list = gradesByStudent.get(studentId) ?? [];
+      list.push(grade);
+      gradesByStudent.set(studentId, list);
+    }
+  }
 
   return (
     <div>
@@ -50,7 +89,10 @@ export default async function GraduatesPage() {
           description="Studenții marcați „Absolvent” din pagina lor de editare apar aici."
         />
       ) : (
-        <GraduatesTable groups={groups} />
+        <GraduatesTable
+          groups={groups}
+          gradesByStudent={Object.fromEntries(gradesByStudent)}
+        />
       )}
     </div>
   );
