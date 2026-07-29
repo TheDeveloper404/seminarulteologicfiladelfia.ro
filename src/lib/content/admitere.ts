@@ -60,10 +60,3 @@ export const documente: ContentBlock = {
     { label: "Recomandare pastorală", url: "/documente/recomandare-pastorala.pdf" },
   ],
 };
-
-export const admitereSections: ContentBlock[] = [
-  conditii,
-  evaluareAdmitere,
-  criteriiSelectie,
-  documente,
-];

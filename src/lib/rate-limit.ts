@@ -8,10 +8,28 @@ import { db } from "@/db";
 const DEFAULT_WINDOW_MS = 15 * 60 * 1000;
 const DEFAULT_MAX_ATTEMPTS = 10;
 
+// IMPORTANT: nu lua NICIODATĂ primul element din `x-forwarded-for`. nginx e configurat cu
+// `$proxy_add_x_forwarded_for`, care PĂSTREAZĂ headerul trimis de client și adaugă `$remote_addr`
+// la final; Cloudflare face la fel. Deci un atacator care trimite `X-Forwarded-For: 1.2.3.4`
+// controlează primul element — iar dacă îl rotea la fiecare cerere, primea o cheie nouă de rate
+// limit de fiecare dată, adică brute-force nelimitat pe login și spam nelimitat pe contact.
+//
+// Ordinea de încredere, de la cea mai sigură:
+//   1. `cf-connecting-ip` — pus de Cloudflare, care SUPRASCRIE orice valoare trimisă de client;
+//   2. `x-real-ip` — pus de nginx din `$remote_addr` (adresa conexiunii, nefalsificabilă);
+//   3. ULTIMUL element din `x-forwarded-for` — cel adăugat de nginx, nu cel trimis de client.
 export async function getClientIp(): Promise<string> {
   const headerList = await headers();
-  const forwardedFor = headerList.get("x-forwarded-for");
-  return forwardedFor?.split(",")[0]?.trim() ?? "unknown";
+
+  const cloudflareIp = headerList.get("cf-connecting-ip")?.trim();
+  if (cloudflareIp) return cloudflareIp;
+
+  const realIp = headerList.get("x-real-ip")?.trim();
+  if (realIp) return realIp;
+
+  const forwardedChain = headerList.get("x-forwarded-for");
+  const lastHop = forwardedChain?.split(",").pop()?.trim();
+  return lastHop || "unknown";
 }
 
 export async function isRateLimited(

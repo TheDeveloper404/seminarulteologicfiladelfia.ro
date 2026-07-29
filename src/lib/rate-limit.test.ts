@@ -8,7 +8,13 @@ vi.mock("@/db", () => ({
   db: { execute: (...args: unknown[]) => executeMock(...args) },
 }));
 
-const { isRateLimited, clearRateLimit } = await import("./rate-limit");
+// `headers()` din next/headers — mock-uit ca să putem simula cereri cu headere falsificate.
+const mockHeaders = new Map<string, string>();
+vi.mock("next/headers", () => ({
+  headers: async () => ({ get: (k: string) => mockHeaders.get(k.toLowerCase()) ?? null }),
+}));
+
+const { isRateLimited, clearRateLimit, getClientIp } = await import("./rate-limit");
 
 describe("isRateLimited", () => {
   beforeEach(() => {
@@ -33,6 +39,36 @@ describe("isRateLimited", () => {
   it("does not rate limit at exactly the boundary (count === maxAttempts)", async () => {
     executeMock.mockResolvedValue({ rows: [{ count: 5 }] });
     expect(await isRateLimited("student-login:1.2.3.4", 5)).toBe(false);
+  });
+});
+
+// Regresie pentru findingul din auditul runda 6: dacă `getClientIp` ar lua primul element din
+// `x-forwarded-for`, oricine ar putea trimite un IP inventat la fiecare cerere și ar primi o
+// cheie nouă de rate limit de fiecare dată — adică brute-force nelimitat pe login.
+describe("getClientIp — rezistență la falsificare", () => {
+  beforeEach(() => {
+    mockHeaders.clear();
+  });
+
+  it("ignoră IP-ul injectat de client în x-forwarded-for și îl ia pe cel adăugat de proxy", async () => {
+    mockHeaders.set("x-forwarded-for", "203.0.113.77, 82.77.22.107");
+    expect(await getClientIp()).toBe("82.77.22.107");
+  });
+
+  it("preferă cf-connecting-ip, pe care Cloudflare îl suprascrie mereu", async () => {
+    mockHeaders.set("cf-connecting-ip", "82.77.22.107");
+    mockHeaders.set("x-forwarded-for", "203.0.113.77, 198.51.100.42");
+    expect(await getClientIp()).toBe("82.77.22.107");
+  });
+
+  it("cade pe x-real-ip (pus de nginx) când nu vine prin Cloudflare", async () => {
+    mockHeaders.set("x-real-ip", "82.77.22.107");
+    mockHeaders.set("x-forwarded-for", "203.0.113.77");
+    expect(await getClientIp()).toBe("82.77.22.107");
+  });
+
+  it("returnează 'unknown' când nu există niciun header de proxy", async () => {
+    expect(await getClientIp()).toBe("unknown");
   });
 });
 

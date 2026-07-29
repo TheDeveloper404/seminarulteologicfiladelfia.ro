@@ -60,3 +60,7 @@ public/gallery/
 /CHANGELOG.md
 /BACKLOG.md
 /docs/
+
+# Arhiva de deploy (tar+scp către VPS) — artefact local, a ajuns o dată în istoric din greșeală
+# (183d0eb, ștearsă în 52ab640; nu conținea secrete, doar src/config).
+/deploy.tar.gz

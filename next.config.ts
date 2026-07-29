@@ -34,6 +34,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // Fără `X-Powered-By: Next.js` — nu ajută pe nimeni în afară de un atacator care caută
+  // ținte după stack (information disclosure, categoria 05 din Audit_checklist).
+  poweredByHeader: false,
   experimental: {
     serverActions: {
       // Implicit 1MB — prea mic pentru materiale de curs (PDF/documente).

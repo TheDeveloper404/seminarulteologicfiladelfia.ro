@@ -1,8 +1,8 @@
 import { randomBytes, createHash } from "crypto";
 import { cookies } from "next/headers";
-import { and, eq } from "drizzle-orm";
+import { and, eq, lt } from "drizzle-orm";
 import { db } from "@/db";
-import { sessions } from "@/db/schema";
+import { rateLimitAttempts, sessions } from "@/db/schema";
 
 export type SessionRole = "admin" | "student";
 
@@ -17,12 +17,38 @@ export function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
+// Curățare oportunistă: rândurile expirate din `sessions` și `rate_limit_attempts` nu se șterg
+// singure (o sesiune dispare doar la delogare explicită, iar majoritatea utilizatorilor doar
+// închid browserul), așa că se adună la nesfârșit. Volumul e mic, deci nu merită un cron pe VPS
+// — care ar trebui oricum reconfigurat la fiecare migrare de server. În schimb, ștergerea se
+// face la login, cel mult o dată pe oră (`lastCleanupAt` e per proces; un restart pm2 doar
+// declanșează o curățare în plus, ceea ce e inofensiv).
+const CLEANUP_INTERVAL_MS = 1000 * 60 * 60;
+let lastCleanupAt = 0;
+
+export async function cleanupExpired(): Promise<void> {
+  const now = Date.now();
+  if (now - lastCleanupAt < CLEANUP_INTERVAL_MS) return;
+  lastCleanupAt = now;
+
+  const cutoff = new Date(now);
+  await db.delete(sessions).where(lt(sessions.expiresAt, cutoff));
+  await db.delete(rateLimitAttempts).where(lt(rateLimitAttempts.resetAt, cutoff));
+}
+
 export async function createSession(
   role: SessionRole,
   userId: number
 ): Promise<void> {
   const token = randomBytes(32).toString("base64url");
   const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+
+  // Nu blochează login-ul dacă eșuează — e întreținere, nu parte din autentificare.
+  try {
+    await cleanupExpired();
+  } catch {
+    // ignorat intenționat
+  }
 
   await db.insert(sessions).values({
     id: hashToken(token),

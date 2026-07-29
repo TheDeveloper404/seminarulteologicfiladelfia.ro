@@ -22,8 +22,3 @@ export const incheiereaPregatire: ContentBlock = {
     "La încheierea celor 2 ani de studiu, studenții care au promovat toate examenele, vor primi un Certificat de absolvire, care va conține numele complet al absolventului, anul promovării, semnătura directorului Seminarului cât și semnătura președintelui Comunității Regionale Arad, în raza căreia se află Seminarul Teologic Penticostal Filadelfia din Petroșani.",
   ],
 };
-
-export const absolventiSections: ContentBlock[] = [
-  promovabilitate,
-  incheiereaPregatire,
-];

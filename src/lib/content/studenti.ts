@@ -60,11 +60,3 @@ export const vizitatori: ContentBlock = {
     "2. Dacă doresc doar să asiste la cursuri, fără a solicita materialele de studiu, acest lucru se va facilita în mod gratuit.",
   ],
 };
-
-export const studentiSections: ContentBlock[] = [
-  formatiiDeStudiu,
-  ziledeCurs,
-  evaluareStudenti,
-  practicaEclesiala,
-  vizitatori,
-];

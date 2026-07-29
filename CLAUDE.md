@@ -16,6 +16,10 @@ Tipare mici, ca să nu mai fie nevoie de întrebări repetate pe lucruri banale:
   timpul unei sesiuni aterizează de obicei **direct în rădăcina repo-ului** (ex. `1.png`, `2.png`
   dintr-o sesiune anterioară — șterse după ce nu mai erau necesare). Verifică acolo întâi.
 - Poze permanente de conținut (profesori etc.) merg în `public/images/profesori/`, nu în rădăcină.
+- **`docs/`, `CHANGELOG.md` și `BACKLOG.md` sunt în `.gitignore`** (intenționat — documentație
+  internă, nu urcă pe GitHub). De aceea `README.md` **nu** are secțiune „Documentație": link-urile
+  către ele nu duc nicăieri pentru cineva care citește repo-ul de pe GitHub. Nu le re-adăuga.
+  (Se scriu în continuare normal, local — doar nu se link-uiesc din README.)
 - (Secțiune vie — se extinde pe măsură ce apar tipare noi confirmate, nu presupuneri.)
 
 ## Ce este

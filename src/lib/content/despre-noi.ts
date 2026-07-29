@@ -175,13 +175,3 @@ export const mesajDirector: ContentBlock = {
     "Pastor Daniel Nemeș",
   ],
 };
-
-export const despreNoiSections: ContentBlock[] = [
-  conducerea,
-  organizarea,
-  regulament,
-  misiune,
-  crez,
-  istoric,
-  mesajDirector,
-];
