@@ -21,7 +21,11 @@ function renderHtml({
   message: string;
 }): string {
   const escape = (s: string) =>
-    s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    s
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
 
   return `<!DOCTYPE html>
 <html lang="ro">
