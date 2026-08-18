@@ -30,7 +30,14 @@
   "overrides": {
     "postcss": "^8.5.23",
     "nanoid": "^3.3.18",
-    "sharp": "^0.35.3"
+    "sharp": "^0.35.3",
+    "hono": "^4.12.34",
+    "undici": "^7.29.0",
+    "ip-address": "^10.3.1",
+    "fast-uri": "^3.1.5",
+    "js-yaml": "^4.3.1",
+    "@hono/node-server": "^1.19.15",
+    "esbuild": "^0.25.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -42,7 +49,7 @@
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
-    "shadcn": "^4.13.1",
+    "shadcn": "^4.18.0",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.10"
