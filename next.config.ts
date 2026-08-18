@@ -7,13 +7,15 @@ const isDev = process.env.NODE_ENV === "development";
 // nu mai e nevoie de excepții externe la img-src/media-src (Vercel Blob abandonat).
 // challenges.cloudflare.com — widget-ul Turnstile (anti-bot pe login admin/student): script +
 // iframe (frame-src), fără el widget-ul nu se randează/verifică.
+// *.i.posthog.com — SDK-ul PostHog (error tracking + pageview cookieless): script (config.js,
+// exception-autocapture.js de pe eu-assets) + connect (ingestie evenimente pe eu.i.posthog.com).
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://eu-assets.i.posthog.com${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self' https://challenges.cloudflare.com",
+  "connect-src 'self' https://challenges.cloudflare.com https://eu.i.posthog.com https://eu-assets.i.posthog.com",
   "frame-src https://challenges.cloudflare.com",
   "object-src 'none'",
   "base-uri 'self'",
