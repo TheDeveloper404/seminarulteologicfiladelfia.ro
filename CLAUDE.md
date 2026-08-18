@@ -83,22 +83,25 @@ tabs. Nu duplica acest pattern — adaugă blocuri noi în content, nu markup no
 ## Ce urmează (handoff pentru continuare)
 
 Faza 1 (schelet + design system) și Faza 2 (toate paginile statice, cu text placeholder) sunt
-**complete**. Faza 5 (deploy) e **live pe VPS, cu domeniu și HTTPS** (2026-07-21, vezi CHANGELOG):
-site-ul rulează acum pe VPS-ul Hostinger KVM1 (`31.97.47.182`, Ubuntu 24.04, Frankfurt), NU pe
-Vercel — Vercel a fost abandonat definitiv pentru acest proiect. Domeniul
+**complete**. Faza 5 (deploy) e **live pe VPS, cu domeniu și HTTPS**: site-ul rulează pe VPS
+**OVHcloud** (`57.131.141.84`, Ubuntu 24.04 — **migrat de pe Hostinger 2026-08-18**, abonamentul
+Hostinger a fost anulat definitiv, detalii complete în `docs/arhitectura.md`), NU pe Vercel —
+Vercel a fost abandonat definitiv pentru acest proiect. Domeniul
 `seminarulteologicfiladelfia.ro` e conectat prin Cloudflare (proxy activ, portocaliu), cu HTTPS
-end-to-end: certificat Let's Encrypt pe VPS (auto-reînnoire via systemd timer certbot) + SSL
+end-to-end: certificat **Cloudflare Origin CA** pe VPS (valabil 15 ani, nu certbot) + SSL
 Cloudflare către vizitatori. Stack pe VPS: Postgres 16 (user dedicat `seminar_app`, doar
-localhost), Node 22, aplicația în `/var/www/app` (clonată din `main`), `pm2` (pornește automat la
-reboot), nginx reverse-proxy, `ufw` activ (22/80/443 deschise). Portalul admin+student e complet
+localhost), Node 22, aplicația în `/var/www/app`, `pm2` (pornește automat la reboot), nginx
+reverse-proxy, `ufw` activ (22/80/443 deschise), backup zilnic `pg_dump` (cron 03:00, 14 zile).
+Portalul admin+student e complet
 funcțional live: cont admin creat, parolă comună de student setată. Admin/portal au fost
 re-lucrate UI/UX (2026-07-21): nu mai moștenesc header/footer-ul public (mutate în route-group
 `(site)`), au app-shell propriu (`src/components/app-shell/`) cu nav activ, dashboard-uri cu
 statistici reale și empty states corecte.
 
 **Deploy-uri viitoare pe VPS**: nu există încă pipeline automat — actualizarea codului pe server
-se face manual (`git pull` sau copiere `src/`, apoi `npm run build` + `pm2 restart seminar-app`).
-De discutat cu userul dacă merită un script/CI simplu odată ce ritmul de modificări se stabilizează.
+se face manual prin tar+scp (vezi `docs/deploy.md`), apoi `npm run build` + `pm2 restart
+seminar-app`. De discutat cu userul dacă merită un script/CI simplu odată ce ritmul de modificări
+se stabilizează.
 
 **Regulă permanentă (2026-07-22): orice modificare terminată pe acest proiect se urmează AUTOMAT
 de deploy pe VPS** (tar+scp, vezi `docs/deploy.md`), fără să aștepți o cerere separată „fă deploy".
@@ -150,6 +153,12 @@ Hosterion), A records `@` și `www` → IP-ul VPS-ului, proxy Cloudflare activ (
 Certificat Let's Encrypt instalat pe VPS via certbot (auto-reînnoire prin systemd timer),
 nginx redirectează HTTP→HTTPS. Nu s-a pierdut email — domeniul nu avea MX configurat înainte de
 migrare (verificat cu userul).
+
+**Migrare VPS Hostinger → OVHcloud (COMPLET, 2026-08-18):** tot ce descrie blocul de mai sus
+(Hostinger KVM1, certbot/Let's Encrypt) e istoric — vezi „Ce urmează" de la începutul acestei
+secțiuni și `docs/arhitectura.md` pentru starea curentă (OVH, Cloudflare Origin CA, IP nou).
+Abonamentul Hostinger a fost anulat definitiv de user după confirmarea că ambele site-uri
+(Seminar + `filadelfia-petrosani.ro`, migrate în aceeași sesiune) funcționează pe noul VPS.
 
 După ce se rezolvă cele 3 puncte de mai sus, proiectul e considerat livrat.
 
