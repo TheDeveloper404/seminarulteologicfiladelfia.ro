@@ -17,7 +17,7 @@
     "drizzle-orm": "^0.45.2",
     "lucide-react": "^1.25.0",
     "maileroo-sdk": "^1.0.1",
-    "next": "16.2.10",
+    "next": "16.2.12",
     "pg": "^8.22.0",
     "posthog-js": "^1.418.0",
     "posthog-node": "^5.49.1",
@@ -28,7 +28,9 @@
     "zod": "^4.4.3"
   },
   "overrides": {
-    "postcss": "^8.5.16"
+    "postcss": "^8.5.23",
+    "nanoid": "^3.3.18",
+    "sharp": "^0.35.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -39,7 +41,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9",
-    "eslint-config-next": "16.2.10",
+    "eslint-config-next": "16.2.12",
     "shadcn": "^4.13.1",
     "tailwindcss": "^4",
     "typescript": "^5",
