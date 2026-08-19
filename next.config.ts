@@ -9,13 +9,15 @@ const isDev = process.env.NODE_ENV === "development";
 // iframe (frame-src), fără el widget-ul nu se randează/verifică.
 // *.i.posthog.com — SDK-ul PostHog (error tracking + pageview cookieless): script (config.js,
 // exception-autocapture.js de pe eu-assets) + connect (ingestie evenimente pe eu.i.posthog.com).
+// e.seminarulteologicfiladelfia.ro — reverse proxy PostHog (nginx pe VPS, 2026-08-19): client-ul
+// trimite tot prin domeniul propriu (api_host), nu direct pe eu.i.posthog.com — vezi docs/deploy.md.
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://eu-assets.i.posthog.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://eu-assets.i.posthog.com https://e.seminarulteologicfiladelfia.ro${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self' https://challenges.cloudflare.com https://eu.i.posthog.com https://eu-assets.i.posthog.com",
+  "connect-src 'self' https://challenges.cloudflare.com https://eu.i.posthog.com https://eu-assets.i.posthog.com https://e.seminarulteologicfiladelfia.ro",
   "frame-src https://challenges.cloudflare.com",
   "object-src 'none'",
   "base-uri 'self'",
