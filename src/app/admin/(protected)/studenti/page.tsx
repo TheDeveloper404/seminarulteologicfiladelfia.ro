@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, eq, inArray } from "drizzle-orm";
 import { Users } from "lucide-react";
@@ -7,6 +8,11 @@ import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { StudentsTable } from "./students-table";
+
+export const metadata: Metadata = {
+  title: "Studenți",
+  robots: { index: false, follow: false },
+};
 
 const RECENT_ATTENDANCE_COUNT = 10;
 const SESSION_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

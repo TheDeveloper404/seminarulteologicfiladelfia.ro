@@ -1,10 +1,16 @@
+import type { Metadata } from "next";
 import { desc, eq, inArray } from "drizzle-orm";
 import { GraduationCap } from "lucide-react";
 import { db } from "@/db";
-import { grades, students } from "@/db/schema";
+import { grades, graduationDocuments, students } from "@/db/schema";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { GraduatesTable } from "./graduates-table";
+
+export const metadata: Metadata = {
+  title: "Arhivă absolvenți",
+  robots: { index: false, follow: false },
+};
 
 type Student = {
   id: number;
@@ -12,6 +18,8 @@ type Student = {
   fullName: string;
   enrollmentYear: number;
   graduatedAt: Date | null;
+  isHistoricalImport: boolean;
+  notes: string | null;
 };
 
 function groupByGraduationYear(graduates: Student[]): [string, Student[]][] {
@@ -41,6 +49,8 @@ export default async function GraduatesPage() {
       fullName: students.fullName,
       enrollmentYear: students.enrollmentYear,
       graduatedAt: students.graduatedAt,
+      isHistoricalImport: students.isHistoricalImport,
+      notes: students.notes,
     })
     .from(students)
     .where(eq(students.graduated, true))
@@ -50,28 +60,58 @@ export default async function GraduatesPage() {
 
   type GradeSummary = { id: number; subject: string; grade: string; gradedAt: string };
   const gradesByStudent = new Map<number, GradeSummary[]>();
+  type DocumentSummary = {
+    id: number;
+    type: "diploma" | "certificat";
+    issueNumber: string;
+    issueDate: string;
+  };
+  const documentsByStudent = new Map<number, DocumentSummary[]>();
   if (graduates.length > 0) {
-    const graduateGrades = await db
-      .select({
-        id: grades.id,
-        studentId: grades.studentId,
-        subject: grades.subject,
-        grade: grades.grade,
-        gradedAt: grades.gradedAt,
-      })
-      .from(grades)
-      .where(
-        inArray(
-          grades.studentId,
-          graduates.map((g) => g.id)
+    const [graduateGrades, graduateDocuments] = await Promise.all([
+      db
+        .select({
+          id: grades.id,
+          studentId: grades.studentId,
+          subject: grades.subject,
+          grade: grades.grade,
+          gradedAt: grades.gradedAt,
+        })
+        .from(grades)
+        .where(
+          inArray(
+            grades.studentId,
+            graduates.map((g) => g.id)
+          )
         )
-      )
-      .orderBy(desc(grades.gradedAt));
+        .orderBy(desc(grades.gradedAt)),
+      db
+        .select({
+          id: graduationDocuments.id,
+          studentId: graduationDocuments.studentId,
+          type: graduationDocuments.type,
+          issueNumber: graduationDocuments.issueNumber,
+          issueDate: graduationDocuments.issueDate,
+        })
+        .from(graduationDocuments)
+        .where(
+          inArray(
+            graduationDocuments.studentId,
+            graduates.map((g) => g.id)
+          )
+        )
+        .orderBy(desc(graduationDocuments.generatedAt)),
+    ]);
 
     for (const { studentId, ...grade } of graduateGrades) {
       const list = gradesByStudent.get(studentId) ?? [];
       list.push(grade);
       gradesByStudent.set(studentId, list);
+    }
+    for (const { studentId, ...doc } of graduateDocuments) {
+      const list = documentsByStudent.get(studentId) ?? [];
+      list.push(doc);
+      documentsByStudent.set(studentId, list);
     }
   }
 
@@ -92,6 +132,7 @@ export default async function GraduatesPage() {
         <GraduatesTable
           groups={groups}
           gradesByStudent={Object.fromEntries(gradesByStudent)}
+          documentsByStudent={Object.fromEntries(documentsByStudent)}
         />
       )}
     </div>

@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import { desc, eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -7,6 +9,32 @@ import { GradeRow } from "./grade-row";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
+// Memoizat per-request (React.cache) — generateMetadata și componenta paginii altfel ar rula
+// aceeași interogare de două ori la fiecare randare.
+const getStudent = cache(async (studentId: number) => {
+  if (!Number.isInteger(studentId)) return undefined;
+  const [student] = await db
+    .select()
+    .from(students)
+    .where(eq(students.id, studentId))
+    .limit(1);
+  return student;
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}): Promise<Metadata> {
+  const { id } = await params;
+  const student = await getStudent(Number(id));
+
+  return {
+    title: student ? `Note — ${student.fullName}` : "Note",
+    robots: { index: false, follow: false },
+  };
+}
+
 export default async function StudentGradesPage({
   params,
 }: {
@@ -14,13 +42,7 @@ export default async function StudentGradesPage({
 }) {
   const { id } = await params;
   const studentId = Number(id);
-  if (!Number.isInteger(studentId)) notFound();
-
-  const [student] = await db
-    .select()
-    .from(students)
-    .where(eq(students.id, studentId))
-    .limit(1);
+  const student = await getStudent(studentId);
   if (!student) notFound();
 
   const studentGrades = await db

@@ -13,8 +13,29 @@ import type { students } from "@/db/schema";
 
 type Student = typeof students.$inferSelect;
 
-const inputClassName = "h-11 md:text-base";
-const labelClassName = "text-base";
+const inputClassName = "h-9";
+const labelClassName = "text-xs";
+
+function Field({
+  htmlFor,
+  label,
+  full,
+  children,
+}: {
+  htmlFor: string;
+  label: string;
+  full?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={`flex flex-col gap-1 ${full ? "sm:col-span-2 lg:col-span-3" : ""}`}>
+      <Label htmlFor={htmlFor} className={labelClassName}>
+        {label}
+      </Label>
+      {children}
+    </div>
+  );
+}
 
 export function StudentForm({
   mode,
@@ -33,122 +54,197 @@ export function StudentForm({
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-5">
-      {mode === "edit" && (
-        <div className="flex flex-col gap-1.5">
-          <Label className={labelClassName}>ID student</Label>
-          <p className="font-mono text-base">{student.publicId}</p>
-        </div>
-      )}
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="fullName" className={labelClassName}>
-          Nume complet
-        </Label>
-        <Input
-          id="fullName"
-          name="fullName"
-          defaultValue={mode === "edit" ? student.fullName : undefined}
-          className={inputClassName}
-          required
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="phone" className={labelClassName}>
-          Telefon (opțional)
-        </Label>
-        <Input
-          id="phone"
-          name="phone"
-          type="tel"
-          defaultValue={mode === "edit" ? (student.phone ?? "") : undefined}
-          className={inputClassName}
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="email" className={labelClassName}>
-          Email (opțional)
-        </Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          defaultValue={mode === "edit" ? (student.email ?? "") : undefined}
-          className={inputClassName}
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="enrollmentYear" className={labelClassName}>
-          An înscriere
-        </Label>
-        <Input
-          id="enrollmentYear"
-          name="enrollmentYear"
-          type="number"
-          defaultValue={mode === "edit" ? student.enrollmentYear : new Date().getFullYear()}
-          className={inputClassName}
-          required
-        />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label className={labelClassName}>An de studiu</Label>
-        <div className="flex gap-4">
-          <label className="flex items-center gap-2 text-base">
-            <input
-              type="radio"
-              name="studyYear"
-              value="1"
-              defaultChecked={mode === "create" || student.studyYear === 1}
-              className="size-5"
-            />
-            Anul I
-          </label>
-          <label className="flex items-center gap-2 text-base">
-            <input
-              type="radio"
-              name="studyYear"
-              value="2"
-              defaultChecked={mode === "edit" && student.studyYear === 2}
-              className="size-5"
-            />
-            Anul II
-          </label>
-        </div>
-      </div>
-      {mode === "edit" && (
-        <>
-          <label className="flex items-center gap-2 text-base">
-            <input
-              type="checkbox"
-              name="graduated"
-              defaultChecked={student.graduated}
-              className="size-5"
-            />
-            Absolvent
-          </label>
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="graduatedAt" className={labelClassName}>
-              Data absolvirii (dacă e cazul)
-            </Label>
+    <form action={formAction} className="flex flex-col gap-4">
+      <div>
+        <h2 className="mb-2 font-heading text-sm font-semibold text-foreground">
+          Date generale
+        </h2>
+        <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+          {mode === "edit" && (
+            <Field htmlFor="publicId" label="ID student">
+              <p id="publicId" className="font-mono text-sm leading-9">
+                {student.publicId}
+              </p>
+            </Field>
+          )}
+          <Field htmlFor="fullName" label="Nume complet" full>
             <Input
-              id="graduatedAt"
-              name="graduatedAt"
-              type="date"
-              defaultValue={
-                student.graduatedAt
-                  ? new Date(student.graduatedAt).toISOString().slice(0, 10)
-                  : ""
-              }
+              id="fullName"
+              name="fullName"
+              defaultValue={mode === "edit" ? student.fullName : undefined}
+              className={inputClassName}
+              required
+            />
+          </Field>
+          <Field htmlFor="phone" label="Telefon (opțional)">
+            <Input
+              id="phone"
+              name="phone"
+              type="tel"
+              defaultValue={mode === "edit" ? (student.phone ?? "") : undefined}
               className={inputClassName}
             />
+          </Field>
+          <Field htmlFor="email" label="Email (opțional)">
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              defaultValue={mode === "edit" ? (student.email ?? "") : undefined}
+              className={inputClassName}
+            />
+          </Field>
+          <Field htmlFor="enrollmentYear" label="An înscriere">
+            <Input
+              id="enrollmentYear"
+              name="enrollmentYear"
+              type="number"
+              defaultValue={mode === "edit" ? student.enrollmentYear : new Date().getFullYear()}
+              className={inputClassName}
+              required
+            />
+          </Field>
+          <div className="flex flex-col gap-1">
+            <Label className={labelClassName}>An de studiu</Label>
+            <div className="flex h-9 items-center gap-4">
+              <label className="flex items-center gap-1.5 text-sm">
+                <input
+                  type="radio"
+                  name="studyYear"
+                  value="1"
+                  defaultChecked={mode === "create" || student.studyYear === 1}
+                  className="size-4"
+                />
+                Anul I
+              </label>
+              <label className="flex items-center gap-1.5 text-sm">
+                <input
+                  type="radio"
+                  name="studyYear"
+                  value="2"
+                  defaultChecked={mode === "edit" && student.studyYear === 2}
+                  className="size-4"
+                />
+                Anul II
+              </label>
+            </div>
           </div>
-        </>
+          {mode === "edit" && (
+            <>
+              <div className="flex flex-col gap-1">
+                <Label className={labelClassName}>Absolvent</Label>
+                <div className="flex h-9 items-center">
+                  <label className="flex items-center gap-1.5 text-sm">
+                    <input
+                      type="checkbox"
+                      name="graduated"
+                      defaultChecked={student.graduated}
+                      className="size-4"
+                    />
+                    Absolvent
+                  </label>
+                </div>
+              </div>
+              <Field htmlFor="graduatedAt" label="Data absolvirii">
+                <Input
+                  id="graduatedAt"
+                  name="graduatedAt"
+                  type="date"
+                  defaultValue={
+                    student.graduatedAt
+                      ? new Date(student.graduatedAt).toISOString().slice(0, 10)
+                      : ""
+                  }
+                  className={inputClassName}
+                />
+              </Field>
+            </>
+          )}
+        </div>
+      </div>
+
+      {mode === "edit" && (
+        <div>
+          <h2 className="mb-2 font-heading text-sm font-semibold text-foreground">
+            Date pentru diplomă/certificat (opțional)
+          </h2>
+          <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+            <Field htmlFor="birthDate" label="Data nașterii">
+              <Input
+                id="birthDate"
+                name="birthDate"
+                type="date"
+                defaultValue={
+                  student.birthDate
+                    ? new Date(student.birthDate).toISOString().slice(0, 10)
+                    : ""
+                }
+                className={inputClassName}
+              />
+            </Field>
+            <Field htmlFor="birthLocality" label="Localitatea nașterii">
+              <Input
+                id="birthLocality"
+                name="birthLocality"
+                defaultValue={student.birthLocality ?? ""}
+                className={inputClassName}
+              />
+            </Field>
+            <Field htmlFor="birthCounty" label="Județul nașterii">
+              <Input
+                id="birthCounty"
+                name="birthCounty"
+                defaultValue={student.birthCounty ?? ""}
+                className={inputClassName}
+              />
+            </Field>
+            <Field htmlFor="baptismDate" label="Data botezului">
+              <Input
+                id="baptismDate"
+                name="baptismDate"
+                type="date"
+                defaultValue={
+                  student.baptismDate
+                    ? new Date(student.baptismDate).toISOString().slice(0, 10)
+                    : ""
+                }
+                className={inputClassName}
+              />
+            </Field>
+            <Field htmlFor="homeChurch" label="Biserica locală">
+              <Input
+                id="homeChurch"
+                name="homeChurch"
+                defaultValue={student.homeChurch ?? ""}
+                className={inputClassName}
+              />
+            </Field>
+            <Field htmlFor="address" label="Adresă">
+              <Input
+                id="address"
+                name="address"
+                defaultValue={student.address ?? ""}
+                className={inputClassName}
+              />
+            </Field>
+            <Field htmlFor="notes" label="Observații" full>
+              <Input
+                id="notes"
+                name="notes"
+                defaultValue={student.notes ?? ""}
+                className={inputClassName}
+              />
+            </Field>
+          </div>
+        </div>
       )}
+
       {state?.error && (
-        <p className="text-base text-destructive" role="alert">
+        <p className="text-sm text-destructive" role="alert">
           {state.error}
         </p>
       )}
-      <Button type="submit" size="lg" className="text-base" disabled={isPending}>
+      <Button type="submit" size="lg" disabled={isPending}>
         {isPending ? "Se salvează..." : mode === "create" ? "Adaugă student" : "Salvează"}
       </Button>
     </form>

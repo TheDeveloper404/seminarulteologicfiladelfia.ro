@@ -1,9 +1,15 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { Users, GraduationCap, FileText } from "lucide-react";
 import { db } from "@/db";
 import { students, courseMaterials } from "@/db/schema";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { Card, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "Panou de control",
+  robots: { index: false, follow: false },
+};
 
 export default async function AdminDashboardPage() {
   const allStudents = await db.select().from(students);

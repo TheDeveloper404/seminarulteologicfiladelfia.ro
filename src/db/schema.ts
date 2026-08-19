@@ -3,6 +3,7 @@ import {
   date,
   integer,
   numeric,
+  pgEnum,
   pgTable,
   serial,
   text,
@@ -38,6 +39,19 @@ export const students = pgTable("students", {
   studyYear: integer("study_year").notNull().default(1),
   graduated: boolean("graduated").notNull().default(false),
   graduatedAt: timestamp("graduated_at"),
+  // Date personale necesare pentru generarea diplomei/certificatului — opționale, completate
+  // pe măsură ce sunt disponibile (înscriere, apoi eventual actualizate până la absolvire).
+  birthDate: date("birth_date"),
+  birthLocality: varchar("birth_locality", { length: 255 }),
+  birthCounty: varchar("birth_county", { length: 255 }),
+  address: text("address"),
+  baptismDate: date("baptism_date"),
+  homeChurch: varchar("home_church", { length: 255 }),
+  notes: text("notes"),
+  // Rând istoric importat din arhiva pe hârtie (evidența absolvenților dinainte de portal) — nu
+  // are cont funcțional de portal, doar apare informativ în lista de absolvenți. Nu poate primi
+  // diplomă/certificat generat (nu are datele de naștere necesare, decizie explicită).
+  isHistoricalImport: boolean("is_historical_import").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
@@ -107,6 +121,27 @@ export const galleryPhotos = pgTable("gallery_photos", {
   // Nume de fișier pe disc (generat, ex. UUID+extensie), relativ la `public/gallery/<year>/`.
   fileName: text("file_name").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const graduationDocumentType = pgEnum("graduation_document_type", [
+  "diploma",
+  "certificat",
+]);
+
+// Diplome/certificate generate — un rând per document emis. Persistat (nu regenerat la fiecare
+// cerere), pentru că numărul de înregistrare e pus manual de administrație și trebuie să rămână
+// fix la redescărcare, nu recalculat cu alte date.
+export const graduationDocuments = pgTable("graduation_documents", {
+  id: serial("id").primaryKey(),
+  studentId: integer("student_id")
+    .notNull()
+    .references(() => students.id, { onDelete: "cascade" }),
+  type: graduationDocumentType("type").notNull(),
+  issueNumber: varchar("issue_number", { length: 50 }).notNull(),
+  issueDate: date("issue_date").notNull(),
+  // Nume de fișier pe disc (generat, ex. UUID+extensie), la fel ca `courseMaterials.filePath`.
+  filePath: text("file_path").notNull(),
+  generatedAt: timestamp("generated_at").notNull().defaultNow(),
 });
 
 // Rate limiting persistent (Postgres, nu in-memory) — supraviețuiește restart-urilor de deploy.

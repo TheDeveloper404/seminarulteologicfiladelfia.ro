@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { desc, eq } from "drizzle-orm";
 import { CalendarDays, ListChecks, NotebookText } from "lucide-react";
 import { db } from "@/db";
@@ -6,6 +7,11 @@ import { getSession } from "@/lib/auth/session";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { StatCard } from "@/components/app-shell/stat-card";
+
+export const metadata: Metadata = {
+  title: "Notele mele",
+  robots: { index: false, follow: false },
+};
 
 export default async function StudentGradesPage() {
   const session = await getSession("student");

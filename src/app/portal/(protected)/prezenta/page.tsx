@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { desc, eq } from "drizzle-orm";
 import { CalendarCheck, CalendarDays, Percent } from "lucide-react";
 import { db } from "@/db";
@@ -7,6 +8,11 @@ import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { Badge } from "@/components/ui/badge";
+
+export const metadata: Metadata = {
+  title: "Prezența mea",
+  robots: { index: false, follow: false },
+};
 
 export default async function StudentAttendancePage() {
   const session = await getSession("student");

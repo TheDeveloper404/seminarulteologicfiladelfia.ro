@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
 import {
@@ -14,6 +15,11 @@ import { PageHeader } from "@/components/app-shell/page-header";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "Contul meu",
+  robots: { index: false, follow: false },
+};
 
 function formatDate(value: string | Date) {
   return new Date(value).toLocaleDateString("ro-RO");

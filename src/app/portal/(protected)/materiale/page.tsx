@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { desc, eq } from "drizzle-orm";
 import { Download, FileText } from "lucide-react";
 import { db } from "@/db";
@@ -5,6 +6,11 @@ import { courseMaterials } from "@/db/schema";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { Card, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "Materiale de curs",
+  robots: { index: false, follow: false },
+};
 
 export default async function StudentMaterialsPage() {
   // Doar cele publicate — adminul încarcă materialele în avans, dar le face vizibile manual.

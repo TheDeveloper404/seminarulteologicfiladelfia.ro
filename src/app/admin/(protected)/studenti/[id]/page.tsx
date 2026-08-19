@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
@@ -6,6 +7,11 @@ import { StudentForm } from "../student-form";
 import { DeleteStudentButton } from "../delete-student-button";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { Card, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "Editează student",
+  robots: { index: false, follow: false },
+};
 
 export default async function EditStudentPage({
   params,
@@ -30,13 +36,13 @@ export default async function EditStudentPage({
   }
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-4xl">
       <PageHeader
         title="Editează student"
         action={<DeleteStudentButton studentId={student.id} studentName={student.fullName} />}
       />
-      <Card className="mt-6">
-        <CardContent>
+      <Card className="mt-4">
+        <CardContent className="py-4">
           <StudentForm mode="edit" student={student} />
         </CardContent>
       </Card>

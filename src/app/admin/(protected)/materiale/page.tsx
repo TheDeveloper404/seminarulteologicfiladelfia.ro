@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { desc } from "drizzle-orm";
 import { EyeOff, FileText } from "lucide-react";
 import { db } from "@/db";
@@ -9,6 +10,11 @@ import { PublishToggleButton } from "./publish-toggle-button";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+export const metadata: Metadata = {
+  title: "Materiale de curs",
+  robots: { index: false, follow: false },
+};
 
 type Material = typeof courseMaterials.$inferSelect;
 
