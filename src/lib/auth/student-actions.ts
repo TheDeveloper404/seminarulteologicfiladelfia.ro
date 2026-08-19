@@ -8,6 +8,7 @@ import { appSettings, students } from "@/db/schema";
 import { createSession, destroySession } from "./session";
 import { clearRateLimit, getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { logAuthEvent } from "./audit-log";
 
 export type StudentLoginState = { error: string } | null;
 
@@ -30,6 +31,7 @@ export async function loginStudent(
   // utilizarea normală (o greșeală de tastare, nu 6).
   const ip = await getClientIp();
   if (await isRateLimited(`student-login:${ip}`, 5)) {
+    logAuthEvent("rate_limited", "student", ip);
     return { error: "Prea multe încercări. Încearcă din nou peste câteva minute." };
   }
 
@@ -39,6 +41,7 @@ export async function loginStudent(
     ip
   );
   if (!turnstileOk) {
+    logAuthEvent("turnstile_failed", "student", ip);
     return { error: "Verificarea anti-bot a eșuat. Reîncarcă pagina și încearcă din nou." };
   }
 
@@ -47,6 +50,7 @@ export async function loginStudent(
   // studenții să nu fie respinși din cauza Caps Lock/Shift pe mobil.
   const normalizedPassword = password.trim().toLowerCase();
   if (!settings || !(await bcrypt.compare(normalizedPassword, settings.sharedPasswordHash))) {
+    logAuthEvent("login_failed", "student", ip);
     return { error: "ID sau parolă incorectă." };
   }
 
@@ -58,13 +62,16 @@ export async function loginStudent(
 
   // Același mesaj ca la parolă greșită — nu confirmăm dacă un ID există sau nu.
   if (!student) {
+    logAuthEvent("login_failed", "student", ip);
     return { error: "ID sau parolă incorectă." };
   }
 
+  // Același mesaj ca ID inexistent/parolă greșită (audit 2026-08-19, SEC-004) — un mesaj
+  // distinct pentru "absolvent" confirma cuiva care are parola comună (orice student curent)
+  // că un ID anume există și aparține unui absolvent. Arhivarea se comunică în afara portalului.
   if (student.graduated) {
-    return {
-      error: "Acest cont a fost arhivat (absolvent) și nu mai are acces la portal.",
-    };
+    logAuthEvent("login_failed", "student", ip);
+    return { error: "ID sau parolă incorectă." };
   }
 
   // Autentificare reușită → contorul per IP se resetează, ca studenții care ies prin același IP

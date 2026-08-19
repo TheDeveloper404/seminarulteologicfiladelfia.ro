@@ -55,8 +55,14 @@ describe("getClientIp — rezistență la falsificare", () => {
     expect(await getClientIp()).toBe("82.77.22.107");
   });
 
-  it("preferă cf-connecting-ip, pe care Cloudflare îl suprascrie mereu", async () => {
-    mockHeaders.set("cf-connecting-ip", "82.77.22.107");
+  // Audit 2026-08-19, SEC-001: nu mai avem încredere DIRECTĂ în cf-connecting-ip la nivel de
+  // aplicație — un atacator care se conectează direct la origin (ocolind Cloudflare) putea
+  // trimite orice valoare pe acest header și obținea o cheie nouă de rate-limit la fiecare
+  // cerere. Verificarea de proveniență se mută la nginx (ngx_http_realip_module); aplicația
+  // are încredere doar în x-real-ip, pe care nginx îl calculează după acea verificare.
+  it("ignoră cf-connecting-ip la nivel de aplicație și cade pe x-real-ip", async () => {
+    mockHeaders.set("cf-connecting-ip", "9.9.9.9");
+    mockHeaders.set("x-real-ip", "82.77.22.107");
     mockHeaders.set("x-forwarded-for", "203.0.113.77, 198.51.100.42");
     expect(await getClientIp()).toBe("82.77.22.107");
   });

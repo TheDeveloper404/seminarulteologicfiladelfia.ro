@@ -1,13 +1,27 @@
 // Generează SQL de upsert pentru parola comună a studenților — rulează manual pe Postgres.
 //
-// Utilizare: npx tsx scripts/set-shared-password.ts parola-noua
+// Utilizare: npx tsx scripts/set-shared-password.ts   (parola se cere interactiv, nu ca argument)
 
+import { createInterface } from "readline";
 import bcrypt from "bcryptjs";
 
-const [password] = process.argv.slice(2);
+const MIN_LENGTH = 12;
 
-if (!password) {
-  console.error("Utilizare: npx tsx scripts/set-shared-password.ts <parola>");
+// Citită de la stdin, nu din argv (audit 2026-08-19, SEC-010) — un argument de linie de
+// comandă rămâne în istoricul shell-ului și e vizibil în lista de procese a mașinii pe care
+// rulează scriptul; stdin nu lasă urmă în niciunul din cele două.
+function prompt(question: string): Promise<string> {
+  const rl = createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise((resolve) => rl.question(question, (answer) => { rl.close(); resolve(answer); }));
+}
+
+const password = await prompt("Parola comună nouă: ");
+
+// Lungime minimă (audit 2026-08-19, SEC-006) — e singura parolă care protejează notele și
+// prezența TUTUROR studenților; fără un prag minim, un operator putea alege ceva ghicibil în
+// limitele rate-limit-ului de login (5 încercări/15min).
+if (password.trim().length < MIN_LENGTH) {
+  console.error(`Parola trebuie să aibă cel puțin ${MIN_LENGTH} caractere.`);
   process.exit(1);
 }
 

@@ -14,15 +14,20 @@ const DEFAULT_MAX_ATTEMPTS = 10;
 // controlează primul element — iar dacă îl rotea la fiecare cerere, primea o cheie nouă de rate
 // limit de fiecare dată, adică brute-force nelimitat pe login și spam nelimitat pe contact.
 //
+// NU avem încredere direct în `cf-connecting-ip` la nivel de aplicație (audit 2026-08-19,
+// SEC-001): headerul e setabil de orice client care se conectează DIRECT la IP-ul VPS-ului,
+// ocolind Cloudflare — Node nu are cum să distingă "l-a pus Cloudflare" de "l-a trimis
+// atacatorul". Verificarea de proveniență se face la nginx (`ngx_http_realip_module`,
+// `/etc/nginx/snippets/cloudflare-realip.conf`): `$remote_addr` e rescris din
+// `CF-Connecting-IP` DOAR când conexiunea TCP vine efectiv dintr-un range Cloudflare; altfel
+// rămâne IP-ul real al conexiunii. `x-real-ip` (trimis de nginx din `$remote_addr` deja
+// verificat) e deci sursa de încredere aici, nu headerul brut de Cloudflare.
+//
 // Ordinea de încredere, de la cea mai sigură:
-//   1. `cf-connecting-ip` — pus de Cloudflare, care SUPRASCRIE orice valoare trimisă de client;
-//   2. `x-real-ip` — pus de nginx din `$remote_addr` (adresa conexiunii, nefalsificabilă);
-//   3. ULTIMUL element din `x-forwarded-for` — cel adăugat de nginx, nu cel trimis de client.
+//   1. `x-real-ip` — pus de nginx din `$remote_addr`, verificat prin realip module;
+//   2. ULTIMUL element din `x-forwarded-for` — cel adăugat de nginx, nu cel trimis de client.
 export async function getClientIp(): Promise<string> {
   const headerList = await headers();
-
-  const cloudflareIp = headerList.get("cf-connecting-ip")?.trim();
-  if (cloudflareIp) return cloudflareIp;
 
   const realIp = headerList.get("x-real-ip")?.trim();
   if (realIp) return realIp;

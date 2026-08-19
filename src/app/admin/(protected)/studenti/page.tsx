@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/app-shell/empty-state";
 import { StudentsTable } from "./students-table";
 
 const RECENT_ATTENDANCE_COUNT = 10;
+const SESSION_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 function firstDayOfCurrentMonth(): string {
   const now = new Date();
@@ -21,7 +22,10 @@ export default async function StudentsPage({
   searchParams: Promise<{ data?: string }>;
 }) {
   const { data } = await searchParams;
-  const sessionDate = data || firstDayOfCurrentMonth();
+  // Validat cu aceeași regulă ca la scriere (src/lib/attendance/actions.ts) — audit 2026-08-19,
+  // SEC-008: fără asta, `?data=abc` trecea direct în interogarea Postgres și pica cu eroare de
+  // cast (500) în loc de fallback la data implicită.
+  const sessionDate = data && SESSION_DATE_RE.test(data) ? data : firstDayOfCurrentMonth();
 
   const allStudents = await db
     .select()

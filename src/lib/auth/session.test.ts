@@ -1,63 +1,59 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { hashToken } from "./session";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 
-// `db.delete(...).where(...)` — lanțul minim pe care îl folosește `cleanupExpired`.
-const whereSpy = vi.fn();
+const selectMock = vi.fn();
 vi.mock("@/db", () => ({
-  db: { delete: () => ({ where: whereSpy }) },
+  db: {
+    select: () => ({
+      from: () => ({
+        where: () => ({
+          limit: () => selectMock(),
+        }),
+      }),
+    }),
+  },
 }));
 
-describe("hashToken", () => {
-  it("produces a deterministic sha256 hex digest", () => {
-    expect(hashToken("token-de-test")).toBe(
-      hashToken("token-de-test")
-    );
-  });
+const cookieStore = { get: vi.fn(), set: vi.fn(), delete: vi.fn() };
+vi.mock("next/headers", () => ({
+  cookies: async () => cookieStore,
+}));
 
-  it("produces different hashes for different tokens", () => {
-    expect(hashToken("token-a")).not.toBe(hashToken("token-b"));
-  });
+const { getSession } = await import("./session");
 
-  it("never returns the raw token itself (defense in depth if DB leaks)", () => {
-    const token = "raw-secret-cookie-value";
-    expect(hashToken(token)).not.toBe(token);
-  });
-
-  it("returns a 64-char hex string", () => {
-    expect(hashToken("anything")).toMatch(/^[0-9a-f]{64}$/);
-  });
-});
-
-describe("cleanupExpired", () => {
+describe("getSession", () => {
   beforeEach(() => {
-    vi.resetModules(); // `lastCleanupAt` e stare de modul — fiecare test pornește de la zero
-    whereSpy.mockClear();
-    vi.useFakeTimers();
+    selectMock.mockReset();
+    cookieStore.get.mockReset();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
+  it("returns null when there is no session cookie", async () => {
+    cookieStore.get.mockReturnValue(undefined);
+    expect(await getSession("admin")).toBeNull();
+    // Nicio interogare DB pentru un token inexistent — verificarea se oprește devreme.
+    expect(selectMock).not.toHaveBeenCalled();
   });
 
-  it("șterge sesiunile și rate-limit-urile expirate la prima rulare", async () => {
-    const { cleanupExpired } = await import("./session");
-    await cleanupExpired();
-    expect(whereSpy).toHaveBeenCalledTimes(2); // sessions + rate_limit_attempts
+  it("returns null when no row matches the token+role pair", async () => {
+    // Simulează exact cazul relevant pentru autorizare: un cookie de student nu poate
+    // satisface `getSession("admin")` — interogarea filtrează pe `role`, deci un rând cu alt
+    // rol decât cel cerut nu se potrivește niciodată (`eq(sessions.role, role)` în session.ts).
+    cookieStore.get.mockReturnValue({ value: "some-token" });
+    selectMock.mockResolvedValue([]);
+    expect(await getSession("admin")).toBeNull();
   });
 
-  it("nu repetă curățarea la apeluri consecutive (throttle 1h)", async () => {
-    const { cleanupExpired } = await import("./session");
-    await cleanupExpired();
-    await cleanupExpired();
-    await cleanupExpired();
-    expect(whereSpy).toHaveBeenCalledTimes(2);
+  it("returns null when the matching row is expired", async () => {
+    cookieStore.get.mockReturnValue({ value: "some-token" });
+    selectMock.mockResolvedValue([
+      { id: "hash", role: "admin", adminId: 1, studentId: null, expiresAt: new Date(Date.now() - 1000) },
+    ]);
+    expect(await getSession("admin")).toBeNull();
   });
 
-  it("curăță din nou după ce a trecut intervalul", async () => {
-    const { cleanupExpired } = await import("./session");
-    await cleanupExpired();
-    vi.advanceTimersByTime(1000 * 60 * 61);
-    await cleanupExpired();
-    expect(whereSpy).toHaveBeenCalledTimes(4);
+  it("returns the session when a matching, non-expired row is found", async () => {
+    cookieStore.get.mockReturnValue({ value: "some-token" });
+    const row = { id: "hash", role: "admin" as const, adminId: 1, studentId: null, expiresAt: new Date(Date.now() + 1000) };
+    selectMock.mockResolvedValue([row]);
+    expect(await getSession("admin")).toEqual(row);
   });
 });

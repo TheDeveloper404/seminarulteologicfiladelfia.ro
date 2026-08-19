@@ -8,6 +8,7 @@ import { admins } from "@/db/schema";
 import { createSession, destroySession } from "./session";
 import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
+import { logAuthEvent } from "./audit-log";
 
 export type AdminLoginState = { error: string } | null;
 
@@ -26,6 +27,7 @@ export async function loginAdmin(
 
   const ip = await getClientIp();
   if (await isRateLimited(`admin-login:${ip}`)) {
+    logAuthEvent("rate_limited", "admin", ip);
     return { error: "Prea multe încercări. Încearcă din nou peste câteva minute." };
   }
 
@@ -35,6 +37,7 @@ export async function loginAdmin(
     ip
   );
   if (!turnstileOk) {
+    logAuthEvent("turnstile_failed", "admin", ip);
     return { error: "Verificarea anti-bot a eșuat. Reîncarcă pagina și încearcă din nou." };
   }
 
@@ -47,6 +50,7 @@ export async function loginAdmin(
   // Mesaj identic indiferent dacă emailul nu există sau parola e greșită,
   // ca să nu confirmăm existența unui cont prin diferența de răspuns.
   if (!admin || !(await bcrypt.compare(password, admin.passwordHash))) {
+    logAuthEvent("login_failed", "admin", ip);
     return { error: "Email sau parolă incorectă." };
   }
 

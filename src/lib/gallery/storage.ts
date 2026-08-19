@@ -12,14 +12,39 @@ export function isAllowedImageExtension(originalFileName: string): boolean {
   return ALLOWED_EXTENSIONS.has(path.extname(originalFileName).toLowerCase());
 }
 
+// Verificare pe magic bytes, nu doar pe extensie (audit 2026-08-19, SEC-005) — un fișier
+// `poza.jpg` care conține de fapt HTML/JS ar fi servit direct de nginx din public/gallery/,
+// în afara header-elor de securitate din next.config.ts (vezi location /gallery/ din vhost),
+// deci fără nosniff acolo un atacator CU sesiune de admin ar putea servi conținut executabil
+// same-origin. Verifică primii bytes din fișier, nu extensia declarată de client.
+function matchesImageMagicBytes(buffer: Buffer, extension: string): boolean {
+  if (extension === ".png") {
+    return buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
+  }
+  if (extension === ".jpg" || extension === ".jpeg") {
+    return buffer.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff]));
+  }
+  if (extension === ".webp") {
+    return (
+      buffer.subarray(0, 4).toString("ascii") === "RIFF" &&
+      buffer.subarray(8, 12).toString("ascii") === "WEBP"
+    );
+  }
+  return false;
+}
+
 export async function saveGalleryPhoto(year: number, file: File): Promise<string> {
+  const extension = path.extname(file.name).toLowerCase();
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  if (!matchesImageMagicBytes(buffer, extension)) {
+    throw new Error("Fișierul nu pare a fi o imagine validă de tipul declarat.");
+  }
+
   const yearDir = path.join(GALLERY_DIR, String(year));
   await mkdir(yearDir, { recursive: true });
 
-  const extension = path.extname(file.name).toLowerCase();
   const diskFileName = `${randomUUID()}${extension}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-
   await writeFile(path.join(yearDir, diskFileName), buffer);
 
   return diskFileName;
