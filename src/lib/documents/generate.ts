@@ -40,6 +40,59 @@ function drawCenteredLine(
   });
 }
 
+// UnifrakturMaguntia (fontul blackletter ales pentru titlu) nu are glifele ă/ș/ț — vezi comentariul
+// de mai jos din generateGraduationPdf. Pentru "Diplomă" desenăm litera ca "a" (glifă existentă) și
+// adăugăm manual accentul breve deasupra ei, ca vector, ca să păstrăm fontul cerut fără să pierdem
+// diacriticul din text.
+function drawBreve(page: PDFPage, centerX: number, baseY: number, glyphWidth: number) {
+  const halfWidth = glyphWidth * 0.32;
+  const depth = glyphWidth * 0.22;
+  // drawSvgPath translate(x,y) apoi scale(1,-1) — un punct local (px,py) ajunge la
+  // (x+px, y-py) pe pagină. Ca mijlocul curbei să fie SUB capete (formă de cupă ⌣, corectă
+  // pentru breve), punctul de control trebuie să aibă y local POZITIV (verificat direct în
+  // node_modules/pdf-lib/cjs/api/operations.js — comentariul de-acolo: "SVG path Y axis is
+  // opposite pdf-lib's").
+  page.drawSvgPath(`M ${-halfWidth} 0 Q 0 ${depth} ${halfWidth} 0`, {
+    x: centerX,
+    y: baseY,
+    borderColor: rgb(0.1, 0.1, 0.1),
+    borderWidth: Math.max(1, glyphWidth * 0.09),
+  });
+}
+
+function drawTitleWithBreveFallback(
+  page: PDFPage,
+  text: string,
+  y: number,
+  font: PDFFont,
+  size: number
+) {
+  // Substituie DOAR "ă" (singurul diacritic din titlurile curente: "Diplomă"/"Certificat" nu au
+  // ș/ț) cu litera de bază, doar pentru randare — restul logicii (poziționare, breve) lucrează pe
+  // textul original ca să știe unde era diacriticul. Dacă un titlu viitor ar avea ș/ț, tratarea
+  // NU poate fi identică — acelea iau virgulă dedesubt, nu breve deasupra — ar trebui o funcție
+  // separată, nu doar extinderea regexului de-aici.
+  const renderText = text.replace(/ă/g, "a");
+  const width = font.widthOfTextAtSize(renderText, size);
+  const startX = (PAGE_WIDTH - width) / 2;
+
+  page.drawText(renderText, {
+    x: startX,
+    y,
+    size,
+    font,
+    color: rgb(0.1, 0.1, 0.1),
+  });
+
+  for (let i = 0; i < text.length; i++) {
+    if (text[i] !== "ă") continue;
+    const prefixWidth = font.widthOfTextAtSize(renderText.slice(0, i), size);
+    const glyphWidth = font.widthOfTextAtSize("a", size);
+    const ascent = font.heightAtSize(size, { descender: false });
+    drawBreve(page, startX + prefixWidth + glyphWidth / 2, y + ascent * 1.08, glyphWidth);
+  }
+}
+
 export async function generateGraduationPdf(params: {
   student: Student;
   type: GraduationDocumentType;
@@ -51,25 +104,28 @@ export async function generateGraduationPdf(params: {
   const pdfDoc = await PDFDocument.create();
   pdfDoc.registerFontkit(fontkit);
 
-  const [regularFontBytes, boldFontBytes, backgroundBytes] = await Promise.all([
+  const [regularFontBytes, boldFontBytes, titleFontBytes, backgroundBytes] = await Promise.all([
     readFile(path.join(ASSETS_DIR, "Lora-Regular.ttf")),
     readFile(path.join(ASSETS_DIR, "Lora-Bold.ttf")),
+    readFile(path.join(ASSETS_DIR, "UnifrakturMaguntia-Regular.ttf")),
     readFile(path.join(ASSETS_DIR, type === "diploma" ? "diploma_bg.jpg" : "certificat_bg.jpg")),
   ]);
 
   const regularFont = await pdfDoc.embedFont(regularFontBytes);
   const boldFont = await pdfDoc.embedFont(boldFontBytes);
+  const titleFont = await pdfDoc.embedFont(titleFontBytes);
   const backgroundImage = await pdfDoc.embedJpg(backgroundBytes);
 
   const page = pdfDoc.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   page.drawImage(backgroundImage, { x: 0, y: 0, width: PAGE_WIDTH, height: PAGE_HEIGHT });
 
-  // Fundalul Diplomei are titlul copt în imagine (din .doc-ul original al clientului). Fundalul
-  // Certificatului a avut titlul greșit ("Diplomă de absolvire") șters din imagine — titlul lui
-  // corect se desenează aici ca text, în același spațiu rămas liber.
-  if (type === "certificat") {
-    drawCenteredLine(page, "Certificat de absolvire", 390, boldFont, 30);
-  }
+  // Ambele fundaluri au titlul șters din imagine (era copt cu font diferit per document, din
+  // .doc-urile originale ale clientului, stil "Old English"). Titlul se desenează aici ca text, cu
+  // UnifrakturMaguntia (blackletter open-source, licență OFL — "Old English Text MT" e un font
+  // proprietar Monotype care nu poate fi îmbarcat în repo). Fontul nu are glifa "ă" — vezi
+  // drawTitleWithBreveFallback mai sus. Identic ca font și poziție pentru Diplomă și Certificat.
+  const title = type === "diploma" ? "Diplomă de absolvire" : "Certificat de absolvire";
+  drawTitleWithBreveFallback(page, title, 375, titleFont, 44);
 
   const birthDate = student.birthDate ? new Date(student.birthDate) : null;
   const birthYear = birthDate ? String(birthDate.getFullYear()) : "____";

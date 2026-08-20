@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, eq, inArray } from "drizzle-orm";
-import { Users } from "lucide-react";
+import { Upload, Users } from "lucide-react";
 import { db } from "@/db";
 import { attendance, students } from "@/db/schema";
 import { Button } from "@/components/ui/button";
@@ -92,9 +92,23 @@ export default async function StudentsPage({
     </Button>
   );
 
+  const headerActions = (
+    <div className="flex gap-2">
+      <Button
+        variant="outline"
+        render={<Link href="/admin/studenti/import" />}
+        nativeButton={false}
+      >
+        <Upload className="size-4" aria-hidden="true" />
+        Importă din registru
+      </Button>
+      {addStudentButton}
+    </div>
+  );
+
   return (
     <div>
-      <PageHeader title="Studenți" action={addStudentButton} />
+      <PageHeader title="Studenți" action={headerActions} />
 
       {allStudents.length === 0 ? (
         <EmptyState

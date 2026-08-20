@@ -52,7 +52,7 @@ export default async function StudentGradesPage({
     .orderBy(desc(grades.gradedAt));
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="mx-auto max-w-4xl">
       <PageHeader title={`Note — ${student.fullName}`} />
 
       <Card className="mt-6">

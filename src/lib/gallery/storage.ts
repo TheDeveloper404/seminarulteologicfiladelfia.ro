@@ -1,6 +1,7 @@
 import { randomUUID } from "crypto";
 import { mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
+import sharp from "sharp";
 
 // Public — spre deosebire de materialele de curs, pozele de galerie sunt vizibile fără
 // autentificare, deci stau în `public/` (servite direct de Next.js), nu în afara ei.
@@ -33,6 +34,25 @@ function matchesImageMagicBytes(buffer: Buffer, extension: string): boolean {
   return false;
 }
 
+// Poze de telefon/aparat foto necomprimate ajung frecvent la 5-15MB și câteva mii de pixeli
+// lățime — irelevant de mare pentru un grid de thumbnail-uri sau chiar pentru lightbox-ul de pe
+// site. Redimensionăm + reencodăm la upload (performance-review 2026-08-20: un album de 16 poze
+// netratate transfera 12MB pe o singură vizită a paginii publice /arhiva/[slug]).
+const MAX_DIMENSION = 2000;
+const JPEG_QUALITY = 82;
+const WEBP_QUALITY = 82;
+
+export async function processImage(buffer: Buffer, extension: string): Promise<Buffer> {
+  // .rotate() fără argument = auto-orientare după EXIF, înainte ca resize să piardă metadata.
+  const pipeline = sharp(buffer)
+    .rotate()
+    .resize({ width: MAX_DIMENSION, height: MAX_DIMENSION, fit: "inside", withoutEnlargement: true });
+
+  if (extension === ".png") return pipeline.png({ compressionLevel: 9 }).toBuffer();
+  if (extension === ".webp") return pipeline.webp({ quality: WEBP_QUALITY }).toBuffer();
+  return pipeline.jpeg({ quality: JPEG_QUALITY, mozjpeg: true }).toBuffer();
+}
+
 export async function saveGalleryPhoto(year: number, file: File): Promise<string> {
   const extension = path.extname(file.name).toLowerCase();
   const buffer = Buffer.from(await file.arrayBuffer());
@@ -41,11 +61,13 @@ export async function saveGalleryPhoto(year: number, file: File): Promise<string
     throw new Error("Fișierul nu pare a fi o imagine validă de tipul declarat.");
   }
 
+  const processedBuffer = await processImage(buffer, extension);
+
   const yearDir = path.join(GALLERY_DIR, String(year));
   await mkdir(yearDir, { recursive: true });
 
   const diskFileName = `${randomUUID()}${extension}`;
-  await writeFile(path.join(yearDir, diskFileName), buffer);
+  await writeFile(path.join(yearDir, diskFileName), processedBuffer);
 
   return diskFileName;
 }

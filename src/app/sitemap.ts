@@ -7,7 +7,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const routes: string[] = [];
 
   for (const item of mainNav) {
-    routes.push(item.href);
+    // linkable: false = grup fără pagină proprie (doar deschide dropdown-ul în nav, ex.
+    // Studenți/Admitere/Absolvenți) — includerea lui aici dădea 404 live, deși site-config.ts
+    // deja marca exact acest caz (găsit la /performance-review 2026-08-20).
+    if (item.linkable !== false) {
+      routes.push(item.href);
+    }
     if (item.children) {
       for (const child of item.children) {
         routes.push(child.href);

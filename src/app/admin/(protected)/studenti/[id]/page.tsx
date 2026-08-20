@@ -36,7 +36,7 @@ export default async function EditStudentPage({
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-6xl">
       <PageHeader
         title="Editează student"
         action={<DeleteStudentButton studentId={student.id} studentName={student.fullName} />}

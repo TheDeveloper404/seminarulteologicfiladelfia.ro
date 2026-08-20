@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronRight, Download, Pencil, Trash2 } from "lucide-react";
+import { ChevronRight, Download, Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -52,31 +52,43 @@ function GenerateDocumentForm({ studentId }: { studentId: number }) {
     action,
     null
   );
+  const formRef = useRef<HTMLFormElement>(null);
+
+  function handlePreview() {
+    const formData = new FormData(formRef.current ?? undefined);
+    const params = new URLSearchParams({
+      studentId: String(studentId),
+      type: String(formData.get("type") ?? "diploma"),
+      issueNumber: String(formData.get("issueNumber") ?? ""),
+      issueDate: String(formData.get("issueDate") ?? ""),
+    });
+    window.open(`/api/documente/previzualizare?${params.toString()}`, "_blank", "noopener");
+  }
 
   return (
-    <form action={formAction} className="flex flex-col gap-3 rounded-lg border p-3">
-      <p className="text-sm font-medium text-foreground">Generează document nou</p>
+    <form ref={formRef} action={formAction} className="flex flex-col gap-3 rounded-lg border p-3">
+      <p className="text-base font-medium text-foreground">Generează document nou</p>
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm">Tip document</Label>
+        <Label className="text-base">Tip document</Label>
         <div className="flex gap-4">
-          <label className="flex items-center gap-2 text-sm">
-            <input type="radio" name="type" value="diploma" defaultChecked className="size-4" />
+          <label className="flex items-center gap-2 text-base">
+            <input type="radio" name="type" value="diploma" defaultChecked className="size-5" />
             Diplomă
           </label>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="radio" name="type" value="certificat" className="size-4" />
+          <label className="flex items-center gap-2 text-base">
+            <input type="radio" name="type" value="certificat" className="size-5" />
             Certificat
           </label>
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`issueNumber-${studentId}`} className="text-sm">
+        <Label htmlFor={`issueNumber-${studentId}`} className="text-base">
           Nr. de înregistrare
         </Label>
-        <Input id={`issueNumber-${studentId}`} name="issueNumber" required className="h-9" />
+        <Input id={`issueNumber-${studentId}`} name="issueNumber" required className="h-11 md:text-base" />
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`issueDate-${studentId}`} className="text-sm">
+        <Label htmlFor={`issueDate-${studentId}`} className="text-base">
           Data eliberării
         </Label>
         <Input
@@ -85,27 +97,33 @@ function GenerateDocumentForm({ studentId }: { studentId: number }) {
           type="date"
           defaultValue={new Date().toISOString().slice(0, 10)}
           required
-          className="h-9"
+          className="h-11 md:text-base"
         />
       </div>
       {state && "error" in state && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-base text-destructive" role="alert">
           {state.error}
         </p>
       )}
       {state && "ok" in state && (
-        <p className="text-sm text-emerald-600">Document generat.</p>
+        <p className="text-base text-emerald-600">Document generat.</p>
       )}
-      <Button type="submit" size="sm" disabled={isPending}>
-        {isPending ? "Se generează..." : "Generează"}
-      </Button>
+      <div className="flex gap-2">
+        <Button type="button" variant="outline" size="sm" onClick={handlePreview}>
+          <Eye className="size-4" aria-hidden="true" />
+          Previzualizează
+        </Button>
+        <Button type="submit" size="sm" disabled={isPending}>
+          {isPending ? "Se generează..." : "Generează"}
+        </Button>
+      </div>
     </form>
   );
 }
 
 function DocumentsList({ documents }: { documents: DocumentSummary[] }) {
   if (documents.length === 0) {
-    return <p className="text-sm text-muted-foreground">Niciun document generat încă.</p>;
+    return <p className="text-base text-muted-foreground">Niciun document generat încă.</p>;
   }
 
   return (
@@ -113,7 +131,7 @@ function DocumentsList({ documents }: { documents: DocumentSummary[] }) {
       {documents.map((doc) => (
         <li
           key={doc.id}
-          className="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-sm"
+          className="flex items-center justify-between gap-2 rounded-md border px-3 py-2 text-base"
         >
           <span>
             {doc.type === "diploma" ? "Diplomă" : "Certificat"} · Nr. {doc.issueNumber} din{" "}
@@ -178,12 +196,12 @@ function GraduateCard({
         <ChevronRight className="size-5 shrink-0 text-muted-foreground" aria-hidden="true" />
       </DialogTrigger>
 
-      <DialogContent>
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{student.fullName}</DialogTitle>
         </DialogHeader>
 
-        <dl className="grid grid-cols-2 gap-3 text-sm">
+        <dl className="grid grid-cols-2 gap-3 text-base">
           <div>
             <dt className="text-muted-foreground">An înscriere</dt>
             <dd className="font-medium text-foreground">{student.enrollmentYear}</dd>
@@ -199,13 +217,13 @@ function GraduateCard({
         </dl>
 
         <div>
-          <p className="text-sm font-medium text-foreground">Note</p>
+          <p className="text-base font-medium text-foreground">Note</p>
           {grades.length === 0 ? (
-            <p className="mt-1 text-sm text-muted-foreground">Nicio notă înregistrată.</p>
+            <p className="mt-1 text-base text-muted-foreground">Nicio notă înregistrată.</p>
           ) : (
             <ul className="mt-2 flex flex-col gap-1.5">
               {grades.map((g) => (
-                <li key={g.id} className="flex items-center justify-between text-sm">
+                <li key={g.id} className="flex items-center justify-between text-base">
                   <span className="text-foreground">{g.subject}</span>
                   <span className="text-muted-foreground">
                     {g.grade} · {new Date(g.gradedAt).toLocaleDateString("ro-RO")}
@@ -218,10 +236,10 @@ function GraduateCard({
 
         {student.isHistoricalImport ? (
           <div>
-            <p className="text-sm font-medium text-foreground">
+            <p className="text-base font-medium text-foreground">
               Rând istoric (arhivă pe hârtie)
             </p>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-base text-muted-foreground">
               {student.notes || "Fără observații."} Nu are cont de portal și nu poate primi
               diplomă/certificat generat.
             </p>
@@ -229,7 +247,7 @@ function GraduateCard({
         ) : (
           <>
             <div>
-              <p className="text-sm font-medium text-foreground">Documente generate</p>
+              <p className="text-base font-medium text-foreground">Documente generate</p>
               <div className="mt-2">
                 <DocumentsList documents={documents} />
               </div>

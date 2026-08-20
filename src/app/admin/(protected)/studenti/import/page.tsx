@@ -1,23 +1,23 @@
 import type { Metadata } from "next";
-import { StudentForm } from "../student-form";
+import { ImportForm } from "./import-form";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata: Metadata = {
-  title: "Adaugă student",
+  title: "Importă studenți din registru",
   robots: { index: false, follow: false },
 };
 
-export default function NewStudentPage() {
+export default function ImportStudentsPage() {
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-3xl">
       <PageHeader
-        title="Adaugă student"
-        description="ID-ul de acces se generează automat, aleator — nu-l alegi tu."
+        title="Importă studenți din registru"
+        description="Încarcă un fișier Excel sau CSV cu coloane fixe — studenții se creează automat, cu ID de portal generat."
       />
       <Card className="mt-6">
         <CardContent className="py-2">
-          <StudentForm mode="create" />
+          <ImportForm />
         </CardContent>
       </Card>
     </div>

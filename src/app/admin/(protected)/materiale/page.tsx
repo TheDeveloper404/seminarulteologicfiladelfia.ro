@@ -4,9 +4,7 @@ import { EyeOff, FileText } from "lucide-react";
 import { db } from "@/db";
 import { courseMaterials } from "@/db/schema";
 import { UploadForm } from "./upload-form";
-import { DeleteMaterialButton } from "./delete-material-button";
-import { EditMaterialDialog } from "./edit-material-dialog";
-import { PublishToggleButton } from "./publish-toggle-button";
+import { MaterialsTable } from "./materials-table";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -15,59 +13,6 @@ export const metadata: Metadata = {
   title: "Materiale de curs",
   robots: { index: false, follow: false },
 };
-
-type Material = typeof courseMaterials.$inferSelect;
-
-function MaterialsTable({ materials }: { materials: Material[] }) {
-  return (
-    <div className="h-fit overflow-x-auto rounded-lg border">
-      <table className="w-full text-base">
-        <thead className="bg-muted/50 text-left">
-          <tr>
-            <th className="w-48 p-4 font-medium">Titlu</th>
-            <th className="w-full p-4 font-medium">Descriere</th>
-            <th className="p-4 font-medium whitespace-nowrap">Fișier</th>
-            <th className="p-4 font-medium whitespace-nowrap">Încărcat la</th>
-            <th className="p-4" />
-          </tr>
-        </thead>
-        <tbody>
-          {materials.map((material) => (
-            <tr key={material.id} className="border-t">
-              <td className="p-4 font-medium">{material.title}</td>
-              <td className="p-4 text-muted-foreground">{material.description || "—"}</td>
-              <td className="p-4 whitespace-nowrap">
-                <a href={`/api/materiale/${material.id}`} className="text-primary underline">
-                  {material.originalFileName}
-                </a>
-              </td>
-              <td className="p-4 whitespace-nowrap text-muted-foreground">
-                {new Date(material.uploadedAt).toLocaleDateString("ro-RO")}
-              </td>
-              <td className="p-4 text-right whitespace-nowrap">
-                <div className="flex justify-end gap-2">
-                  <PublishToggleButton
-                    materialId={material.id}
-                    published={material.published}
-                  />
-                  <EditMaterialDialog
-                    materialId={material.id}
-                    title={material.title}
-                    description={material.description}
-                  />
-                  <DeleteMaterialButton
-                    materialId={material.id}
-                    materialTitle={material.title}
-                  />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
 
 export default async function CourseMaterialsPage() {
   const materials = await db

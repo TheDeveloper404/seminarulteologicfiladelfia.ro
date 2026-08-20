@@ -13,8 +13,8 @@ import type { students } from "@/db/schema";
 
 type Student = typeof students.$inferSelect;
 
-const inputClassName = "h-9";
-const labelClassName = "text-xs";
+const inputClassName = "h-11 md:text-base";
+const labelClassName = "text-base";
 
 function Field({
   htmlFor,
@@ -28,7 +28,7 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <div className={`flex flex-col gap-1 ${full ? "sm:col-span-2 lg:col-span-3" : ""}`}>
+    <div className={`flex flex-col gap-1.5 ${full ? "sm:col-span-2 lg:col-span-4" : ""}`}>
       <Label htmlFor={htmlFor} className={labelClassName}>
         {label}
       </Label>
@@ -54,15 +54,15 @@ export function StudentForm({
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-4">
+    <form action={formAction} className="flex flex-col gap-6">
       <div>
-        <h2 className="mb-2 font-heading text-sm font-semibold text-foreground">
+        <h2 className="mb-2 font-heading text-lg font-semibold text-foreground">
           Date generale
         </h2>
-        <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
           {mode === "edit" && (
             <Field htmlFor="publicId" label="ID student">
-              <p id="publicId" className="font-mono text-sm leading-9">
+              <p id="publicId" className="font-mono text-base leading-11">
                 {student.publicId}
               </p>
             </Field>
@@ -106,24 +106,24 @@ export function StudentForm({
           </Field>
           <div className="flex flex-col gap-1">
             <Label className={labelClassName}>An de studiu</Label>
-            <div className="flex h-9 items-center gap-4">
-              <label className="flex items-center gap-1.5 text-sm">
+            <div className="flex h-11 items-center gap-4">
+              <label className="flex items-center gap-2 text-base">
                 <input
                   type="radio"
                   name="studyYear"
                   value="1"
                   defaultChecked={mode === "create" || student.studyYear === 1}
-                  className="size-4"
+                  className="size-5"
                 />
                 Anul I
               </label>
-              <label className="flex items-center gap-1.5 text-sm">
+              <label className="flex items-center gap-2 text-base">
                 <input
                   type="radio"
                   name="studyYear"
                   value="2"
                   defaultChecked={mode === "edit" && student.studyYear === 2}
-                  className="size-4"
+                  className="size-5"
                 />
                 Anul II
               </label>
@@ -133,13 +133,13 @@ export function StudentForm({
             <>
               <div className="flex flex-col gap-1">
                 <Label className={labelClassName}>Absolvent</Label>
-                <div className="flex h-9 items-center">
-                  <label className="flex items-center gap-1.5 text-sm">
+                <div className="flex h-11 items-center">
+                  <label className="flex items-center gap-2 text-base">
                     <input
                       type="checkbox"
                       name="graduated"
                       defaultChecked={student.graduated}
-                      className="size-4"
+                      className="size-5"
                     />
                     Absolvent
                   </label>
@@ -165,10 +165,10 @@ export function StudentForm({
 
       {mode === "edit" && (
         <div>
-          <h2 className="mb-2 font-heading text-sm font-semibold text-foreground">
+          <h2 className="mb-2 font-heading text-lg font-semibold text-foreground">
             Date pentru diplomă/certificat (opțional)
           </h2>
-          <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
             <Field htmlFor="birthDate" label="Data nașterii">
               <Input
                 id="birthDate"
@@ -240,7 +240,7 @@ export function StudentForm({
       )}
 
       {state?.error && (
-        <p className="text-sm text-destructive" role="alert">
+        <p className="text-base text-destructive" role="alert">
           {state.error}
         </p>
       )}
