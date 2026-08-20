@@ -8,7 +8,7 @@
 // (decizie explicită, discuție 2026-08-19).
 //
 // Cazurile ambigue din sursă (an incomplet, dată lipsă) sunt EXCLUSE din SQL și listate separat
-// la stderr pentru completare manuală de Liviu — nu sunt ghicite.
+// la stderr pentru completare manuală de administrator — nu sunt ghicite.
 //
 // Utilizare: npx tsx scripts/import-historical-graduates.ts > import-historici.sql
 

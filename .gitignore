@@ -34,7 +34,7 @@ yarn-error.log*
 .env*
 !.env*.example
 
-# MCP config with personal API key (dev.workspacehub PostHog) — secret, never commit
+# MCP config with a personal API key (PostHog) — secret, never commit
 .mcp.json
 
 # vercel

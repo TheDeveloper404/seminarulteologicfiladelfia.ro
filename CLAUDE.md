@@ -91,7 +91,9 @@ Vercel a fost abandonat definitiv pentru acest proiect. Domeniul
 end-to-end: certificat **Cloudflare Origin CA** pe VPS (valabil 15 ani, nu certbot) + SSL
 Cloudflare către vizitatori. Stack pe VPS: Postgres 16 (user dedicat `seminar_app`, doar
 localhost), Node 22, aplicația în `/var/www/app`, `pm2` (pornește automat la reboot), nginx
-reverse-proxy, `ufw` activ (22/80/443 deschise), backup zilnic `pg_dump` (cron 03:00, 14 zile).
+reverse-proxy, `ufw` activ (22/80/443 deschise), backup zilnic `pg_dump` (cron 03:00, 14 zile,
+scrie pe discul secundar `/mnt/backups/seminar/` din 2026-08-20 — vezi „Disc suplimentar" din
+`docs/deploy.md`).
 Portalul admin+student e complet
 funcțional live: cont admin creat, parolă comună de student setată. Admin/portal au fost
 re-lucrate UI/UX (2026-07-21): nu mai moștenesc header/footer-ul public (mutate în route-group
@@ -130,10 +132,14 @@ CRUD studenți cu ID generat, prezență, plăți, note, materiale de curs (uplo
 arhivă absolvenți. Build+lint verificate curat. **Live pe VPS din 2026-07-21** (vezi secțiunea de
 deploy de mai sus) — punctele 4 și 5 de mai jos (DNS + VPS) sunt acum COMPLETE.
 
-Rămâne 1 lucru, blocat pe resurse externe pe care userul le aduce între sesiuni:
+**Proiectul e predat clientului (2026-08-20) — nimic urgent rămas.** Singurul punct deschis,
+blocat pe resurse externe pe care userul le aduce între sesiuni, când vor apărea:
 
 1. **Profesori — poze + listă** (`src/lib/content/profesori.ts`, singurul TODO de conținut
    rămas): așteaptă lista de profesori + fotografiile de la Seminar.
+
+Istoricul modificărilor (ce s-a schimbat, când, de ce) e în `CHANGELOG.md`, nu aici — CLAUDE.md
+ține doar starea/arhitectura curentă și ce rămâne de făcut.
 
 **Faza 3 — Galerie foto (COMPLET, 2026-07-21):** `gallery_albums`/`gallery_photos` în Postgres,
 poze în `public/gallery/<an>/` pe VPS, servite direct de nginx (`location /gallery/` alias, NU
@@ -160,7 +166,8 @@ secțiuni și `docs/arhitectura.md` pentru starea curentă (OVH, Cloudflare Orig
 Abonamentul Hostinger a fost anulat definitiv de user după confirmarea că ambele site-uri
 (Seminar + `filadelfia-petrosani.ro`, migrate în aceeași sesiune) funcționează pe noul VPS.
 
-După ce se rezolvă cele 3 puncte de mai sus, proiectul e considerat livrat.
+Proiectul e considerat livrat — rămâne doar punctul 1 de mai sus (Profesori), fără termen, blocat
+pe user.
 
 ## Verificare
 
@@ -170,8 +177,8 @@ După ce se rezolvă cele 3 puncte de mai sus, proiectul e considerat livrat.
   de conținut cu sub-navigare, `/arhiva` (empty state), `/contact` (validare client), meniul mobil.
 - **`HUMAN_RUNS_TESTS` activ** (`.claude/HUMAN_RUNS_TESTS` există) — userul rulează testele.
   Claude scrie/repară testele unitare și rulează `tsc --noEmit` / `lint` / `build`.
-- **Nu există și nu se adaugă teste e2e automate (Playwright) — decizie Liviu, 2026-07-28.**
-  Fluxurile sunt puține și stabile; e2e-ul se face manual, în browser, de către Liviu, după
-  `docs/testare-manuala.md`. Aia e suita e2e a proiectului: **orice flux nou sau modificat se
-  adaugă/actualizează acolo în aceeași sesiune**, iar la finalul unei schimbări indică-i explicit
-  ce secțiuni să parcurgă. Nu propune instalarea Playwright pentru teste.
+- **Nu există și nu se adaugă teste e2e automate (Playwright) — decizie explicită a userului,
+  2026-07-28.** Fluxurile sunt puține și stabile; e2e-ul se face manual, în browser, de către user,
+  după `docs/testare-manuala.md`. Aia e suita e2e a proiectului: **orice flux nou sau modificat se
+  adaugă/actualizează acolo în aceeași sesiune**, iar la finalul unei schimbări indică explicit
+  ce secțiuni trebuie parcurse. Nu propune instalarea Playwright pentru teste.
