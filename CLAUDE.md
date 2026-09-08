@@ -1,9 +1,16 @@
 @AGENTS.md
 
-# Seminarul Teologic Filadelfia — site nou
+# Seminarul Teologic Filadelfia — Instrucțiuni de proiect
 
-Reconstruire de la zero (greenfield) a seminarulteologicfiladelfia.ro, care era pe WordPress.
-Plan complet de arhitectură: `C:\dev\persist\claude\plans\salutare-claude-haide-sa-transient-sifakis.md`.
+> **`CONTEXT.md`** (același director) conține domeniul: ce este site-ul, stack + deciziile
+> arhitecturale cu motivele lor, structura codului, istoricul fazelor și al infrastructurii. NU se
+> încarcă automat — citește-l când implementezi un flux nou sau ai nevoie de un „de ce". Aici rămân
+> doar procesul, procedura de deploy, convențiile și verificarea.
+
+Reconstruire greenfield a `seminarulteologicfiladelfia.ro` (era pe WordPress). Site instituțional
+pentru Seminarul Teologic Filadelfia din Petroșani, parte din Biserica Filadelfia Petroșani.
+Next.js 16 + Tailwind v4 + Postgres pe VPS OVHcloud. **Predat clientului (2026-08-20)** — singurul
+punct deschis: poze + listă profesori (`src/lib/content/profesori.ts`), blocat pe user.
 
 **Ține la zi `CHANGELOG.md`** — după fiecare modificare făcută în acest repo, adaugă o intrare
 nouă (dată + ce s-a schimbat). E arhiva de referință a proiectului, nu doar note interne.
@@ -12,7 +19,7 @@ nouă (dată + ce s-a schimbat). E arhiva de referință a proiectului, nu doar 
 
 Tipare mici, ca să nu mai fie nevoie de întrebări repetate pe lucruri banale:
 
-- Când userul zice "citește poza"/"vezi screenshot-ul" fără cale: fișierele trimise ad-hoc în
+- Când userul zice „citește poza"/„vezi screenshot-ul" fără cale: fișierele trimise ad-hoc în
   timpul unei sesiuni aterizează de obicei **direct în rădăcina repo-ului** (ex. `1.png`, `2.png`
   dintr-o sesiune anterioară — șterse după ce nu mai erau necesare). Verifică acolo întâi.
 - Poze permanente de conținut (profesori etc.) merg în `public/images/profesori/`, nu în rădăcină.
@@ -22,152 +29,24 @@ Tipare mici, ca să nu mai fie nevoie de întrebări repetate pe lucruri banale:
   (Se scriu în continuare normal, local — doar nu se link-uiesc din README.)
 - (Secțiune vie — se extinde pe măsură ce apar tipare noi confirmate, nu presupuneri.)
 
-## Ce este
-
-Site instituțional (Despre Noi, Profesori, Studenți, Admitere, Programa, Absolvenți, Arhivă
-foto/video, Contact) pentru Seminarul Teologic Filadelfia din Petroșani. **Seminarul face parte
-din Biserica Filadelfia Petroșani** (filadelfia-petrosani.ro) — biserica e instituția-mamă, nu
-un proiect "soră" egal. Footer-ul reflectă asta ("Parte din Biserica Filadelfia Petroșani").
-
-## Stack și decizii arhitecturale
-
-- **Next.js 16 (App Router) + TypeScript strict**, deploy pe Vercel. Domeniul
-  `seminarulteologicfiladelfia.ro` există deja, se conectează la final (Faza 5).
-- **Tailwind CSS v4** — configurare CSS-first (`@theme` în `src/app/globals.css`), **nu există
-  `tailwind.config.ts`** (nu e nevoie de el în v4, nu-l recrea).
-- **shadcn/ui cu Base UI** (`@base-ui/react`), nu Radix direct — asta a fost preset-ul curent al
-  `shadcn init --defaults` (preset "Nova"). Componentele Base UI folosesc convenția `render={<X />}`
-  în loc de `asChild` (pattern Radix). **Atenție:** `Button` cu `render={<Link .../>}` are nevoie
-  explicit de `nativeButton={false}`, altfel Base UI aruncă o eroare în consolă (vezi
-  `src/components/sections/hero.tsx`, `src/app/not-found.tsx`).
-- **Conținutul textelor statice** (Despre Noi, Admitere, Programa etc.) rămâne în `src/lib/content/*.ts`
-  (tipizat prin `src/lib/content/types.ts`), editat direct prin commit — nu prin admin UI.
-  **Nu mai e valabil** că site-ul n-are DB/admin: din 2026-07-20/21 există portal admin+student
-  complet (Postgres pe VPS) pentru studenți/prezență/note/materiale/galerie foto (vezi mai jos).
-- **Galerie foto** (`gallery_albums`/`gallery_photos` în Postgres, poze în `public/gallery/<an>/`
-  pe VPS, servite direct de nginx — vezi `src/lib/gallery/`). Admin gestionează din
-  `/admin/galerie` (creează albume, încarcă/șterge poze). NU pe Vercel Blob (planul vechi,
-  abandonat — proiectul nu mai e pe Vercel). **Doar poze, fără video** (decizie explicită a
-  userului, 2026-07-21).
-- **Formular de contact prin Maileroo** (server-side, Server Action în
-  `src/lib/contact/actions.ts`), NU EmailJS (abandonat 2026-07-21 — public key expus fără
-  restricție de domeniu pe plan gratuit) și NU Resend (planul free al userului limitat la 1
-  domeniu, deja ocupat pe alt proiect). Domeniu `seminarulteologicfiladelfia.ro` verificat în
-  Maileroo (SPF/DKIM/DMARC prin Cloudflare DNS), trimite de la
-  `contact@seminarulteologicfiladelfia.ro` (Reply-To pe emailul vizitatorului) către
-  `seminar.filadelfia@gmail.com`. Validare Zod server-side + rate limiting pe IP
-  (`src/lib/rate-limit.ts`, comun cu login-ul). Variabilă: `MAILEROO_API_KEY` (server-only, fără
-  `NEXT_PUBLIC_`, vezi `.env.local.example`).
-- Fonturi: `Lora` (titluri, `--font-heading`) + `Inter` (corp, `--font-sans`) via `next/font/google`.
-- Next.js 16: `params`/`searchParams` sunt `Promise` (await obligatoriu) — vezi
-  `src/app/arhiva/[slug]/page.tsx` pentru pattern.
-
-## Structură
-
-```
-src/lib/content/        conținut static tipizat (types.ts, site-config.ts, despre-noi.ts, ...)
-src/components/layout/   Header, Footer, MainNav (dropdown pe hover/focus), MobileNav (Sheet)
-src/components/sections/ Hero, ContentSection, PageHeader, SubNav, ContentPage (wrapper reutilizat)
-src/components/gallery/  GalleryGrid, GalleryCard, Lightbox (Dialog cu prev/next) — citesc din Postgres
-src/components/contact/  ContactForm (Server Action, Zod server-side, Maileroo)
-src/components/ui/       primitive shadcn (button, card, input, sheet, dialog, navigation-menu...)
-src/lib/gallery/         storage.ts (fișiere în public/gallery/<an>/) + actions.ts (Server Actions admin)
-scripts/                 create-admin.ts, set-shared-password.ts — SQL generat, rulat manual
-```
-
-Fiecare pagină de conținut (despre-noi, studenti, admitere, absolventi) reutilizează
-`ContentPage` (`src/components/sections/content-page.tsx`) cu un `ContentBlock` din
-`lib/content/*.ts` + `getSubNavItems(parentHref)` din `site-config.ts` pentru sub-navigarea de tip
-tabs. Nu duplica acest pattern — adaugă blocuri noi în content, nu markup nou per pagină.
-
-## Ce urmează (handoff pentru continuare)
-
-Faza 1 (schelet + design system) și Faza 2 (toate paginile statice, cu text placeholder) sunt
-**complete**. Faza 5 (deploy) e **live pe VPS, cu domeniu și HTTPS**: site-ul rulează pe VPS
-**OVHcloud** (`57.131.141.84`, Ubuntu 24.04 — **migrat de pe Hostinger 2026-08-18**, abonamentul
-Hostinger a fost anulat definitiv, detalii complete în `docs/arhitectura.md`), NU pe Vercel —
-Vercel a fost abandonat definitiv pentru acest proiect. Domeniul
-`seminarulteologicfiladelfia.ro` e conectat prin Cloudflare (proxy activ, portocaliu), cu HTTPS
-end-to-end: certificat **Cloudflare Origin CA** pe VPS (valabil 15 ani, nu certbot) + SSL
-Cloudflare către vizitatori. Stack pe VPS: Postgres 16 (user dedicat `seminar_app`, doar
-localhost), Node 22, aplicația în `/var/www/app`, `pm2` (pornește automat la reboot), nginx
-reverse-proxy, `ufw` activ (22/80/443 deschise), backup zilnic `pg_dump` (cron 03:00, 14 zile,
-scrie pe discul secundar `/mnt/backups/seminar/` din 2026-08-20 — vezi „Disc suplimentar" din
-`docs/deploy.md`).
-Portalul admin+student e complet
-funcțional live: cont admin creat, parolă comună de student setată. Admin/portal au fost
-re-lucrate UI/UX (2026-07-21): nu mai moștenesc header/footer-ul public (mutate în route-group
-`(site)`), au app-shell propriu (`src/components/app-shell/`) cu nav activ, dashboard-uri cu
-statistici reale și empty states corecte.
-
-**Deploy-uri viitoare pe VPS**: nu există încă pipeline automat — actualizarea codului pe server
-se face manual prin tar+scp (vezi `docs/deploy.md`), apoi `npm run build` + `pm2 restart
-seminar-app`. De discutat cu userul dacă merită un script/CI simplu odată ce ritmul de modificări
-se stabilizează.
+## Deploy — regulă obligatorie
 
 **Regulă permanentă (2026-07-22): orice modificare terminată pe acest proiect se urmează AUTOMAT
 de deploy pe VPS** (tar+scp, vezi `docs/deploy.md`), fără să aștepți o cerere separată „fă deploy".
 Excepție: userul cere explicit doar o schimbare locală/draft, sau modificarea nu atinge nimic ce
-rulează pe server (ex. doar `docs/` sau `CHANGELOG.md`).
-**Important (din 2026-07-21, audit infra):** aplicația rulează pe VPS ca user dedicat `seminar`
-(NU root — hardening de securitate), pm2 e pornit sub `su - seminar -c '...'`, nu direct ca root.
-Orice comandă de deploy/pm2/npm pe server trebuie rulată ca `seminar`, altfel proprietarul
-fișierelor din `/var/www/app` (inclusiv `public/gallery/` și `uploads/`) se strică.
+rulează pe server (ex. doar `docs/` sau `CHANGELOG.md`). Un task nu e „gata" doar pentru că a fost
+comis local — se termină după deploy confirmat pe domeniul real.
 
-**Extindere majoră decisă cu clientul (2026-07-20), documentată complet în
-`docs/decizie-infrastructura-si-functionalitati-noi.md`:** site-ul rămâne static pentru vizitatori,
-dar se adaugă infrastructură (VPS Hostinger KVM1, migrare de pe Vercel — **fără Coolify**, userul
-gestionează VPS-ul direct, decizie ulterioară documentului inițial care recomanda Coolify) + un
-**portal student cu autentificare** (nu doar link-uri fără cont, cum era planul inițial pentru
-materiale): admin încarcă cursuri, ține catalog online de prezență și evidența plăților,
-gestionează arhiva absolvenților; studentul autentificat vede notele, prezența, situația de plată
-și descarcă materialele. Auth student: **ID unic generat aleator (nu secvențial, nu CNP) + parolă
-comună** — risc acceptat explicit de client (fără date de plată procesate real, doar afișare), cu
-condiția tehnică ID-uri negribile. Detalii complete (variante evaluate, motive de respingere
-CNP/magic link/user-parolă individuală) în documentul de decizie, secțiunea 7.
-
-**Cod implementat (2026-07-20, vezi CHANGELOG (33)):** tot portalul admin+student e scris și
-funcțional local — schema DB (Drizzle, `src/db/schema.ts`), auth admin+student pe sesiuni cookie,
-CRUD studenți cu ID generat, prezență, plăți, note, materiale de curs (upload/download protejat),
-arhivă absolvenți. Build+lint verificate curat. **Live pe VPS din 2026-07-21** (vezi secțiunea de
-deploy de mai sus) — punctele 4 și 5 de mai jos (DNS + VPS) sunt acum COMPLETE.
-
-**Proiectul e predat clientului (2026-08-20) — nimic urgent rămas.** Singurul punct deschis,
-blocat pe resurse externe pe care userul le aduce între sesiuni, când vor apărea:
-
-1. **Profesori — poze + listă** (`src/lib/content/profesori.ts`, singurul TODO de conținut
-   rămas): așteaptă lista de profesori + fotografiile de la Seminar.
-
-Istoricul modificărilor (ce s-a schimbat, când, de ce) e în `CHANGELOG.md`, nu aici — CLAUDE.md
-ține doar starea/arhitectura curentă și ce rămâne de făcut.
-
-**Faza 3 — Galerie foto (COMPLET, 2026-07-21):** `gallery_albums`/`gallery_photos` în Postgres,
-poze în `public/gallery/<an>/` pe VPS, servite direct de nginx (`location /gallery/` alias, NU
-prin Next.js — Next nu recunoaște fișiere adăugate în `public/` după ultimul build, verificat
-empiric). Componentele publice (`GalleryCard`, `Lightbox`) folosesc `<img>` simplu, nu
-`next/image` — evită orice dependență de manifestul de build al Next pentru conținut încărcat
-dinamic de admin. Populate 6 albume reale (37 poze: Absolvire 2013/2014/2018, Cursuri 2018,
-Seminar 2016/2025) din poze furnizate de user. **Doar poze, fără video** — decizie explicită.
-
-**Faza 4 — Contact live (COMPLET, 2026-07-21):** trece prin Maileroo (nu EmailJS, migrat în
-aceeași zi — vezi CHANGELOG (40) pentru motiv). Domeniu verificat, `MAILEROO_API_KEY` pe VPS,
-testat live cu trimitere reală confirmată (primul email a intrat în Spam — normal, domeniu nou;
-rezolvat cu „Not spam" în Gmail, al doilea test a intrat direct în Inbox).
-
-**DNS + HTTPS (COMPLET, 2026-07-21):** domeniul e pe Cloudflare (nameserver mutați de la
-Hosterion), A records `@` și `www` → IP-ul VPS-ului, proxy Cloudflare activ (portocaliu).
-Certificat Let's Encrypt instalat pe VPS via certbot (auto-reînnoire prin systemd timer),
-nginx redirectează HTTP→HTTPS. Nu s-a pierdut email — domeniul nu avea MX configurat înainte de
-migrare (verificat cu userul).
-
-**Migrare VPS Hostinger → OVHcloud (COMPLET, 2026-08-18):** tot ce descrie blocul de mai sus
-(Hostinger KVM1, certbot/Let's Encrypt) e istoric — vezi „Ce urmează" de la începutul acestei
-secțiuni și `docs/arhitectura.md` pentru starea curentă (OVH, Cloudflare Origin CA, IP nou).
-Abonamentul Hostinger a fost anulat definitiv de user după confirmarea că ambele site-uri
-(Seminar + `filadelfia-petrosani.ro`, migrate în aceeași sesiune) funcționează pe noul VPS.
-
-Proiectul e considerat livrat — rămâne doar punctul 1 de mai sus (Profesori), fără termen, blocat
-pe user.
+- **Site-ul rulează pe VPS OVHcloud (`57.131.141.84`, Ubuntu 24.04), NU pe Vercel.** Migrat de pe
+  Hostinger 2026-08-18 (abonament anulat). Detalii complete de infrastructură: `docs/arhitectura.md`
+  și `CONTEXT.md` §„Istoricul infrastructurii".
+- **Important (audit infra 2026-07-21):** aplicația rulează pe VPS ca user dedicat `seminar` (NU
+  root — hardening). pm2 e pornit sub `su - seminar -c '...'`. Orice comandă de deploy/pm2/npm pe
+  server trebuie rulată ca `seminar`, altfel proprietarul fișierelor din `/var/www/app` (inclusiv
+  `public/gallery/` și `uploads/`) se strică.
+- **Deploy-uri pe VPS:** nu există pipeline automat — actualizarea codului se face manual prin
+  tar+scp (vezi `docs/deploy.md`), apoi `npm run build` + `pm2 restart seminar-app`. De discutat cu
+  userul dacă merită un script/CI simplu odată ce ritmul de modificări se stabilizează.
 
 ## Verificare
 
