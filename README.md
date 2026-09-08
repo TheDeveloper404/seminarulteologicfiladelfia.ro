@@ -16,3 +16,5 @@ npm install
 cp .env.local.example .env.local   # completează DATABASE_URL + MAILEROO_API_KEY
 npm run dev
 ```
+
+<!-- test push/credential — 2026-09-08 -->
