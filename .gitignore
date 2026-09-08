@@ -64,6 +64,11 @@ public/gallery/
 /BACKLOG.md
 /docs/
 
+# Instrucțiuni de proiect pentru agenți (local, nu în repo)
+/CONTEXT.md
+/CLAUDE.md
+/AGENTS.md
+
 # Arhiva de deploy (tar+scp către VPS) — artefact local, a ajuns o dată în istoric din greșeală
 # (183d0eb, ștearsă în 52ab640; nu conținea secrete, doar src/config).
 /deploy.tar.gz
