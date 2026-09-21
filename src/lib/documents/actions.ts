@@ -18,14 +18,10 @@ export async function generateGraduationDocument(
   await requireAdmin();
 
   const type = formData.get("type");
-  const issueNumber = String(formData.get("issueNumber") ?? "").trim();
   const issueDateInput = String(formData.get("issueDate") ?? "").trim();
 
   if (type !== "diploma" && type !== "certificat") {
     return { error: "Tip de document invalid." };
-  }
-  if (!issueNumber) {
-    return { error: "Numărul de înregistrare este obligatoriu." };
   }
   if (!issueDateInput || Number.isNaN(Date.parse(issueDateInput))) {
     return { error: "Data eliberării nu este validă." };
@@ -43,6 +39,15 @@ export async function generateGraduationDocument(
   if (student.isHistoricalImport) {
     return { error: "Rândurile istorice importate nu pot primi diplomă/certificat generat." };
   }
+
+  // „Nr. …/dată” de pe document e numărul matricol din registru — nu se mai introduce de mână.
+  if (student.matricolNumber === null) {
+    return {
+      error:
+        "Studentul nu are număr matricol. Completează-l din „Editează” înainte de a genera documentul.",
+    };
+  }
+  const issueNumber = String(student.matricolNumber);
 
   const issueDate = new Date(issueDateInput);
   const pdfBytes = await generateGraduationPdf({

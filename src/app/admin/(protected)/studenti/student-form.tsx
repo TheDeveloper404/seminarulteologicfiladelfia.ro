@@ -40,12 +40,15 @@ function Field({
 export function StudentForm({
   mode,
   student,
+  nextMatricol,
 }: {
   mode: "create";
   student?: never;
+  nextMatricol: number;
 } | {
   mode: "edit";
   student: Student;
+  nextMatricol?: never;
 }) {
   const action = mode === "create" ? createStudent : updateStudent.bind(null, student.id);
   const [state, formAction, isPending] = useActionState<StudentFormState, FormData>(
@@ -65,6 +68,27 @@ export function StudentForm({
               <p id="publicId" className="font-mono text-base leading-11">
                 {student.publicId}
               </p>
+            </Field>
+          )}
+          {mode === "create" ? (
+            <Field htmlFor="matricolNumber" label="Nr. matricol">
+              <p id="matricolNumber" className="text-base leading-11 font-medium">
+                {nextMatricol}{" "}
+                <span className="font-normal text-muted-foreground">(atribuit automat)</span>
+              </p>
+            </Field>
+          ) : (
+            <Field htmlFor="matricolNumber" label="Nr. matricol">
+              <Input
+                id="matricolNumber"
+                name="matricolNumber"
+                type="number"
+                min={1}
+                step={1}
+                defaultValue={student.matricolNumber ?? ""}
+                placeholder="—"
+                className={inputClassName}
+              />
             </Field>
           )}
           <Field htmlFor="fullName" label="Nume complet" full>

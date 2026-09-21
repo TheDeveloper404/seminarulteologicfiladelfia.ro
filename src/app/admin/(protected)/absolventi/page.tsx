@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 type Student = {
   id: number;
   publicId: string;
+  matricolNumber: number | null;
   fullName: string;
   enrollmentYear: number;
   graduatedAt: Date | null;
@@ -46,6 +47,7 @@ export default async function GraduatesPage() {
     .select({
       id: students.id,
       publicId: students.publicId,
+      matricolNumber: students.matricolNumber,
       fullName: students.fullName,
       enrollmentYear: students.enrollmentYear,
       graduatedAt: students.graduatedAt,

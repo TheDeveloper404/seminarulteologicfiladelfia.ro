@@ -30,6 +30,11 @@ export const students = pgTable("students", {
   // ID de login: generat aleator la creare, nu secvențial (vezi
   // docs/decizie-infrastructura-si-functionalitati-noi.md secțiunea 7).
   publicId: varchar("public_id", { length: 12 }).notNull().unique(),
+  // Nr. matricol din registrul de înscriere (continuă numerotarea de pe hârtie: 689–712 la
+  // 2024–2025). Se tipărește pe diplomă/certificat ca „Nr. …/dată”. Se atribuie automat la
+  // creare (max + 1, vezi src/lib/students/matricol.ts). Null la rândurile istorice (registrele
+  // 1–688 nu sunt digitalizate) și la cei fără intrare în registru, până se completează manual.
+  matricolNumber: integer("matricol_number").unique(),
   fullName: varchar("full_name", { length: 255 }).notNull(),
   phone: varchar("phone", { length: 30 }),
   email: varchar("email", { length: 255 }),

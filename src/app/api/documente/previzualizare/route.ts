@@ -17,7 +17,6 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const studentId = Number(searchParams.get("studentId"));
   const type = searchParams.get("type");
-  const issueNumber = (searchParams.get("issueNumber") ?? "").trim();
   const issueDateInput = (searchParams.get("issueDate") ?? "").trim();
 
   if (!Number.isInteger(studentId)) {
@@ -46,14 +45,20 @@ export async function GET(request: Request) {
     );
   }
 
+  if (student.matricolNumber === null) {
+    return NextResponse.json(
+      { error: "Studentul nu are număr matricol — completează-l din „Editează”." },
+      { status: 400 }
+    );
+  }
+
   let pdfBytes: Uint8Array;
   try {
     pdfBytes = await generateGraduationPdf({
       student,
       type: type as GraduationDocumentType,
-      // Placeholder vizibil dacă adminul nu a completat încă numărul — previzualizarea nu
-      // trebuie să blocheze pe un câmp gol, doar generarea reală (vezi actions.ts) îl cere.
-      issueNumber: issueNumber || "___",
+      // „Nr. …/dată” de pe document = numărul matricol al studentului.
+      issueNumber: String(student.matricolNumber),
       issueDate: new Date(issueDateInput),
     });
   } catch {

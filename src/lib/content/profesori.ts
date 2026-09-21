@@ -18,7 +18,7 @@ export const profesori: StaffMember[] = [
   {
     // TODO: poză — așteaptă de la Seminar.
     name: "Larisa Bulancea",
-    role: "Caseriță",
+    role: "Responsabil Financiar",
     tier: 2,
   },
   {

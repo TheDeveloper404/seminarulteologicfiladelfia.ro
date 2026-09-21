@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { generateUniquePublicId } from "./generate-public-id";
 import { parseRegistryFile, type RowIssue } from "./import";
+import { withMatricolRetry } from "./matricol";
 
 export type ImportState =
   | { error: string }
@@ -66,14 +67,18 @@ export async function importStudentsFromRegistry(
       // existente" și „inserez" în care un al doilea import concurent ar putea trece de aceeași
       // verificare (găsit la code review 2026-08-20). Nu adaugă o constrângere UNIQUE la nivel de
       // schemă — nume reale se pot repeta legitim de-a lungul anilor, nu vrem să blocăm asta.
-      const result = await db.execute(sql`
-        INSERT INTO students
-          (public_id, full_name, phone, enrollment_year, study_year, birth_date, birth_locality, birth_county, address, home_church)
-        SELECT ${publicId}, ${row.fullName}, ${row.phone}, ${enrollmentYear}, 1, ${row.birthDate}, ${row.birthLocality}, ${row.birthCounty}, ${row.address}, ${row.homeChurch}
-        WHERE NOT EXISTS (
-          SELECT 1 FROM students WHERE lower(trim(full_name)) = lower(trim(${row.fullName}))
-        )
-      `);
+      // Nr. matricol: următorul după cel mai mare, calculat în aceeași instrucțiune; la o
+      // coliziune cu o inserare concurentă (UNIQUE) se reia cu numărul următor.
+      const result = await withMatricolRetry(() =>
+        db.execute(sql`
+          INSERT INTO students
+            (public_id, matricol_number, full_name, phone, enrollment_year, study_year, birth_date, birth_locality, birth_county, address, home_church)
+          SELECT ${publicId}, (SELECT COALESCE(MAX(matricol_number), 0) + 1 FROM students), ${row.fullName}, ${row.phone}, ${enrollmentYear}, 1, ${row.birthDate}, ${row.birthLocality}, ${row.birthCounty}, ${row.address}, ${row.homeChurch}
+          WHERE NOT EXISTS (
+            SELECT 1 FROM students WHERE lower(trim(full_name)) = lower(trim(${row.fullName}))
+          )
+        `)
+      );
 
       if (result.rowCount === 0) {
         issues.push({

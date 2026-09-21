@@ -7,36 +7,25 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SortableHeader } from "@/components/app-shell/sortable-header";
 import { DeleteStudentButton } from "./delete-student-button";
-import { AttendanceCheckbox } from "./attendance-checkbox";
-import { AttendanceFormStrip } from "./attendance-form-strip";
 
 type StudentRow = {
   id: number;
   publicId: string;
+  matricolNumber: number | null;
   fullName: string;
   phone: string | null;
   email: string | null;
   enrollmentYear: number;
   studyYear: number;
   graduated: boolean;
-  recentAttendance: { sessionDate: string; present: boolean }[];
 };
 
 type SortField = "fullName" | "enrollmentYear" | "studyYear";
 
-export function StudentsTable({
-  students,
-  sessionDate,
-  presentByStudentId,
-}: {
-  students: StudentRow[];
-  sessionDate: string;
-  presentByStudentId: Record<number, boolean>;
-}) {
+export function StudentsTable({ students }: { students: StudentRow[] }) {
   const [query, setQuery] = useState("");
   const [sortField, setSortField] = useState<SortField>("fullName");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [pendingCount, setPendingCount] = useState(0);
 
   function handleSort(field: SortField) {
     if (field === sortField) {
@@ -45,10 +34,6 @@ export function StudentsTable({
       setSortField(field);
       setSortDirection("asc");
     }
-  }
-
-  function handlePendingChange(pending: boolean) {
-    setPendingCount((count) => count + (pending ? 1 : -1));
   }
 
   const filtered = useMemo(() => {
@@ -70,8 +55,6 @@ export function StudentsTable({
     return sorted;
   }, [students, query, sortField, sortDirection]);
 
-  const hasPendingWrites = pendingCount > 0;
-
   return (
     <div>
       <div className="mt-6 flex flex-wrap items-end gap-6">
@@ -89,32 +72,6 @@ export function StudentsTable({
           />
         </div>
 
-        <form className="flex flex-wrap items-end gap-3" method="get">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="data" className="text-base font-medium">
-              Data sesiunii de prezență
-            </label>
-            <input
-              id="data"
-              name="data"
-              type="date"
-              defaultValue={sessionDate}
-              className="h-11 rounded-lg border border-input bg-background px-3 text-base"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={hasPendingWrites}
-            title={
-              hasPendingWrites
-                ? "Se salvează prezența — așteaptă să se termine înainte de a schimba data."
-                : undefined
-            }
-            className="h-11 rounded-lg border border-input bg-background px-4 text-base font-medium hover:bg-muted disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {hasPendingWrites ? "Se salvează..." : "Schimbă data"}
-          </button>
-        </form>
       </div>
 
       {filtered.length === 0 ? (
@@ -127,6 +84,7 @@ export function StudentsTable({
             <thead className="bg-muted/50 text-left">
               <tr>
                 <th className="p-4 font-medium whitespace-nowrap">ID</th>
+                <th className="p-4 font-medium whitespace-nowrap">Nr. mat.</th>
                 <th className="w-full p-4 font-medium">
                   <SortableHeader
                     label="Nume"
@@ -156,14 +114,13 @@ export function StudentsTable({
                   />
                 </th>
                 <th className="p-4" />
-                <th className="p-4 font-medium whitespace-nowrap">Prezent azi</th>
-                <th className="p-4 font-medium whitespace-nowrap">Istoric (ultimele 10)</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((student) => (
                 <tr key={student.id} className="border-t">
                   <td className="p-4 font-mono whitespace-nowrap">{student.publicId}</td>
+                  <td className="p-4 whitespace-nowrap">{student.matricolNumber ?? "—"}</td>
                   <td className="p-4">{student.fullName}</td>
                   <td className="p-4 whitespace-nowrap text-muted-foreground">
                     {student.phone || student.email || "—"}
@@ -192,18 +149,6 @@ export function StudentsTable({
                       </Button>
                       <DeleteStudentButton studentId={student.id} studentName={student.fullName} />
                     </div>
-                  </td>
-                  <td className="p-4 text-center whitespace-nowrap">
-                    <AttendanceCheckbox
-                      key={sessionDate}
-                      studentId={student.id}
-                      sessionDate={sessionDate}
-                      initialPresent={presentByStudentId[student.id] ?? false}
-                      onPendingChange={handlePendingChange}
-                    />
-                  </td>
-                  <td className="p-4 whitespace-nowrap">
-                    <AttendanceFormStrip records={student.recentAttendance} />
                   </td>
                 </tr>
               ))}

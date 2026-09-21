@@ -8,6 +8,12 @@ import { graduationDocuments, sessions, students } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { deleteGeneratedDocumentFile } from "@/lib/documents/storage";
 import { generateUniquePublicId } from "./generate-public-id";
+import {
+  isMatricolConflict,
+  NEXT_MATRICOL_SQL,
+  parseMatricolInput,
+  withMatricolRetry,
+} from "./matricol";
 
 export type StudentFormState = { error: string } | null;
 
@@ -32,14 +38,18 @@ export async function createStudent(
 
   const publicId = await generateUniquePublicId();
 
-  await db.insert(students).values({
-    publicId,
-    fullName,
-    phone: phone || null,
-    email: email || null,
-    enrollmentYear,
-    studyYear,
-  });
+  // Numărul matricol se atribuie automat: următorul după cel mai mare existent.
+  await withMatricolRetry(() =>
+    db.insert(students).values({
+      publicId,
+      matricolNumber: NEXT_MATRICOL_SQL,
+      fullName,
+      phone: phone || null,
+      email: email || null,
+      enrollmentYear,
+      studyYear,
+    })
+  );
 
   revalidatePath("/admin/studenti");
   redirect("/admin/studenti");
@@ -66,12 +76,16 @@ export async function updateStudent(
   const baptismDateInput = String(formData.get("baptismDate") ?? "").trim();
   const homeChurch = String(formData.get("homeChurch") ?? "").trim();
   const notes = String(formData.get("notes") ?? "").trim();
+  const matricol = parseMatricolInput(String(formData.get("matricolNumber") ?? ""));
 
   if (!fullName) {
     return { error: "Numele complet este obligatoriu." };
   }
   if (!Number.isInteger(enrollmentYear) || enrollmentYear < 2000) {
     return { error: "Anul de înscriere nu este valid." };
+  }
+  if (!matricol.ok) {
+    return { error: "Numărul matricol trebuie să fie un număr întreg pozitiv." };
   }
   if (graduatedAtInput && Number.isNaN(Date.parse(graduatedAtInput))) {
     return { error: "Data absolvirii nu este validă." };
@@ -91,25 +105,33 @@ export async function updateStudent(
       : new Date()
     : null;
 
-  await db
-    .update(students)
-    .set({
-      fullName,
-      phone: phone || null,
-      email: email || null,
-      enrollmentYear,
-      studyYear,
-      graduated,
-      graduatedAt,
-      birthDate: birthDateInput || null,
-      birthLocality: birthLocality || null,
-      birthCounty: birthCounty || null,
-      address: address || null,
-      baptismDate: baptismDateInput || null,
-      homeChurch: homeChurch || null,
-      notes: notes || null,
-    })
-    .where(eq(students.id, studentId));
+  try {
+    await db
+      .update(students)
+      .set({
+        matricolNumber: matricol.value,
+        fullName,
+        phone: phone || null,
+        email: email || null,
+        enrollmentYear,
+        studyYear,
+        graduated,
+        graduatedAt,
+        birthDate: birthDateInput || null,
+        birthLocality: birthLocality || null,
+        birthCounty: birthCounty || null,
+        address: address || null,
+        baptismDate: baptismDateInput || null,
+        homeChurch: homeChurch || null,
+        notes: notes || null,
+      })
+      .where(eq(students.id, studentId));
+  } catch (error) {
+    if (isMatricolConflict(error)) {
+      return { error: `Numărul matricol ${matricol.value} este deja atribuit altui student.` };
+    }
+    throw error;
+  }
 
   if (graduated) {
     // Taie orice sesiune de portal deja activă a studentului — nu mai are acces din momentul

@@ -7,6 +7,9 @@ import { attendance, students } from "@/db/schema";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
+import { isValidSessionDate, todaySessionDate } from "@/lib/attendance/session-date";
+import { cn } from "@/lib/utils";
+import { AttendanceSheet } from "./attendance-sheet";
 import { StudentsTable } from "./students-table";
 
 export const metadata: Metadata = {
@@ -15,23 +18,45 @@ export const metadata: Metadata = {
 };
 
 const RECENT_ATTENDANCE_COUNT = 10;
-const SESSION_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
-function firstDayOfCurrentMonth(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
+function SectionTabs({ active }: { active: "lista" | "prezenta" }) {
+  const tabs = [
+    { key: "lista", label: "Studenți", href: "/admin/studenti" },
+    { key: "prezenta", label: "Prezență", href: "/admin/studenti?vedere=prezenta" },
+  ] as const;
+
+  return (
+    <nav aria-label="Secțiuni studenți" className="mt-6 flex gap-1 border-b">
+      {tabs.map((tab) => (
+        <Link
+          key={tab.key}
+          href={tab.href}
+          aria-current={tab.key === active ? "page" : undefined}
+          className={cn(
+            "-mb-px border-b-2 px-4 py-2.5 text-base font-medium transition-colors",
+            tab.key === active
+              ? "border-primary text-foreground"
+              : "border-transparent text-muted-foreground hover:text-foreground"
+          )}
+        >
+          {tab.label}
+        </Link>
+      ))}
+    </nav>
+  );
 }
 
 export default async function StudentsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ data?: string }>;
+  searchParams: Promise<{ data?: string; vedere?: string }>;
 }) {
-  const { data } = await searchParams;
+  const { data, vedere } = await searchParams;
+  const view = vedere === "prezenta" ? "prezenta" : "lista";
   // Validat cu aceeași regulă ca la scriere (src/lib/attendance/actions.ts) — audit 2026-08-19,
   // SEC-008: fără asta, `?data=abc` trecea direct în interogarea Postgres și pica cu eroare de
-  // cast (500) în loc de fallback la data implicită.
-  const sessionDate = data && SESSION_DATE_RE.test(data) ? data : firstDayOfCurrentMonth();
+  // cast (500) în loc de fallback la data implicită (azi, în fusul orar al seminarului).
+  const sessionDate = data && isValidSessionDate(data) ? data : todaySessionDate();
 
   const allStudents = await db
     .select()
@@ -39,8 +64,10 @@ export default async function StudentsPage({
     .where(eq(students.graduated, false))
     .orderBy(desc(students.createdAt));
 
+  const needsAttendance = view === "prezenta" && allStudents.length > 0;
+
   const sessionAttendance =
-    allStudents.length === 0
+    !needsAttendance
       ? []
       : await db
           .select({ studentId: attendance.studentId, present: attendance.present })
@@ -52,7 +79,7 @@ export default async function StudentsPage({
   );
 
   const attendanceRecords =
-    allStudents.length === 0
+    !needsAttendance
       ? []
       : await db
           .select({
@@ -118,11 +145,18 @@ export default async function StudentsPage({
           action={addStudentButton}
         />
       ) : (
-        <StudentsTable
-          students={studentsWithAttendance}
-          sessionDate={sessionDate}
-          presentByStudentId={presentByStudentId}
-        />
+        <>
+          <SectionTabs active={view} />
+          {view === "prezenta" ? (
+            <AttendanceSheet
+              students={studentsWithAttendance}
+              sessionDate={sessionDate}
+              presentByStudentId={presentByStudentId}
+            />
+          ) : (
+            <StudentsTable students={allStudents} />
+          )}
+        </>
       )}
     </div>
   );

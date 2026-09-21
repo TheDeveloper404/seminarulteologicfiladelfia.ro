@@ -35,6 +35,7 @@ const validStudent = {
   id: 1,
   fullName: "Popescu Ion",
   isHistoricalImport: false,
+  matricolNumber: 713,
   birthDate: "1998-03-12",
 };
 
@@ -99,7 +100,7 @@ describe("GET /api/documente/previzualizare", () => {
     expect(generatePdfMock).not.toHaveBeenCalled();
   });
 
-  it("streams the PDF inline (not as a download) without an issueNumber", async () => {
+  it("streams the PDF inline (not as a download), with the student's matricol number as the printed Nr.", async () => {
     getSessionMock.mockResolvedValue({ id: "a" });
     selectMock.mockResolvedValue([validStudent]);
     const res = await GET(
@@ -109,7 +110,31 @@ describe("GET /api/documente/previzualizare", () => {
     expect(res.headers.get("Content-Type")).toBe("application/pdf");
     expect(res.headers.get("Content-Disposition")).toBe("inline");
     expect(generatePdfMock).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "certificat", issueNumber: "___" })
+      expect.objectContaining({ type: "certificat", issueNumber: "713" })
     );
+  });
+
+  it("ignores an issueNumber sent in the query — the printed Nr. is always the matricol", async () => {
+    getSessionMock.mockResolvedValue({ id: "a" });
+    selectMock.mockResolvedValue([validStudent]);
+    await GET(
+      requestWith({
+        studentId: "1",
+        type: "diploma",
+        issueDate: "2026-08-19",
+        issueNumber: "99999",
+      })
+    );
+    expect(generatePdfMock).toHaveBeenCalledWith(expect.objectContaining({ issueNumber: "713" }));
+  });
+
+  it("refuses to preview a student without a matricol number", async () => {
+    getSessionMock.mockResolvedValue({ id: "a" });
+    selectMock.mockResolvedValue([{ ...validStudent, matricolNumber: null }]);
+    const res = await GET(
+      requestWith({ studentId: "1", type: "diploma", issueDate: "2026-08-19" })
+    );
+    expect(res.status).toBe(400);
+    expect(generatePdfMock).not.toHaveBeenCalled();
   });
 });

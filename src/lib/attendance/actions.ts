@@ -5,8 +5,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { attendance } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/require-admin";
-
-const SESSION_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+import { isValidSessionDate } from "./session-date";
 
 export async function setAttendance(
   studentId: number,
@@ -15,7 +14,7 @@ export async function setAttendance(
 ): Promise<void> {
   await requireAdmin();
 
-  if (!SESSION_DATE_RE.test(sessionDate)) {
+  if (!isValidSessionDate(sessionDate)) {
     throw new Error("Format de dată invalid.");
   }
 

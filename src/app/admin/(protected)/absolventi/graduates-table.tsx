@@ -30,6 +30,7 @@ import {
 type GraduateRow = {
   id: number;
   publicId: string;
+  matricolNumber: number | null;
   fullName: string;
   enrollmentYear: number;
   graduatedAt: Date | null;
@@ -46,7 +47,13 @@ type DocumentSummary = {
 
 type GradeSummary = { id: number; subject: string; grade: string; gradedAt: string };
 
-function GenerateDocumentForm({ studentId }: { studentId: number }) {
+function GenerateDocumentForm({
+  studentId,
+  matricolNumber,
+}: {
+  studentId: number;
+  matricolNumber: number | null;
+}) {
   const action = generateGraduationDocument.bind(null, studentId);
   const [state, formAction, isPending] = useActionState<GenerateDocumentState, FormData>(
     action,
@@ -59,7 +66,6 @@ function GenerateDocumentForm({ studentId }: { studentId: number }) {
     const params = new URLSearchParams({
       studentId: String(studentId),
       type: String(formData.get("type") ?? "diploma"),
-      issueNumber: String(formData.get("issueNumber") ?? ""),
       issueDate: String(formData.get("issueDate") ?? ""),
     });
     window.open(`/api/documente/previzualizare?${params.toString()}`, "_blank", "noopener");
@@ -82,10 +88,14 @@ function GenerateDocumentForm({ studentId }: { studentId: number }) {
         </div>
       </div>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`issueNumber-${studentId}`} className="text-base">
-          Nr. de înregistrare
-        </Label>
-        <Input id={`issueNumber-${studentId}`} name="issueNumber" required className="h-11 md:text-base" />
+        <Label className="text-base">Nr. matricol (se tipărește pe document)</Label>
+        {matricolNumber === null ? (
+          <p className="text-base text-destructive">
+            Studentul nu are număr matricol. Completează-l din „Editează”, apoi generează documentul.
+          </p>
+        ) : (
+          <p className="text-base font-medium text-foreground">{matricolNumber}</p>
+        )}
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={`issueDate-${studentId}`} className="text-base">
@@ -109,11 +119,17 @@ function GenerateDocumentForm({ studentId }: { studentId: number }) {
         <p className="text-base text-emerald-600">Document generat.</p>
       )}
       <div className="flex gap-2">
-        <Button type="button" variant="outline" size="sm" onClick={handlePreview}>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={handlePreview}
+          disabled={matricolNumber === null}
+        >
           <Eye className="size-4" aria-hidden="true" />
           Previzualizează
         </Button>
-        <Button type="submit" size="sm" disabled={isPending}>
+        <Button type="submit" size="sm" disabled={isPending || matricolNumber === null}>
           {isPending ? "Se generează..." : "Generează"}
         </Button>
       </div>
@@ -203,6 +219,10 @@ function GraduateCard({
 
         <dl className="grid grid-cols-2 gap-3 text-base">
           <div>
+            <dt className="text-muted-foreground">Nr. matricol</dt>
+            <dd className="font-medium text-foreground">{student.matricolNumber ?? "—"}</dd>
+          </div>
+          <div>
             <dt className="text-muted-foreground">An înscriere</dt>
             <dd className="font-medium text-foreground">{student.enrollmentYear}</dd>
           </div>
@@ -252,7 +272,10 @@ function GraduateCard({
                 <DocumentsList documents={documents} />
               </div>
             </div>
-            <GenerateDocumentForm studentId={student.id} />
+            <GenerateDocumentForm
+              studentId={student.id}
+              matricolNumber={student.matricolNumber}
+            />
           </>
         )}
 
