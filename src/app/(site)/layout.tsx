@@ -12,6 +12,7 @@ export default function SiteLayout({
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
+      {/* Anunț temporar „Începerea cursurilor" — de comentat (nu șters) pe 31.10.2026 */}
       <AnnouncementPopup />
     </div>
   );
