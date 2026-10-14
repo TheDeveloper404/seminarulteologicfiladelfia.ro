@@ -3,7 +3,7 @@ import type { NavItem } from "./types";
 export const siteConfig = {
   name: "Seminarul Teologic Filadelfia",
   contact: {
-    phones: ["0721.255.379", "0737.420.002"],
+    phones: ["0721.255.379"],
     email: "seminar.filadelfia@gmail.com",
   },
   parentChurch: {
