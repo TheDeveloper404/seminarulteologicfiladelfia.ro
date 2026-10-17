@@ -36,7 +36,7 @@ export function MaterialsTable({ materials }: { materials: Material[] }) {
       <table className="w-full text-base">
         <thead className="bg-muted/50 text-left">
           <tr>
-            <th className="w-48 p-4 font-medium">
+            <th className="w-64 min-w-64 p-4 font-medium">
               <SortableHeader
                 label="Titlu"
                 field="title"

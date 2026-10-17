@@ -71,6 +71,13 @@
       "when": 1790013690292,
       "tag": "0009_matricol_number",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1792234615785,
+      "tag": "0010_tuition",
+      "breakpoints": true
     }
   ]
 }

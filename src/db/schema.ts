@@ -1,6 +1,8 @@
 import {
   boolean,
+  check,
   date,
+  index,
   integer,
   numeric,
   pgEnum,
@@ -8,8 +10,10 @@ import {
   serial,
   text,
   timestamp,
+  unique,
   varchar,
 } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
 
 export const admins = pgTable("admins", {
   id: serial("id").primaryKey(),
@@ -106,6 +110,25 @@ export const grades = pgTable("grades", {
   gradedAt: date("graded_at").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export const tuitionMonths = pgTable("tuition_months", {
+  id: serial("id").primaryKey(),
+  month: date("month").notNull().unique(),
+  amount: integer("amount").notNull(),
+}, (table) => [
+  check("tuition_months_first_day", sql`extract(day from ${table.month}) = 1`),
+  check("tuition_months_amount", sql`${table.amount} = 60`),
+]);
+
+export const studentTuition = pgTable("student_tuition", {
+  id: serial("id").primaryKey(),
+  monthId: integer("month_id").notNull().references(() => tuitionMonths.id, { onDelete: "cascade" }),
+  studentId: integer("student_id").notNull().references(() => students.id, { onDelete: "cascade" }),
+  paid: boolean("paid").notNull().default(false),
+}, (table) => [
+  unique("student_tuition_month_student_unique").on(table.monthId, table.studentId),
+  index("student_tuition_student_idx").on(table.studentId),
+]);
 
 // Galerie foto publică — doar imagini, fără video (decizie explicită). Fișierele stau în
 // `public/gallery/<year>/`, servite direct (public, fără autentificare), spre deosebire de

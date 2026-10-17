@@ -1,8 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import { Mail, Phone } from "lucide-react";
 import { siteConfig } from "@/lib/content/site-config";
 
 export function Footer() {
   const year = new Date().getFullYear();
+  const [showEgg, setShowEgg] = useState(false);
 
   return (
     <footer className="border-t border-border bg-primary text-primary-foreground">
@@ -76,7 +80,27 @@ export function Footer() {
       </div>
 
       <div className="border-t border-primary-foreground/10 py-4 text-center text-xs text-primary-foreground/60">
-        © {year} {siteConfig.name}. Toate drepturile rezervate.
+        <button
+          type="button"
+          onClick={() => setShowEgg((shown) => !shown)}
+          aria-expanded={showEgg}
+          className="cursor-default select-none rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary"
+        >
+          © {year} {siteConfig.name}. Toate drepturile rezervate.
+        </button>
+        {showEgg && (
+          <span className="ml-2">
+            · Powered by{" "}
+            <a
+              href="https://acl-smartsoftware.ro/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-secondary hover:underline"
+            >
+              ACL Smart Software
+            </a>
+          </span>
+        )}
       </div>
     </footer>
   );

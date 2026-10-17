@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import {
   createStudent,
@@ -170,10 +171,9 @@ export function StudentForm({
                 </div>
               </div>
               <Field htmlFor="graduatedAt" label="Data absolvirii">
-                <Input
+                <DatePicker
                   id="graduatedAt"
                   name="graduatedAt"
-                  type="date"
                   defaultValue={
                     student.graduatedAt
                       ? new Date(student.graduatedAt).toISOString().slice(0, 10)
@@ -194,10 +194,9 @@ export function StudentForm({
           </h2>
           <div className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
             <Field htmlFor="birthDate" label="Data nașterii">
-              <Input
+              <DatePicker
                 id="birthDate"
                 name="birthDate"
-                type="date"
                 defaultValue={
                   student.birthDate
                     ? new Date(student.birthDate).toISOString().slice(0, 10)
@@ -223,10 +222,9 @@ export function StudentForm({
               />
             </Field>
             <Field htmlFor="baptismDate" label="Data botezului">
-              <Input
+              <DatePicker
                 id="baptismDate"
                 name="baptismDate"
-                type="date"
                 defaultValue={
                   student.baptismDate
                     ? new Date(student.baptismDate).toISOString().slice(0, 10)

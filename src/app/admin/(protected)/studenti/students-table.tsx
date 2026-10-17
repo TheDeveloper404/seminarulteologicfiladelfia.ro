@@ -20,7 +20,7 @@ type StudentRow = {
   graduated: boolean;
 };
 
-type SortField = "fullName" | "enrollmentYear" | "studyYear";
+type SortField = "matricolNumber" | "fullName" | "enrollmentYear" | "studyYear";
 
 export function StudentsTable({ students }: { students: StudentRow[] }) {
   const [query, setQuery] = useState("");
@@ -46,6 +46,10 @@ export function StudentsTable({ students }: { students: StudentRow[] }) {
       let comparison = 0;
       if (sortField === "fullName") {
         comparison = a.fullName.localeCompare(b.fullName, "ro");
+      } else if (sortField === "matricolNumber") {
+        if (a.matricolNumber === null) return b.matricolNumber === null ? 0 : 1;
+        if (b.matricolNumber === null) return -1;
+        comparison = a.matricolNumber - b.matricolNumber;
       } else {
         comparison = a[sortField] - b[sortField];
       }
@@ -84,7 +88,15 @@ export function StudentsTable({ students }: { students: StudentRow[] }) {
             <thead className="bg-muted/50 text-left">
               <tr>
                 <th className="p-4 font-medium whitespace-nowrap">ID</th>
-                <th className="p-4 font-medium whitespace-nowrap">Nr. mat.</th>
+                <th className="p-4 font-medium whitespace-nowrap">
+                  <SortableHeader
+                    label="Nr. mat."
+                    field="matricolNumber"
+                    activeField={sortField}
+                    direction={sortDirection}
+                    onSort={handleSort}
+                  />
+                </th>
                 <th className="w-full p-4 font-medium">
                   <SortableHeader
                     label="Nume"

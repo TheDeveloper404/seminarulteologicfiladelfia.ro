@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { addGrade, type GradeFormState } from "@/lib/grades/actions";
 
@@ -37,10 +38,9 @@ export function GradeForm({ studentId }: { studentId: number }) {
         <Label htmlFor="gradedAt" className="text-base">
           Data
         </Label>
-        <Input
+        <DatePicker
           id="gradedAt"
           name="gradedAt"
-          type="date"
           defaultValue={new Date().toISOString().slice(0, 10)}
           className="h-11 md:text-base"
           required

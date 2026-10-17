@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, eq, inArray } from "drizzle-orm";
-import { Upload, Users } from "lucide-react";
+import { Download, Upload, Users } from "lucide-react";
 import { db } from "@/db";
 import { attendance, students } from "@/db/schema";
 import { Button } from "@/components/ui/button";
@@ -120,7 +120,7 @@ export default async function StudentsPage({
   );
 
   const headerActions = (
-    <div className="flex gap-2">
+    <div className="flex flex-wrap gap-2">
       <Button
         variant="outline"
         render={<Link href="/admin/studenti/import" />}
@@ -128,6 +128,14 @@ export default async function StudentsPage({
       >
         <Upload className="size-4" aria-hidden="true" />
         Importă din registru
+      </Button>
+      <Button
+        variant="outline"
+        render={<a href="/api/studenti/export" />}
+        nativeButton={false}
+      >
+        <Download className="size-4" aria-hidden="true" />
+        Exportă Excel
       </Button>
       {addStudentButton}
     </div>

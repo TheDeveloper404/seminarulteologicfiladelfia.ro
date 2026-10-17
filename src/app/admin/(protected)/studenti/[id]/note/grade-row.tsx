@@ -4,6 +4,7 @@ import { useActionState, useEffect, useRef, useState } from "react";
 import { Pencil, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
 import { updateGrade, deleteGrade, type GradeFormState } from "@/lib/grades/actions";
 
@@ -67,10 +68,9 @@ export function GradeRow({ studentId, grade }: { studentId: number; grade: Grade
               <label htmlFor={`gradedAt-${grade.id}`} className="text-sm font-medium">
                 Data
               </label>
-              <Input
+              <DatePicker
                 id={`gradedAt-${grade.id}`}
                 name="gradedAt"
-                type="date"
                 defaultValue={grade.gradedAt}
                 className="h-10"
                 required

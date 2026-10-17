@@ -4,7 +4,7 @@ import { useActionState, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { ChevronRight, Download, Eye, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { SortableHeader } from "@/components/app-shell/sortable-header";
 import { ConfirmDeleteDialog } from "@/components/confirm-delete-dialog";
@@ -101,10 +101,9 @@ function GenerateDocumentForm({
         <Label htmlFor={`issueDate-${studentId}`} className="text-base">
           Data eliberării
         </Label>
-        <Input
+        <DatePicker
           id={`issueDate-${studentId}`}
           name="issueDate"
-          type="date"
           defaultValue={new Date().toISOString().slice(0, 10)}
           required
           className="h-11 md:text-base"

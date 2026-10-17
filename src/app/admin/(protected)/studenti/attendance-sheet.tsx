@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { setAttendance } from "@/lib/attendance/actions";
 import { isValidSessionDate, todaySessionDate } from "@/lib/attendance/session-date";
 import { cn } from "@/lib/utils";
@@ -121,12 +122,11 @@ export function AttendanceSheet({
             Data sesiunii
           </label>
           <div className="flex gap-2">
-            <input
+            <DatePicker
               id="data-sesiune"
-              type="date"
               value={pickedDate}
               disabled={dateLocked}
-              onChange={(e) => goToDate(e.target.value)}
+              onValueChange={goToDate}
               className="h-11 rounded-lg border border-input bg-background px-3 text-base disabled:opacity-60"
             />
             <button
@@ -186,6 +186,7 @@ export function AttendanceSheet({
           <table className="w-full text-base">
             <thead className="bg-muted/50 text-left">
               <tr>
+                <th className="p-4 font-medium whitespace-nowrap">Nr. crt.</th>
                 <th className="w-full p-4 font-medium">Student</th>
                 <th className="p-4 font-medium whitespace-nowrap">An studiu</th>
                 <th className="p-4 font-medium whitespace-nowrap">Prezență la această dată</th>
@@ -193,11 +194,12 @@ export function AttendanceSheet({
               </tr>
             </thead>
             <tbody>
-              {filtered.map((student) => {
+              {filtered.map((student, index) => {
                 const mark = marks[student.id];
                 const saving = savingIds.has(student.id);
                 return (
                   <tr key={student.id} className="border-t">
+                    <td className="p-4 text-right">{index + 1}</td>
                     <td className="p-4">{student.fullName}</td>
                     <td className="p-4 whitespace-nowrap text-muted-foreground">
                       {student.studyYear === 2 ? "Anul II" : "Anul I"}
