@@ -26,13 +26,13 @@ export function isAllowedExtension(originalFileName: string): boolean {
 }
 
 export async function saveCourseMaterialFile(file: File): Promise<string> {
-  await mkdir(UPLOADS_DIR, { recursive: true });
+  await mkdir(UPLOADS_DIR, { recursive: true, mode: 0o700 });
 
   const extension = path.extname(file.name).toLowerCase();
   const diskFileName = `${randomUUID()}${extension}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  await writeFile(path.join(UPLOADS_DIR, diskFileName), buffer);
+  await writeFile(path.join(UPLOADS_DIR, diskFileName), buffer, { mode: 0o600 });
 
   return diskFileName;
 }

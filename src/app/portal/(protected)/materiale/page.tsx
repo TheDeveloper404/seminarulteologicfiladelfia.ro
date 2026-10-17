@@ -1,3 +1,4 @@
+import { requireStudent } from "@/lib/auth/require-student";
 import type { Metadata } from "next";
 import { desc, eq } from "drizzle-orm";
 import { Download, FileText } from "lucide-react";
@@ -13,6 +14,7 @@ export const metadata: Metadata = {
 };
 
 export default async function StudentMaterialsPage() {
+  await requireStudent();
   // Doar cele publicate — adminul încarcă materialele în avans, dar le face vizibile manual.
   const materials = await db
     .select()

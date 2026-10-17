@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, eq, inArray } from "drizzle-orm";
@@ -51,6 +52,7 @@ export default async function StudentsPage({
 }: {
   searchParams: Promise<{ data?: string; vedere?: string }>;
 }) {
+  await requireAdmin();
   const { data, vedere } = await searchParams;
   const view = vedere === "prezenta" ? "prezenta" : "lista";
   // Validat cu aceeași regulă ca la scriere (src/lib/attendance/actions.ts) — audit 2026-08-19,

@@ -1,3 +1,4 @@
+import { requireStudent } from "@/lib/auth/require-student";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
@@ -10,7 +11,6 @@ import {
 } from "lucide-react";
 import { db } from "@/db";
 import { attendance, courseMaterials, grades, students } from "@/db/schema";
-import { getSession } from "@/lib/auth/session";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { Badge } from "@/components/ui/badge";
@@ -26,7 +26,7 @@ function formatDate(value: string | Date) {
 }
 
 export default async function PortalDashboardPage() {
-  const session = await getSession("student");
+  const session = await requireStudent();
   const studentId = session?.studentId ?? null;
 
   // Un singur set de query-uri pentru tot dashboard-ul; fiecare e filtrat pe studentul curent,

@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
@@ -29,6 +30,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  await requireAdmin();
   const { id } = await params;
   const album = await getAlbum(Number(id));
 
@@ -43,6 +45,7 @@ export default async function AlbumDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const albumId = Number(id);
   const album = await getAlbum(albumId);

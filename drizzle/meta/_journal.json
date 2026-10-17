@@ -78,6 +78,13 @@
       "when": 1792234615785,
       "tag": "0010_tuition",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1792239324403,
+      "tag": "0011_attendance_uniqueness",
+      "breakpoints": true
     }
   ]
 }

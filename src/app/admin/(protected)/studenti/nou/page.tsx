@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import { StudentForm } from "../student-form";
 import { PageHeader } from "@/components/app-shell/page-header";
@@ -10,6 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NewStudentPage() {
+  await requireAdmin();
   const nextMatricol = await getNextMatricolNumber();
 
   return (

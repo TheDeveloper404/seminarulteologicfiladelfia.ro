@@ -1,3 +1,4 @@
+import { requireStudent } from "@/lib/auth/require-student";
 import type { Metadata } from "next";
 import { Wallet } from "lucide-react";
 import { PageHeader } from "@/components/app-shell/page-header";
@@ -8,6 +9,7 @@ import { getStudentTuition } from "@/lib/tuition/queries";
 export const metadata: Metadata = { title: "Taxele mele", robots: { index: false, follow: false } };
 
 export default async function StudentTuitionPage() {
+  await requireStudent();
   const rows = await getStudentTuition();
   return (
     <div>

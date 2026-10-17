@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import { cache } from "react";
 import { notFound } from "next/navigation";
@@ -26,6 +27,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
+  await requireAdmin();
   const { id } = await params;
   const student = await getStudent(Number(id));
 
@@ -40,6 +42,7 @@ export default async function StudentGradesPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  await requireAdmin();
   const { id } = await params;
   const studentId = Number(id);
   const student = await getStudent(studentId);

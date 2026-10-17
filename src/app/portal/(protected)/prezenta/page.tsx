@@ -1,9 +1,9 @@
+import { requireStudent } from "@/lib/auth/require-student";
 import type { Metadata } from "next";
 import { desc, eq } from "drizzle-orm";
 import { CalendarCheck, CalendarDays, Percent } from "lucide-react";
 import { db } from "@/db";
 import { attendance } from "@/db/schema";
-import { getSession } from "@/lib/auth/session";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { StatCard } from "@/components/app-shell/stat-card";
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 export default async function StudentAttendancePage() {
-  const session = await getSession("student");
+  const session = await requireStudent();
   const records = session
     ? await db
         .select()

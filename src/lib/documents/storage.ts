@@ -8,10 +8,10 @@ const GENERATED_DOCS_DIR =
   process.env.GENERATED_DOCS_DIR || path.join(process.cwd(), "uploads", "graduation-documents");
 
 export async function saveGeneratedDocument(pdfBytes: Uint8Array): Promise<string> {
-  await mkdir(GENERATED_DOCS_DIR, { recursive: true });
+  await mkdir(GENERATED_DOCS_DIR, { recursive: true, mode: 0o700 });
 
   const diskFileName = `${randomUUID()}.pdf`;
-  await writeFile(path.join(GENERATED_DOCS_DIR, diskFileName), pdfBytes);
+  await writeFile(path.join(GENERATED_DOCS_DIR, diskFileName), pdfBytes, { mode: 0o600 });
 
   return diskFileName;
 }

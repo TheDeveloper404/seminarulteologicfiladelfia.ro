@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import { ImportForm } from "./import-form";
 import { PageHeader } from "@/components/app-shell/page-header";
@@ -8,7 +9,8 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function ImportStudentsPage() {
+export default async function ImportStudentsPage() {
+  await requireAdmin();
   return (
     <div className="mx-auto max-w-3xl">
       <PageHeader

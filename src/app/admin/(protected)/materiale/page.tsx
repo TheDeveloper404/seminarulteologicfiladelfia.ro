@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import { desc } from "drizzle-orm";
 import { EyeOff, FileText } from "lucide-react";
@@ -15,6 +16,7 @@ export const metadata: Metadata = {
 };
 
 export default async function CourseMaterialsPage() {
+  await requireAdmin();
   const materials = await db
     .select()
     .from(courseMaterials)

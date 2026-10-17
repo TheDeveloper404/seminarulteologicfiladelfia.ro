@@ -2,7 +2,7 @@ import { randomBytes, createHash } from "crypto";
 import { cookies } from "next/headers";
 import { and, eq, lt } from "drizzle-orm";
 import { db } from "@/db";
-import { rateLimitAttempts, sessions } from "@/db/schema";
+import { rateLimitAttempts, sessions, students } from "@/db/schema";
 
 export type SessionRole = "admin" | "student";
 
@@ -80,6 +80,18 @@ export async function getSession(role: SessionRole) {
     .limit(1);
 
   if (!session || session.expiresAt < new Date()) return null;
+
+  if (role === "student") {
+    if (session.studentId === null) return null;
+    const [student] = await db
+      .select({ graduated: students.graduated })
+      .from(students)
+      .where(eq(students.id, session.studentId))
+      .limit(1);
+
+    // Graduation can revoke sessions before an already-running login inserts its session.
+    if (!student || student.graduated) return null;
+  }
 
   return session;
 }

@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, eq, sql } from "drizzle-orm";
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function GalleryPage() {
+  await requireAdmin();
   const albums = await db
     .select({
       id: galleryAlbums.id,

@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/app-shell/page-header";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ export const metadata: Metadata = { title: "Taxe de școlarizare", robots: { ind
 export default async function TuitionPage({ searchParams }: {
   searchParams: Promise<{ luna?: string }>;
 }) {
+  await requireAdmin();
   const { luna } = await searchParams;
   const valid = luna === undefined || /^[1-9]\d{3}-(0[1-9]|1[0-2])$/.test(luna);
   const month = valid && luna ? luna : todaySessionDate().slice(0, 7);

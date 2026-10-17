@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { desc, eq, sql } from "drizzle-orm";
@@ -31,6 +32,7 @@ function formatSessionDate(iso: string): string {
 }
 
 export default async function AdminDashboardPage() {
+  await requireAdmin();
   const [
     allStudents,
     materials,

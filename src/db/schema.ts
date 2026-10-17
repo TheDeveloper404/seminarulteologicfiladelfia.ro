@@ -86,7 +86,9 @@ export const attendance = pgTable("attendance", {
   sessionDate: date("session_date").notNull(),
   present: boolean("present").notNull().default(false),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+}, (table) => [
+  unique("attendance_student_session_unique").on(table.studentId, table.sessionDate),
+]);
 
 // Sesiuni server-side pe cookie (fără JWT). `id` e hash-ul (sha256) al token-ului din cookie,
 // niciodată token-ul brut — dacă baza de date e compromisă, token-urile din cookie-urile

@@ -1,3 +1,4 @@
+import { requireAdmin } from "@/lib/auth/require-admin";
 import type { Metadata } from "next";
 import { desc, eq, inArray } from "drizzle-orm";
 import { GraduationCap } from "lucide-react";
@@ -43,6 +44,7 @@ function groupByGraduationYear(graduates: Student[]): [string, Student[]][] {
 }
 
 export default async function GraduatesPage() {
+  await requireAdmin();
   const graduates = await db
     .select({
       id: students.id,
