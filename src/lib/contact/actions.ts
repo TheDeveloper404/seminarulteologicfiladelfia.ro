@@ -4,6 +4,7 @@ import { MailerooClient, EmailAddress } from "maileroo-sdk";
 import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { contactSchema } from "./schema";
 import { notifySlack } from "@/lib/slack-alert";
+import { trackEvent } from "@/lib/posthog-server";
 
 export type ContactFormState = { error: string } | { success: true } | null;
 
@@ -100,6 +101,7 @@ export async function sendContactMessage(
   const apiKey = process.env.MAILEROO_API_KEY;
   if (!apiKey) {
     await notifySlack("contact-config", "formularul de contact nu e configurat (lipseste MAILEROO_API_KEY)");
+    trackEvent("contact_submitted", { result: "failure" });
     return { error: "A apărut o eroare la trimitere. Te rugăm încearcă din nou sau contactează-ne telefonic." };
   }
 
@@ -113,9 +115,11 @@ export async function sendContactMessage(
       html: renderHtml({ name, email, phone: phone ?? "", message }),
       plain: `Nume: ${name}\nEmail: ${email}\nTelefon: ${phone || "—"}\n\nMesaj:\n${message}`,
     });
+    trackEvent("contact_submitted", { result: "success" });
     return { success: true };
   } catch (err) {
     await notifySlack("contact-failed", `formularul de contact nu a putut trimite emailul (Maileroo: ${err instanceof Error ? err.name : "UNKNOWN"})`);
+    trackEvent("contact_submitted", { result: "failure" });
     return { error: "A apărut o eroare la trimitere. Te rugăm încearcă din nou sau contactează-ne telefonic." };
   }
 }

@@ -10,6 +10,7 @@ import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { logAuthEvent } from "./audit-log";
 import { notifySlack } from "@/lib/slack-alert";
+import { trackEvent } from "@/lib/posthog-server";
 
 export type AdminLoginState = { error: string } | null;
 
@@ -71,6 +72,7 @@ async function attemptAdminLogin(
   }
 
   await createSession("admin", admin.id);
+  trackEvent("login_succeeded", { role: "admin" });
   redirect("/admin");
 }
 

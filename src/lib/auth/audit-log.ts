@@ -3,6 +3,7 @@
 // ulterior. Loghează DOAR IP + rezultat, niciodată parola/token-ul sau ID-ul/emailul introdus
 // (categoria 08 din audit interzice explicit PII/secrete în loguri).
 import { notifySlack } from "@/lib/slack-alert";
+import { trackEvent } from "@/lib/posthog-server";
 
 export function logAuthEvent(
   event: "rate_limited" | "turnstile_failed" | "login_failed",
@@ -12,6 +13,7 @@ export function logAuthEvent(
   console.warn(
     JSON.stringify({ type: "auth_event", event, role, ip, at: new Date().toISOString() })
   );
+  trackEvent("login_failed", { role });
   // Blocare dupa prea multe incercari → Slack (fara IP). Poate fi si wifi-ul comun al seminarului.
   if (event === "rate_limited") {
     void notifySlack(`login-rate-limited-${role}`, `${role === "admin" ? "login admin" : "login portal studenti"}: o adresa IP a fost blocata dupa prea multe incercari gresite`);

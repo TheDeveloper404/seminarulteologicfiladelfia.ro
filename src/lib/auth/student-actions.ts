@@ -10,6 +10,7 @@ import { clearRateLimit, getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { logAuthEvent } from "./audit-log";
 import { notifySlack } from "@/lib/slack-alert";
+import { trackEvent } from "@/lib/posthog-server";
 
 export type StudentLoginState = { error: string } | null;
 
@@ -95,6 +96,7 @@ async function attemptStudentLogin(
   await clearRateLimit(`student-login:${ip}`);
 
   await createSession("student", student.id);
+  trackEvent("login_succeeded", { role: "student" });
   redirect("/portal");
 }
 

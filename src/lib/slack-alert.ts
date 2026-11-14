@@ -1,4 +1,4 @@
-// Alertă pe Slack (botul `detalia`, canalul #seminar-alerte-site) când ceva pică în producție.
+// Alertă pe Slack (botul `detalia`, canalul #seminar-site-cazut-formular-sau-login) când ceva pică în producție.
 // Mesajul nu conține datele vizitatorului: doar ce a picat, codul erorii și ora.
 // Nu aruncă niciodată; fără SLACK_BOT_TOKEN / SLACK_ALERT_CHANNEL nu face nimic (local, teste).
 // Aceeași alertă (cheie) pleacă cel mult o dată la 10 minute, ca o pană să nu inunde canalul.

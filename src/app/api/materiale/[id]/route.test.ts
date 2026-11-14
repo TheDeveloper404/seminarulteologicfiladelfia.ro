@@ -23,6 +23,11 @@ vi.mock("@/lib/course-materials/storage", () => ({
   readCourseMaterialFile: (filePath: string) => readFileMock(filePath),
 }));
 
+const trackEventMock = vi.fn();
+vi.mock("@/lib/posthog-server", () => ({
+  trackEvent: (...args: unknown[]) => trackEventMock(...args),
+}));
+
 const { GET } = await import("./route");
 
 const params = (id: string) => ({ params: Promise.resolve({ id }) });
@@ -32,6 +37,7 @@ describe("GET /api/materiale/[id] — published gate", () => {
     selectMock.mockReset();
     getSessionMock.mockReset();
     readFileMock.mockReset();
+    trackEventMock.mockReset();
     readFileMock.mockResolvedValue(Buffer.from("pdf-bytes"));
   });
 
@@ -40,6 +46,7 @@ describe("GET /api/materiale/[id] — published gate", () => {
     const res = await GET(new Request("http://x"), params("1"));
     expect(res.status).toBe(401);
     expect(selectMock).not.toHaveBeenCalled();
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("404s an unpublished material for a student session (published gate)", async () => {
@@ -48,6 +55,7 @@ describe("GET /api/materiale/[id] — published gate", () => {
     const res = await GET(new Request("http://x"), params("1"));
     expect(res.status).toBe(404);
     expect(readFileMock).not.toHaveBeenCalled();
+    expect(trackEventMock).not.toHaveBeenCalled();
   });
 
   it("serves an unpublished material for an admin session", async () => {
@@ -63,6 +71,8 @@ describe("GET /api/materiale/[id] — published gate", () => {
     selectMock.mockResolvedValue([{ id: 1, published: true, filePath: "x", originalFileName: "x.pdf" }]);
     const res = await GET(new Request("http://x"), params("1"));
     expect(res.status).toBe(200);
+    // material_downloaded fara proprietati — nici ID-ul materialului, nici al studentului.
+    expect(trackEventMock).toHaveBeenCalledWith("material_downloaded");
   });
 
   it("404s on a non-integer id without querying the db", async () => {

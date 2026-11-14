@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { courseMaterials } from "@/db/schema";
 import { getSession } from "@/lib/auth/session";
 import { readCourseMaterialFile } from "@/lib/course-materials/storage";
+import { trackEvent } from "@/lib/posthog-server";
 
 export async function GET(
   _request: Request,
@@ -41,6 +42,7 @@ export async function GET(
   }
 
   const fileBuffer = await readCourseMaterialFile(material.filePath);
+  trackEvent("material_downloaded");
 
   return new NextResponse(new Uint8Array(fileBuffer), {
     headers: {

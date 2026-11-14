@@ -15,3 +15,9 @@ export function getPostHogServer(): PostHog | null {
 
   return client;
 }
+
+// Eveniment anonim de pe server: fara distinctId (posthog-node pune un uuid aleator si nu creeaza
+// persoana), fara geoip. Proprietatile nu contin niciodata nume, email, ID sau IP.
+export function trackEvent(event: string, properties?: Record<string, string>): void {
+  getPostHogServer()?.capture({ event, properties, disableGeoip: true });
+}
