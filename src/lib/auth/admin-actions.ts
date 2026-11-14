@@ -1,6 +1,6 @@
 "use server";
 
-import { redirect } from "next/navigation";
+import { redirect, unstable_rethrow } from "next/navigation";
 import { eq } from "drizzle-orm";
 import bcrypt from "bcryptjs";
 import { db } from "@/db";
@@ -9,10 +9,26 @@ import { createSession, destroySession } from "./session";
 import { getClientIp, isRateLimited } from "@/lib/rate-limit";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { logAuthEvent } from "./audit-log";
+import { notifySlack } from "@/lib/slack-alert";
 
 export type AdminLoginState = { error: string } | null;
 
+// Eroare neasteptata (ex. baza de date cazuta) → alerta pe Slack, apoi aceeasi eroare ca inainte.
+// `unstable_rethrow` lasa sa treaca redirect-ul de dupa login (eroare interna Next, nu o problema).
 export async function loginAdmin(
+  prevState: AdminLoginState,
+  formData: FormData
+): Promise<AdminLoginState> {
+  try {
+    return await attemptAdminLogin(prevState, formData);
+  } catch (err) {
+    unstable_rethrow(err);
+    await notifySlack("login-admin-error", `login admin: eroare de server (${err instanceof Error ? err.name : "UNKNOWN"})`);
+    throw err;
+  }
+}
+
+async function attemptAdminLogin(
   _prevState: AdminLoginState,
   formData: FormData
 ): Promise<AdminLoginState> {
