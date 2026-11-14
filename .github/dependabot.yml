@@ -4,6 +4,8 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
     # "matur" = doar patch/minor primesc PR automat; major (breaking changes) e ignorat aici,
     # verificat manual când chiar e nevoie — evită PR-uri de breaking changes nesupravegheate.
     ignore:
@@ -23,3 +25,5 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 7
