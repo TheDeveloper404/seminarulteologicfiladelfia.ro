@@ -10,21 +10,22 @@ export const profesori: StaffMember[] = [
     tier: 1,
   },
   {
-    // TODO: poză — așteaptă de la Seminar. Deja secretar, fără prefix "Prof.".
+    // Deja secretar, fără prefix "Prof.".
     name: "Daniel Bulancea",
     role: "Secretarul Seminarului",
+    photoUrl: "/images/profesori/bulancea-daniel.jpg",
     tier: 2,
   },
   {
-    // TODO: poză — așteaptă de la Seminar.
     name: "Larisa Bulancea",
     role: "Responsabil Financiar",
+    photoUrl: "/images/profesori/bulancea-larisa.jpg",
     tier: 2,
   },
   {
     name: "Prof. Claudiu Valeriu Todeciu",
     photoUrl: "/images/profesori/todeciu-claudiu-valer.png",
-    tier: 2,
+    tier: 3,
   },
   {
     name: "Prof. Ionel Grecu",
