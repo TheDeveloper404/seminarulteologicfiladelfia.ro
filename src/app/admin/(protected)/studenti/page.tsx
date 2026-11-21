@@ -112,6 +112,7 @@ export default async function StudentsPage({
 
   const studentsWithAttendance = allStudents.map((student) => ({
     ...student,
+    enrolledOn: todaySessionDate(student.createdAt),
     recentAttendance: (recentAttendanceByStudentId.get(student.id) ?? []).slice().reverse(),
   }));
 

@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { sql } from "drizzle-orm";
 import { db } from "@/db";
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { addNewStudentToTuition } from "@/lib/tuition/enroll";
 import { generateUniquePublicId } from "./generate-public-id";
 import { parseRegistryFile, type RowIssue } from "./import";
 import { withMatricolRetry } from "./matricol";
@@ -69,15 +70,21 @@ export async function importStudentsFromRegistry(
       // schemă — nume reale se pot repeta legitim de-a lungul anilor, nu vrem să blocăm asta.
       // Nr. matricol: următorul după cel mai mare, calculat în aceeași instrucțiune; la o
       // coliziune cu o inserare concurentă (UNIQUE) se reia cu numărul următor.
+      // Studentul creat intră la taxe în aceeași tranzacție (src/lib/tuition/enroll.ts).
       const result = await withMatricolRetry(() =>
-        db.execute(sql`
-          INSERT INTO students
-            (public_id, matricol_number, full_name, phone, enrollment_year, study_year, birth_date, birth_locality, birth_county, address, home_church)
-          SELECT ${publicId}, (SELECT COALESCE(MAX(matricol_number), 0) + 1 FROM students), ${row.fullName}, ${row.phone}, ${enrollmentYear}, 1, ${row.birthDate}, ${row.birthLocality}, ${row.birthCounty}, ${row.address}, ${row.homeChurch}
-          WHERE NOT EXISTS (
-            SELECT 1 FROM students WHERE lower(trim(full_name)) = lower(trim(${row.fullName}))
-          )
-        `)
+        db.transaction(async (tx) => {
+          const inserted = await tx.execute<{ id: number }>(sql`
+            INSERT INTO students
+              (public_id, matricol_number, full_name, phone, enrollment_year, study_year, birth_date, birth_locality, birth_county, address, home_church)
+            SELECT ${publicId}, (SELECT COALESCE(MAX(matricol_number), 0) + 1 FROM students), ${row.fullName}, ${row.phone}, ${enrollmentYear}, 1, ${row.birthDate}, ${row.birthLocality}, ${row.birthCounty}, ${row.address}, ${row.homeChurch}
+            WHERE NOT EXISTS (
+              SELECT 1 FROM students WHERE lower(trim(full_name)) = lower(trim(${row.fullName}))
+            )
+            RETURNING id
+          `);
+          if (inserted.rows.length > 0) await addNewStudentToTuition(tx, inserted.rows[0].id);
+          return inserted;
+        })
       );
 
       if (result.rowCount === 0) {

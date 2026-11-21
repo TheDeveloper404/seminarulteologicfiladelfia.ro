@@ -94,7 +94,7 @@ describe("getAdminTuition", () => {
     expect(monthPredicate.params).toEqual(["2026-10-01"]);
     expect(mocks.limit).toHaveBeenCalledWith(1);
     expect(mocks.select).toHaveBeenLastCalledWith({
-      id: studentTuition.id, fullName: students.fullName, paid: studentTuition.paid,
+      id: studentTuition.id, fullName: students.fullName, createdAt: students.createdAt, paid: studentTuition.paid,
     });
     expect(mocks.join.mock.calls[0][0]).toBe(students);
     expect(query(mocks.join.mock.calls[0][1]).sql).toBe('"student_tuition"."student_id" = "students"."id"');

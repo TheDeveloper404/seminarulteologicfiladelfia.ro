@@ -51,7 +51,12 @@ export default async function TuitionPage({ searchParams }: {
               {rows.map((row, index) => (
                 <tr key={row.id} className="border-t">
                   <td className="p-4 text-right">{index + 1}</td>
-                  <td className="p-4">{row.fullName}</td>
+                  <td className="p-4">
+                    {row.fullName}
+                    <span className="block text-sm text-muted-foreground">
+                      Înscris în portal: {row.createdAt.toLocaleDateString("ro-RO", { timeZone: "Europe/Bucharest" })}
+                    </span>
+                  </td>
                   <td className="p-4 text-right whitespace-nowrap">{selectedMonth.amount} lei</td>
                   <td className="p-4"><Badge variant={row.paid ? "default" : "secondary"}>{row.paid ? "Plătit" : "Neplătit"}</Badge></td>
                   <td className="p-4 whitespace-nowrap">

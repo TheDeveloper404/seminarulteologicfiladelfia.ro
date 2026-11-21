@@ -14,6 +14,8 @@ type AttendanceStudent = {
   id: number;
   fullName: string;
   studyYear: number;
+  // Ziua adăugării în portal (YYYY-MM-DD, fusul orar al seminarului).
+  enrolledOn: string;
   recentAttendance: { sessionDate: string; present: boolean }[];
 };
 
@@ -30,6 +32,10 @@ const dateFormatter = new Intl.DateTimeFormat("ro-RO", {
 
 function formatLongDate(sessionDate: string): string {
   return dateFormatter.format(new Date(`${sessionDate}T00:00:00Z`));
+}
+
+function formatShortDate(value: string): string {
+  return new Date(`${value}T00:00:00Z`).toLocaleDateString("ro-RO", { timeZone: "UTC" });
 }
 
 export function AttendanceSheet({
@@ -200,7 +206,13 @@ export function AttendanceSheet({
                 return (
                   <tr key={student.id} className="border-t">
                     <td className="p-4 text-right">{index + 1}</td>
-                    <td className="p-4">{student.fullName}</td>
+                    <td className="p-4">
+                      {student.fullName}
+                      <span className="block text-sm text-muted-foreground">
+                        Înscris în portal: {formatShortDate(student.enrolledOn)}
+                        {sessionDate < student.enrolledOn ? " · înscris ulterior acestei date" : null}
+                      </span>
+                    </td>
                     <td className="p-4 whitespace-nowrap text-muted-foreground">
                       {student.studyYear === 2 ? "Anul II" : "Anul I"}
                     </td>

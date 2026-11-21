@@ -13,6 +13,7 @@ export async function getAdminTuition(month: string) {
     ? await db.select({
         id: studentTuition.id,
         fullName: students.fullName,
+        createdAt: students.createdAt,
         paid: studentTuition.paid,
       }).from(studentTuition)
         .innerJoin(students, eq(studentTuition.studentId, students.id))

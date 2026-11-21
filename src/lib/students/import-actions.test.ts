@@ -17,7 +17,14 @@ vi.mock("./import", () => ({
 
 const executeMock = vi.fn();
 vi.mock("@/db", () => ({
-  db: { execute: (query: unknown) => executeMock(query) },
+  db: {
+    transaction: (fn: (tx: unknown) => unknown) => fn({ execute: (query: unknown) => executeMock(query) }),
+  },
+}));
+
+const addNewStudentToTuitionMock = vi.fn();
+vi.mock("@/lib/tuition/enroll", () => ({
+  addNewStudentToTuition: (_tx: unknown, studentId: number) => addNewStudentToTuitionMock(studentId),
 }));
 
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
@@ -51,12 +58,13 @@ describe("importStudentsFromRegistry — row-level resilience (code review 2026-
     generatePublicIdMock.mockReset();
     parseRegistryFileMock.mockReset();
     executeMock.mockReset();
+    addNewStudentToTuitionMock.mockReset();
   });
 
   it("reports a row as a duplicate (not created) when the atomic INSERT...WHERE NOT EXISTS affects 0 rows", async () => {
     parseRegistryFileMock.mockResolvedValue({ rows: [row(2, "Popescu Ion")], issues: [] });
     generatePublicIdMock.mockResolvedValue("AB12CD");
-    executeMock.mockResolvedValue({ rowCount: 0 });
+    executeMock.mockResolvedValue({ rowCount: 0, rows: [] });
 
     const result = await importStudentsFromRegistry(null, formDataWith("registru.xlsx"));
 
@@ -69,16 +77,28 @@ describe("importStudentsFromRegistry — row-level resilience (code review 2026-
         },
       ],
     });
+    expect(addNewStudentToTuitionMock).not.toHaveBeenCalled();
   });
 
   it("counts a row as created when the insert affects 1 row", async () => {
     parseRegistryFileMock.mockResolvedValue({ rows: [row(2, "Popescu Ion")], issues: [] });
     generatePublicIdMock.mockResolvedValue("AB12CD");
-    executeMock.mockResolvedValue({ rowCount: 1 });
+    executeMock.mockResolvedValue({ rowCount: 1, rows: [{ id: 7 }] });
 
     const result = await importStudentsFromRegistry(null, formDataWith("registru.xlsx"));
 
     expect(result).toEqual({ created: 1, skipped: [] });
+  });
+
+  // "o data adaugat un student, egal in ce luna, el trebuie sa apara" la taxe (Liviu, 2026-11-21)
+  it("adds the newly created student to tuition, inside the same transaction as the insert", async () => {
+    parseRegistryFileMock.mockResolvedValue({ rows: [row(2, "Popescu Ion")], issues: [] });
+    generatePublicIdMock.mockResolvedValue("AB12CD");
+    executeMock.mockResolvedValue({ rowCount: 1, rows: [{ id: 7 }] });
+
+    await importStudentsFromRegistry(null, formDataWith("registru.xlsx"));
+
+    expect(addNewStudentToTuitionMock).toHaveBeenCalledExactlyOnceWith(7);
   });
 
   it("does not stop the batch when one row's insert throws — the rest of the file still gets processed", async () => {
@@ -89,7 +109,7 @@ describe("importStudentsFromRegistry — row-level resilience (code review 2026-
     generatePublicIdMock.mockResolvedValue("AB12CD");
     executeMock
       .mockRejectedValueOnce(new Error("connection reset"))
-      .mockResolvedValueOnce({ rowCount: 1 });
+      .mockResolvedValueOnce({ rowCount: 1, rows: [{ id: 8 }] });
 
     const result = await importStudentsFromRegistry(null, formDataWith("registru.xlsx"));
 

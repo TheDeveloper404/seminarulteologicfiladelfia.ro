@@ -13,6 +13,7 @@ vi.mock("@/lib/auth/require-student", () => ({ requireStudent: async () => stude
 
 import { createTuitionMonth, setTuitionPaid } from "./actions";
 import { getAdminTuition, getStudentTuition } from "./queries";
+import { addNewStudentToTuition } from "./enroll";
 
 const connectionString = process.env.TUITION_TEST_DATABASE_URL;
 const schema = `tuition_test_${process.pid}_${Date.now()}`;
@@ -28,7 +29,7 @@ describe.skipIf(!connectionString)("tuition PostgreSQL integration", () => {
     setupPool = new Pool({ connectionString });
     await setupPool.query(`CREATE SCHEMA "${schema}"`);
     pool = new Pool({ connectionString, options: `-c search_path=${schema}` });
-    await pool.query('CREATE TABLE students (id serial PRIMARY KEY, full_name varchar(255) NOT NULL, graduated boolean NOT NULL DEFAULT false)');
+    await pool.query('CREATE TABLE students (id serial PRIMARY KEY, full_name varchar(255) NOT NULL, graduated boolean NOT NULL DEFAULT false, created_at timestamp NOT NULL DEFAULT now())');
     const migration = await readFile("drizzle/0010_tuition.sql", "utf8");
     await pool.query(migration.replaceAll('"public".', `"${schema}".`));
     state.db = drizzle(pool);
@@ -53,7 +54,7 @@ describe.skipIf(!connectionString)("tuition PostgreSQL integration", () => {
     return data;
   }
 
-  // "fiecare luna include studentii neabsolventi existenti la creare, iar inscrierile ulterioare nu modifica lunile deja create"
+  // "fiecare luna include studentii neabsolventi existenti la creare" (un student introdus direct in DB, nu prin portal, nu modifica lunile deja create)
   // "adminul gestioneaza taxele, iar studentul vede doar situatia proprie"
   it("persists the snapshot, supports corrections and isolates student history", async () => {
     await expect(createTuitionMonth(null, form("2026-10"))).rejects.toThrow("test redirect");
@@ -106,5 +107,22 @@ describe.skipIf(!connectionString)("tuition PostgreSQL integration", () => {
       await pool.query("DROP TRIGGER reject_tuition ON student_tuition");
       await pool.query("DROP FUNCTION reject_tuition()");
     }
+  });
+
+  // "o data adaugat un student, egal in ce luna, el trebuie sa apara" la taxe — in luna curenta si
+  // in lunile viitoare deja create, nu in lunile anterioare inscrierii (Liviu, 2026-11-21)
+  it("adds a new student to the current and future months only", async () => {
+    await pool.query("INSERT INTO tuition_months (month, amount) VALUES ('2026-10-01', 60), ('2026-11-01', 60), ('2026-12-01', 60)");
+    await pool.query("INSERT INTO students (full_name) VALUES ('New student')");
+    vi.useFakeTimers({ toFake: ["Date"] });
+    // 30 nov 23:30 UTC = 1 dec 01:30 la București — luna curentă e decembrie, nu noiembrie.
+    vi.setSystemTime(new Date("2026-11-30T23:30:00Z"));
+    try {
+      await addNewStudentToTuition(state.db!, 4);
+    } finally {
+      vi.useRealTimers();
+    }
+    studentSession.studentId = 4;
+    expect(await getStudentTuition()).toEqual([{ month: "2026-12-01", amount: 60, paid: false }]);
   });
 });

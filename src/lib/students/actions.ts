@@ -7,6 +7,7 @@ import { db } from "@/db";
 import { graduationDocuments, sessions, students } from "@/db/schema";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { deleteGeneratedDocumentFile } from "@/lib/documents/storage";
+import { addNewStudentToTuition } from "@/lib/tuition/enroll";
 import { generateUniquePublicId } from "./generate-public-id";
 import {
   isMatricolConflict,
@@ -40,14 +41,17 @@ export async function createStudent(
 
   // Numărul matricol se atribuie automat: următorul după cel mai mare existent.
   await withMatricolRetry(() =>
-    db.insert(students).values({
-      publicId,
-      matricolNumber: NEXT_MATRICOL_SQL,
-      fullName,
-      phone: phone || null,
-      email: email || null,
-      enrollmentYear,
-      studyYear,
+    db.transaction(async (tx) => {
+      const [created] = await tx.insert(students).values({
+        publicId,
+        matricolNumber: NEXT_MATRICOL_SQL,
+        fullName,
+        phone: phone || null,
+        email: email || null,
+        enrollmentYear,
+        studyYear,
+      }).returning({ id: students.id });
+      await addNewStudentToTuition(tx, created.id);
     })
   );
 
