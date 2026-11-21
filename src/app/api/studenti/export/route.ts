@@ -4,6 +4,7 @@ import { asc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { students } from "@/db/schema";
 import { getSession } from "@/lib/auth/session";
+import { todaySessionDate } from "@/lib/attendance/session-date";
 
 export async function GET() {
   const adminSession = await getSession("admin");
@@ -25,12 +26,17 @@ export async function GET() {
     const workbook = new ExcelJS.Workbook();
     const sheet = workbook.addWorksheet("Studenți");
     sheet.columns = [
-      { header: "Nr. crt.", key: "number", width: 12 },
-      { header: "Nume", key: "fullName", width: 40 },
-      { header: "Anul înscrierii", key: "enrollmentYear", width: 20 },
-      { header: "Anul curent de studiu", key: "studyYear", width: 24 },
+      { key: "number", width: 12 },
+      { key: "fullName", width: 40 },
+      { key: "enrollmentYear", width: 20 },
+      { key: "studyYear", width: 24 },
     ];
-    sheet.getRow(1).font = { bold: true };
+    // Titlu + data exportului (fusul orar al seminarului) deasupra tabelului.
+    const [year, month, day] = todaySessionDate().split("-");
+    sheet.addRow(["Tabel prezență"]).font = { bold: true, size: 14 };
+    sheet.addRow([`Data: ${day}.${month}.${year}`]);
+    sheet.addRow([]);
+    sheet.addRow(["Nr. crt.", "Nume", "Anul înscrierii", "Anul curent de studiu"]).font = { bold: true };
     sheet.addRows(rows.map((student, index) => ({ number: index + 1, ...student })));
 
     const buffer = await workbook.xlsx.writeBuffer();
